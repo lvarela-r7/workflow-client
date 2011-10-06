@@ -564,7 +564,7 @@ module NexposeAPI
 	#-------------------------------------------------------------------------
 	def create_silo_profile silo_profile_config, permissions
 		xml = make_xml 'SiloProfileCreateRequest'
-		xml.add_element make_xml('SiloProfileConfig', silo_profile_config, '', false)
+		spc_xml = make_xml('SiloProfileConfig', silo_profile_config, '', false)
 
 		# Add the permissions
 		if permissions['global_report_templates']
@@ -572,7 +572,7 @@ module NexposeAPI
 			permissions['global_report_templates'].each do |name|
 				grt_xml.add_element make_xml('GlobalReportTemplate', {'name' => name}, '', false)
 			end
-			xml.add_element grt_xml
+			spc_xml.add_element grt_xml
 		end
 
 		if permissions['global_scan_engines']
@@ -580,7 +580,7 @@ module NexposeAPI
 			permissions['global_scan_engines'].each do |name|
 				gse_xml.add_element make_xml('GlobalScanEngine', {'name' => name}, '', false)
 			end
-			xml.add_element gse_xml
+			spc_xml.add_element gse_xml
 		end
 
 		if permissions['global_scan_templates']
@@ -588,7 +588,7 @@ module NexposeAPI
 			permissions['global_scan_templates'].each do |name|
 				gst_xml.add_element make_xml('GlobalScanTemplate', {'name' => name}, '', false)
 			end
-			xml.add_element gst_xml
+			spc_xml.add_element gst_xml
 		end
 
 		if permissions['licensed_modules']
@@ -596,7 +596,7 @@ module NexposeAPI
 			permissions['licensed_modules'].each do |name|
 				lm_xml.add_element make_xml('LicensedModule', {'name' => name}, '', false)
 			end
-			xml.add_element lm_xml
+			spc_xml.add_element lm_xml
 		end
 
 		if permissions['restricted_report_formats']
@@ -604,7 +604,7 @@ module NexposeAPI
 			permissions['restricted_report_formats'].each do |name|
 				rrf_xml.add_element make_xml('RestrictedReportFormat', {'name' => name}, '', false)
 			end
-			xml.add_element rrf_xml
+			spc_xml.add_element rrf_xml
 		end
 
 		if permissions['restricted_report_sections']
@@ -612,9 +612,10 @@ module NexposeAPI
 			permissions['restricted_report_sections'].each do |name|
 				rrs_xml.add_element make_xml('RestrictedReportSection', {'name' => name}, '', false)
 			end
-			xml.add_element rrs_xml
+			spc_xml.add_element rrs_xml
 		end
 
+		xml.add_element spc_xml
 		r = execute xml, '1.2'
 		r.success
 	end
@@ -643,7 +644,7 @@ module NexposeAPI
 
 		# Add Organization info
 		if silo_config['organization']
-			org_xml = make_xml 'Organization', silo_config['organization'], '', false
+			org_xml = make_xml 'Organization', {}, '', false
 			silo_config['organization'].keys.each do |key|
 				if not 'address'.eql? key
 					org_xml.attributes[key] = silo_config['organization'][key]
@@ -659,17 +660,20 @@ module NexposeAPI
 		if silo_config['merchant']
 		 	merchant_xml = make_xml 'Merchant', {}, '', false
 
-			# add attributes only
 			silo_config['merchant'].keys.each do |key|
 				if not 'dba'.eql? key and not 'other_industries'.eql? key and not 'qsa'.eql? key and not 'address'.eql? key
-					merchant_xml.attributes[key] = silo_config[key]
+					merchant_xml.attributes[key] = silo_config['merchant'][key]
 				end
 			end
 
-			#Now add the complex data types
-			if silo_config['merchant']['dba']
-				dba_xml = make_xml 'DBAs', {}, '', false
-				silo_config['merchant']['dbas'].each do |name|
+			 # Add the merchant address
+			 merchant_address_xml = make_xml 'Address', silo_config['merchant']['address'], '', false
+			 merchant_xml.add_element merchant_address_xml
+
+			 #Now add the complex data types
+			 if silo_config['merchant']['dba']
+				 dba_xml = make_xml 'DBAs', {}, '', false
+				 silo_config['merchant']['dba'].each do |name|
 					dba_xml.add_element make_xml('DBA', {'name' => name}, '', false)
 				end
 				merchant_xml.add_element dba_xml

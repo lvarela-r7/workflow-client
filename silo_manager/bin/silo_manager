@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# encoding: utf-8
 # TODO: Fix multi-byte problem (copied and pasted from PDF)
 
 require 'rubygems'
@@ -32,9 +31,9 @@ SILO_CONFIG_ATTRS = ['id:string:required', 'name:string:required', 'silo-profile
 'description:string:optional', 'max-assets:integer:required', 'max-hosted-assets:integer:required',
 'max-users:integer:required']
 
-MERCHANT_ATTRS = ['acquirer-relationship:boolean:required', 'agent‐relationship:boolean:required',
-'payment-application:string:required', 'payment‐version:string:required', 'ecommerce:boolean:required',
-'grocery:boolean:required', 'mail-order:boolean:required', 'petroleum:boolean:required', 'retail:boolean:required',
+MERCHANT_ATTRS = ['acquirer-relationship:boolean:required', 'agent-relationship:boolean:required',
+'payment-application:string:required', 'payment-version:string:required', 'ecommerce:boolean:required',
+'grocery:boolean:required', 'mail-order:boolean:required', 'petroleum:boolean:required', 'retail:boolean:required',
 'telecommunication:boolean:required', 'travel:boolean:required', 'url:string:required', 'company:string:required',
 'email-address:string:optional', 'first-name:string:required', 'last-name:string:required', 'phone-number:string:required',
 'title:string:optional']
@@ -176,7 +175,7 @@ def get_value_array integer=false, restricted_values=[]
 				   end
 				end
 
-			   output << integer ? part.to_i : part.to_s
+			   output << (integer ? part.to_i : part.to_s)
 			end
 			success = true
 		rescue Exception
