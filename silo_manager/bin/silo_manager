@@ -9,7 +9,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../lib/options'))
 # Multi-Tenant User Attributes #
 ################################
 MTU_ATTRS = ['authsrcid:integer:required', 'user-name:string:required',
-'full-name:string:required', 'email:string:optional', 'password:string:optional', 'enabled:boolean:required',
+'full-name:string:required', 'email:string:optional', 'password:string:required', 'enabled:boolean:required',
 'superuser:boolean:required']
 
 SILO_ACCESS_ATTRS = ['all-groups:boolean:required', 'all-sites:boolean:required', 'default-silo:boolean:required',
@@ -49,20 +49,27 @@ ORG_ATTRS = ['url:string:required', 'company:string:required', 'email-address:st
 
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
-def get_integer_input name, return_main=false
+def get_integer_input name, return_main=false, required
 	integer_inputed = false
 	while !integer_inputed
 		puts "Enter an integer value for #{name}:"
 		begin
 			input = gets.chomp
 			if return_main and input =~ /:main/i
+				return :main
+			end
+
+			if input.empty? and required
+				puts 'Input is required'
+				next
+			elsif input.empty?
 				return nil
 			end
 
 			begin
 				input = Integer input
 				integer_inputed = true
-			rescue Exception => e
+			rescue Exception
 				puts "Invalid input"
 			end
 		end
@@ -72,24 +79,42 @@ end
 
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
-def get_string_input name, return_main=false
-	puts "Enter an string value for #{name}:"
-	input = gets.chomp
-	if return_main and input =~ /:main/i
-		return nil
+def get_string_input name, return_main=false, required
+	success = false
+	while !success
+		puts "Enter an string value for #{name}:"
+		input = gets.chomp
+		if return_main and input =~ /:main/i
+			return :main
+		end
+
+		if input.empty? and required
+			puts 'Input is required'
+			next
+		elsif input.empty?
+			return nil
+		end
+		success = true
 	end
 	input
 end
 
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
-def get_boolean_input name='', return_main=false
+def get_boolean_input name='', return_main=false, required
 	boolean_inputed = false
 	while !boolean_inputed
 		puts "Enter a boolean value (true/1 or false/0) for #{name}:"
 		begin
 			input = gets.chomp
 			if return_main and input =~ /:main/i
+				return :main
+			end
+
+			if input.empty? and required
+				puts 'Input is required'
+				next
+			elsif input.empty?
 				return nil
 			end
 
@@ -118,17 +143,21 @@ def process_attrs attrs, title
 	attrs.each do |attr|
 		parts = attr.split ":"
 		name = parts[0] + " (#{parts[2]})"
+		required = ('required'.eql? parts[2])
 		case parts[1]
 			when /boolean/
-				input = get_boolean_input name, true
+				input = get_boolean_input name, true, required
 			when /integer/
-				input = get_integer_input name, true
+				input = get_integer_input name, true, required
 			when /string/
-				input = get_string_input name, true
+				input = get_string_input name, true, required
 		end
 
-		if input.nil?
+		if input == :main
 			return nil
+		elsif input.nil?
+			# don't add the entry
+			next
 		else
 			input_hash[parts[0]] = input
 		end
