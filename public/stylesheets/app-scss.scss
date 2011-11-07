@@ -1,0 +1,936 @@
+@import "formtastic_base.sass";
+@import "css3-mixins";
+
+$main-background-color: #F4F4F4;
+$main-content-border-color: #B9B9B9;
+
+#modules-table tr td a {
+	width: 20px;
+	visibility: hidden;
+}
+
+#modules-table tr:hover td a {
+	visibility: visible;
+}
+
+span.description {
+	font-size: 80%;
+	font-style: italic;
+	color: #999999;
+}
+
+// **************************************
+// * APP-WIDE
+// **************************************
+
+.config_headings h1 {
+	text-decoration: underline
+}
+
+.dialog {
+	display: none;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+.invisible {
+	display: none;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.tag {
+	color: #fff;
+	background-color: #000;
+	@include border-radius(5px);
+	display: inline-block;
+	padding: 0px 5px;
+
+	a {
+		color: #fff;
+	}
+}
+
+dl.module-form {
+	dt {float: left; clear: left; width: 25%; padding: 5px; text-align: right; font-weight: bold; color: #666699;}
+	dd {text-align: left; padding: 5px;}
+}
+
+
+// **************************************
+// * DIALOGS
+// **************************************
+
+.ui-dialog-content::-webkit-scrollbar {
+    width: 12px;
+}
+
+.ui-dialog-content::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.ui-dialog-content::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+// **************************************
+// * HEADER
+// **************************************
+
+#header {
+	$blue-header-background-color: #095DD0;
+	$dropdown-menu-background-color: #f9f9f9;
+	$dropdown-menu-text-color: #277da9;
+	$dropdown-menu-border-color: #3aadf9;
+
+	background: #EFEFEF url(../images/header_background.png) -530px 4px repeat-x;
+	height: 62px;
+	border-bottom: 1px solid #999999;
+	min-width: 1000px;
+
+	#header-top-border {
+		background: $blue-header-background-color url(../images/header_border.png) bottom center repeat-x;
+		height: 4px;
+		border-bottom: 1px solid $blue-header-background-color;
+		position: absolute;
+		top: 0px;
+		width: 100%;
+
+		#symbol {
+		    padding-left: 75px;
+        	padding-right: 30px;
+			background: url("../images/workflow_engine.png");
+        	background-repeat: no-repeat;
+        	background-position: top left;
+        	height: 62px;
+			min-width: 1000px;
+			margin-top: 6px;
+
+			h1 {
+				font-size: 28px;
+        		color: #000;
+        		margin: 10px 0;
+			}
+
+			h2 {
+                margin: 10px 0;
+        		color: #888;
+        		font-weight: normal;
+        		font-size: 16px;
+			}
+		}
+	}
+
+	img {
+		margin: 15px 0 0 15px;
+	}
+
+	#top-menu {
+		text-align: right;
+		font-size: 11px;
+		background: $blue-header-background-color url(../images/menu_background.png) top center repeat-x;
+		border-left: 1px solid $blue-header-background-color;
+		border-right: 1px solid $blue-header-background-color;
+		border-bottom: 1px solid $blue-header-background-color;
+		@include bottom-border-radius(10px);
+		@include box-shadow(2px, 2px, 3px, #8f8d8d);
+		height: 33px;
+		padding: 0px 15px 0px 15px;
+		position: absolute;
+		top: 0px;
+		right: 15px;
+
+		a {
+			color: #fff;
+			padding: 0 6px;
+		}
+
+		span.route_notice {
+			color: #333;
+			padding: 6px 6px;
+		}
+
+		ul.drop-menu {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+
+			li {
+				float: left;
+				text-align: left;
+				position: relative;
+				padding: 7px 15px 0px 2px;
+				height: 33px;
+
+				a#support-link {
+					background-image: url(../icons/help.png);
+					background-position: 0px -1px;
+					background-repeat: no-repeat;
+					padding-left: 23px;
+					margin-left: 10px;
+					width: 120px;
+				}
+
+				&.menu {
+					min-width: 140px;
+					border-left: 1px solid transparent;
+					border-right: 1px solid transparent;
+
+					&:hover {
+						background-color: $dropdown-menu-background-color;
+						border-left: 1px solid $dropdown-menu-border-color;
+						border-right: 1px solid $dropdown-menu-border-color;
+						//@include opacity(0.9);
+						a { color: $dropdown-menu-text-color; }
+
+						ul.sub-menu {
+							display: block;
+						}
+					}
+
+					a.menu-title {
+						font-weight: bold;
+						display: inline-block;
+						width: 100%;
+						padding-left: 26px;
+						margin-right: 10px;
+
+						&:hover {
+							text-decoration: none;
+						}
+
+						&#project-menu {
+							background-image: url(../icons/silky/folder_table.png);
+							background-position: 3px 1px;
+							background-repeat: no-repeat;
+						}
+
+						&#account-menu {
+							background-image: url(../icons/silky/user.png);
+							background-position: 3px 1px;
+							background-repeat: no-repeat;
+						}
+
+						&#admin-menu {
+							background-image: url(../icons/admin.png);
+							background-position: 3px 1px;
+							background-repeat: no-repeat;
+						}
+					}
+
+					small {
+						float: right;
+						margin-right: 18px;
+					}
+
+					ul.sub-menu {
+						background-color: $dropdown-menu-background-color;
+						@include bottom-border-radius;
+						@include box-shadow(2px, 2px, 3px, #8f8d8d);
+						//@include opacity(0.9);
+						display: none;
+						margin: 0px;
+						margin-right: 10px;
+						padding: 0px;
+						list-style: none;
+						position: absolute;
+						width: 100%;
+						top: 33px;
+						left: -1px;
+						z-index: 10000;
+						border-left: 1px solid $dropdown-menu-border-color;
+						border-right: 1px solid $dropdown-menu-border-color;
+						border-bottom: 1px solid $dropdown-menu-border-color;
+
+
+						li {
+							a {
+								color: $dropdown-menu-text-color;
+								width: 100%;
+								height: 100%;
+								display: inline-block;
+								padding: 10px 0px 10px 29px;
+								&:hover {
+									text-decoration: none;
+								}
+							}
+
+							&:hover{
+								background-color: #DCF7FD;
+							}
+
+							&.divider {
+								width: 120px;
+								border: 1px solid black;
+								height: 0px;
+								padding: 0px;
+								margin: 10px 0px 10px 10px;
+							}
+
+							text-align: left;
+							clear: both;
+							width: 100%;
+							padding: 0px;
+							border-right: 2px solid transparent;
+
+							&:last-child {
+								margin-bottom: 10px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+}
+
+// **************************************
+// * LIST TABLES
+// **************************************
+
+$control-bar-separator-border-style: (3px solid #E8E8E8);
+$control-bar-separator-height: 22px;
+
+@mixin list-table-cap {
+	$border-color: #dddddd;
+	border {
+		right:  1px solid $border-color;
+		left:   1px solid $border-color;
+		bottom: 1px solid $border-color;
+	}
+	padding: 2px 8px;
+	background: url(../images/th.png) left top repeat-x;
+	font-size: 11px;
+	color: #333;
+	font-weight: bold;
+}
+
+.list-table-header {
+	@include list-table-cap;
+}
+
+.list-table-footer {
+	@include list-table-cap;
+}
+
+table.list {
+	td.actions {
+		vertical-align: middle;
+	}
+}
+
+.dataTables_filter {
+	padding: 0px;
+	width: auto !important;
+
+	input {
+		background-image: url(../icons/search.png);
+		background-position: 160px 4px;
+		background-repeat: no-repeat;
+		border: 1px solid $main-content-border-color;
+		height: 18px;
+		padding-left: 5px;
+		width: 170px;
+	}
+}
+
+.control-bar {
+	.dataTables_filter {
+		padding: 5px 15px 5px 25px;
+		border-left: $control-bar-separator-border-style;
+		height: $control-bar-separator-height;
+	}
+}
+
+.control-bar-items {
+	display: none;
+}
+
+.control-bar {
+	@include linear-gradient(#ffffff, #e9fafe);
+	border: 1px solid #a2e1ff;
+	@include border-radius(5px);
+	padding: 5px 5px 0px 5px;
+	margin-bottom: 10px;
+	height: 37px;
+
+	span.button {
+		display: inline-block;
+		padding: 5px;
+		border: 1px solid transparent;
+		font-weight: normal;
+		@include border-radius(5px);
+
+		&.disabled {
+			@include opacity(0.5);
+
+			&:hover {
+				background: none;
+				border: 1px solid transparent;
+				cursor: default;
+
+				a {
+					cursor: default;
+				}
+
+				input {
+					cursor: default;
+				}
+			}
+		}
+
+		&:hover {
+			@include linear-gradient(#fffae4, #ffe372, '../icons/linkBtn.png');
+			border: 1px solid #ffcc00;
+			cursor: pointer;
+		}
+
+		a, input {
+			background-image: url('../icons/linkBtn.png');
+			padding: 1px 10px 1px 28px;
+			background-color: none;
+			background-repeat: no-repeat;
+			font-family: arial, helvetica, sans-serif;
+			font-size: 11px;
+			color: #333;
+			display: block;
+			white-space: nowrap;
+			width: auto;
+			overflow: visible;
+			float: left;
+			height: 20px;
+			border: 0px solid #FFFFFF; /* necessary for background img in IE7 */
+		}
+
+		a {
+			height: 18px;
+
+			&:hover {
+				text-decoration: none;
+			}
+		}
+
+		/* BUTTON IMAGES */
+
+		a {
+			&.new {
+				background-position: 0px -401px;
+			}
+
+			&.scan {
+				background-position: 0 0px;
+			}
+
+			&.show {
+				background-position: 0 -957px;
+			}
+
+			&.edit {
+				background-position: 0 -280px;
+			}
+
+			&.import {
+				background-position: 0 -40px;
+			}
+
+			&.nexpose {
+				background-position: 0 -80px;
+			}
+
+			&.new-vuln {
+				background-image: url(../icons/silky/bug_add.png);
+				background-position: 3px 2px;
+			}
+
+			&.webscan {
+				background-position: 0 -841px;
+			}
+
+			&.brute {
+				background-position: 0 -121px;
+			}
+
+			&.exploit {
+				background-position: 0 -160px;
+			}
+
+			&.tag { 
+				background: url(../images/tags.png) 9px no-repeat;
+			 }
+		}
+
+		input {
+			&.delete {
+				background-position: 0 -321px;
+			}
+		}
+
+		input {
+			padding: 2px 10px 2px 28px;
+			background-color: transparent;
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+	}
+
+	.separator {
+		border-right: $control-bar-separator-border-style;
+		display: inline-block;
+		padding-right: 10px;
+		margin-right: 10px;
+		height: $control-bar-separator-height;
+		padding-bottom: 10px;
+	}
+}
+
+// **************************************
+// * BUTTONS
+// **************************************
+
+.show-advanced-controls {
+	background-image: url(../icons/silky/arrow_down.png);
+	background-position: 3px 2px;
+}
+
+.hide-advanced-controls {
+	background-image: url(../icons/silky/arrow_up.png);
+	background-position: 3px 2px;
+}
+
+// **************************************
+// * HOSTS
+// **************************************
+
+$row-highlight-color-light: #EAEBFF;
+$row-highlight-color-dark:  #D3D6FF;
+
+table#hosts-table {
+	tr.odd:hover {
+		background-color: $row-highlight-color-light;
+	}
+
+	tr.even:hover {
+		background-color: $row-highlight-color-dark;
+	}
+
+	td:last-child {
+		width: 60px;
+		text-align: center;
+		font-weight: bold;
+		@include text-shadow(2px, 2px, 2px, #787878);
+	}
+}
+
+#hosts-table-wrapper {
+	padding-top: 3px;
+
+	// keep the control bar from collapsing
+	.control-bar {
+		min-width: 1230px;
+	}
+}
+
+// keep the layout at least as wide as the control bar
+body.hosts#index {
+	min-width: 1300px;
+}
+
+img.tags-icon {
+	margin-bottom: -2px;
+	margin-left: 3px;
+
+	&:hover {
+		cursor: pointer;
+	}
+}
+
+.tags-hover {
+	display: none;
+	position: absolute;
+	background-color: #fff;
+	width: 130px;
+	height: auto;
+	padding: 10px;
+	@include border-radius(10px);
+	@include box-shadow(0px, 0px, 5px, #686868);
+	z-index: 1000;
+
+	.tag {
+		margin: 3px;
+	}
+
+	img.tags-hover-triangle {
+		position: absolute;
+		top: 20px;
+		left: -17px;
+		height: 20px;
+		width: 18px;
+		z-index: 999;
+	}
+}
+
+// **************************************
+// * FORMS
+// **************************************
+
+.formtastic {
+	@include float-form;
+
+	#errorExplanation {
+		width: 95%;
+		margin: 0 auto;
+	}
+
+	.inline-help {
+		@include box-shadow(4px, 4px, 5px, #303030);
+		display: none;
+		position: absolute;
+		@include border-radius(10px);
+		background-color: #EAEBFF;
+		padding: 10px 30px 10px 30px;
+		width: 50%;
+		margin: 0 auto;
+		margin-bottom: 15px;
+		margin-top: -5px;
+
+		h3 {
+			margin-top: 0px;
+			@include text-shadow;
+			color: #000;
+			border-bottom: 2px dotted black;
+		}
+
+		ul {
+			list-style: disc inside none;
+			padding-left: 10px;
+			margin-top: 5px;
+
+			li {
+				display: list-item;
+				margin-bottom: 3px;
+			}
+		}
+	}
+
+	fieldset {
+		@include box-shadow;
+		width: 95%;
+		margin: 0 auto;
+		margin-top: 15px;
+		margin-bottom: 10px;
+
+		legend {
+			font-size: 16px;
+			font-weight: bold;
+			@include text-shadow;
+			color: #000;
+		}
+	}
+
+	fieldset.advanced {
+		display: none;
+	}
+
+	fieldset.buttons {
+		@include box-shadow(0,0,0,0,0);
+		background-color: $main-background-color;
+		border: 0px;
+		border-top: 3px solid #BBB;
+		width: 75%;
+		margin-top: 15px;
+
+		ol {
+			margin-top: 8px;
+			width: 100%;
+
+			li {
+				float: right;
+			}
+		}
+	}
+
+	li {
+		margin-bottom: 15px;
+
+		a.help {
+			position: absolute;
+		}
+
+		label {
+			padding-left: 20px;
+			font-weight: bold;
+		}
+	}
+}
+
+span.btn {
+	@include border-radius(3px);
+}
+
+// **************************************
+// * TAGS
+// **************************************
+
+.formtastic.tag {
+	display: block;
+	background: none;
+	border: none;
+	color: black;
+
+	label {float: left; clear: left; width: 25%; padding: 5px; text-align: right; font-weight: bold; color: #666699;}
+	input {text-align: left; padding: 5px;}
+
+	textarea {
+		height: 100px;
+	}
+}
+
+// **************************************
+// * TASKS
+// **************************************
+
+a.refresh {
+	padding-left: 22px;
+	display: block;
+	height: 20px;
+	background: url(../icons/silky/arrow_refresh.png) 3px 1px no-repeat;
+}
+
+// **************************************
+// * HEADER
+// **************************************
+
+$blue-header-background-color: #095DD0;
+$dropdown-menu-background-color: #f9f9f9;
+$dropdown-menu-text-color: #277da9;
+$dropdown-menu-border-color: #3aadf9;
+
+#header {
+	background: #EFEFEF url(../images/header_background.png) -530px 4px repeat-x;
+	height: 62px;
+	border-bottom: 1px solid #999999;
+	min-width: 1000px;
+	position: relative;
+
+	#header-top-border {
+		background: $blue-header-background-color url(../images/header_border.png) bottom center repeat-x;
+		height: 4px;
+		border-bottom: 1px solid $blue-header-background-color;
+		position: absolute;
+		top: 0px;
+		width: 100%;
+	}
+
+	img {
+		margin: 15px 0 0 15px;
+	}
+
+	#top-menu {
+		text-align: right;
+		font-size: 11px;
+		background: $blue-header-background-color url(../images/menu_background.png) top center repeat-x;
+		border-left: 1px solid $blue-header-background-color;
+		border-right: 1px solid $blue-header-background-color;
+		border-bottom: 1px solid $blue-header-background-color;
+		@include bottom-border-radius(10px);
+		@include box-shadow(2px, 2px, 3px, #8f8d8d);
+		height: 33px;
+		padding: 0px 15px 0px 15px;
+		position: absolute;
+		top: 0px;
+		right: 15px;
+
+		a {
+			color: #fff;
+			padding: 0 6px;
+		}
+
+		span.route_notice {
+			color: #333;
+			padding: 6px 6px;
+		}
+
+		ul.drop-menu {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+
+			li {
+				float: left;
+				text-align: left;
+				position: relative;
+				padding: 7px 15px 0px 2px;
+				height: 33px;
+
+				a#support-link {
+					background-image: url(../icons/help.png);
+					background-position: 0px -1px;
+					background-repeat: no-repeat;
+					padding-left: 23px;
+					margin-left: 10px;
+					width: 120px;
+				}
+
+				&.menu {
+					min-width: 140px;
+					border-left: 1px solid transparent;
+					border-right: 1px solid transparent;
+
+					&:hover {
+						background-color: $dropdown-menu-background-color;
+						border-left: 1px solid $dropdown-menu-border-color;
+						border-right: 1px solid $dropdown-menu-border-color;
+						//@include opacity(0.9);
+						a { color: $dropdown-menu-text-color; }
+
+						ul.sub-menu {
+							display: block;
+						}
+					}
+
+					li#account-menu-wrapper {
+						width: 180px;
+					}
+
+					a.menu-title {
+						font-weight: bold;
+						display: inline-block;
+						width: 100%;
+						padding-left: 26px;
+						margin-right: 10px;
+
+						&:hover {
+							text-decoration: none;
+						}
+
+						&#project-menu {
+							background-image: url(../icons/silky/folder_table.png);
+							background-position: 3px 1px;
+							background-repeat: no-repeat;
+						}
+
+						&#account-menu {
+							background-image: url(../icons/silky/user.png);
+							background-position: 3px 1px;
+							background-repeat: no-repeat;
+						}
+
+						&#admin-menu {
+							background-image: url(../icons/admin.png);
+							background-position: 3px 1px;
+							background-repeat: no-repeat;
+						}
+					}
+
+					small {
+						float: right;
+						padding-right: 18px;
+					}
+
+					ul.sub-menu {
+						background-color: $dropdown-menu-background-color;
+						@include bottom-border-radius;
+						@include box-shadow(2px, 2px, 3px, #8f8d8d);
+						//@include opacity(0.9);
+						display: none;
+						margin: 0px;
+						margin-right: 10px;
+						padding: 0px;
+						list-style: none;
+						position: absolute;
+						width: 100%;
+						top: 33px;
+						left: -1px;
+						z-index: 10000;
+						border-left: 1px solid $dropdown-menu-border-color;
+						border-right: 1px solid $dropdown-menu-border-color;
+						border-bottom: 1px solid $dropdown-menu-border-color;
+
+
+						li {
+							a {
+								color: $dropdown-menu-text-color;
+								width: 100%;
+								height: 100%;
+								display: inline-block;
+								padding: 10px 0px 10px 29px;
+								&:hover {
+									text-decoration: none;
+								}
+							}
+
+							&:hover{
+								background-color: #DCF7FD;
+							}
+
+							&.divider {
+								width: 90%;
+								border: 1px solid black;
+								height: 0px;
+								padding: 0px;
+								margin: 10px 0px 10px 10px;
+							}
+
+							text-align: left;
+							clear: both;
+							width: 99%;
+							padding: 0px;
+							border-right: 2px solid transparent;
+
+							&:last-child {
+								margin-bottom: 10px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+}
+
+// **************************************
+// * DASHBOARD
+// **************************************
+
+.dashboard-title {
+	background: $blue-header-background-color url(../images/menu_background.png) top center repeat-x;
+	border: 1px solid $blue-header-background-color;
+	@include top-border-radius(10px);
+	height: 18px;
+	padding: 8px 15px 7px 15px;
+	color: #fff;
+	font-weight: bold;
+
+	#ticket-client-expander, #ticket-mapping-expander, #ticket-format-expander, #ticket-rules-expander {
+		float: right;
+		width: 26px;
+		height: 26px;
+		margin-top: -5px;
+
+		&:hover {
+			cursor: pointer;
+		}
+
+		&.collapsed {
+			background: transparent url(../images/expand.png) top center no-repeat;
+		}
+
+		&.expanded {
+			background: transparent url(../images/collapse.png) top center no-repeat;
+		}
+	}
+}

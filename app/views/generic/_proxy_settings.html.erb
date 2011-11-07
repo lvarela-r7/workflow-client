@@ -1,0 +1,35 @@
+<div class="proxy_settings">
+	<p>
+		<%= check_box_tag 'use_proxy', '1', proxy_settings.http_proxy_enabled?, :id => "use_proxy" %>
+		<%= label_tag 'use_proxy', "Use an HTTP Proxy to reach the internet?" %>
+	</p>
+	<% fields_for :current_user do |proxy_fields| %>
+	<div id="proxy_fields" style="<%= display_none_if !proxy_settings.http_proxy_enabled? %>" class="inline_fields">
+		<p>
+			<%= label_tag "proxy[proxy_host]", "Proxy IP" %>
+			<%= proxy_fields.text_field :http_proxy_host %>
+		</p>
+
+		<p>
+			<%= label_tag "proxy[proxy_port]", "Port" %>
+			<%= proxy_fields.text_field :http_proxy_port, :size => 5 %>
+		</p>
+
+		<p>
+			<%= label_tag "proxy[proxy_user]", "Username" %>
+			<%= proxy_fields.text_field :http_proxy_user, :autocomplete => "off" %>
+		</p>
+
+		<p>
+			<%= label_tag "proxy[proxy_pass]", "Password" %>
+			<%= proxy_fields.password_field :http_proxy_pass, :autocomplete => "off" %>
+		</p>
+	</div>
+	<% end %>
+</div>
+
+<% javascript_tag do %>
+	toggle_visibility_with_checkbox($("use_proxy"), $("proxy_fields"));
+<% end %>
+
+

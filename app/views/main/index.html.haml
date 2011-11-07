@@ -1,0 +1,6 @@
+%pre{:class => "console logs", :id => "log"}
+	=  raw @logs
+
+:javascript
+	scrollToBottom($('log'));
+	setInterval('update_log()', 3000)

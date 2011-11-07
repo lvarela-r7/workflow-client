@@ -1,0 +1,70 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Node address:</b>
+  <%= @ticket_mapping.node_address %>
+</p>
+
+<p>
+  <b>Node name:</b>
+  <%= @ticket_mapping.node_name %>
+</p>
+
+<p>
+  <b>Vendor:</b>
+  <%= @ticket_mapping.vendor %>
+</p>
+
+<p>
+  <b>Product:</b>
+  <%= @ticket_mapping.product %>
+</p>
+
+<p>
+  <b>Family:</b>
+  <%= @ticket_mapping.family %>
+</p>
+
+<p>
+  <b>Version:</b>
+  <%= @ticket_mapping.version %>
+</p>
+
+<p>
+  <b>Vulnerability status:</b>
+  <%= @ticket_mapping.vulnerability_status %>
+</p>
+
+<p>
+  <b>Vulnerability:</b>
+  <%= @ticket_mapping.vulnerability_id %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @ticket_mapping.description %>
+</p>
+
+<p>
+  <b>Proof:</b>
+  <%= @ticket_mapping.proof %>
+</p>
+
+<p>
+  <b>Solution:</b>
+  <%= @ticket_mapping.solution %>
+</p>
+
+<p>
+  <b>Scan start:</b>
+  <%= @ticket_mapping.scan_start %>
+</p>
+
+<p>
+  <b>Scan end:</b>
+  <%= @ticket_mapping.scan_end %>
+</p>
+
+
+<%= link_to 'Edit', edit_ticket_mapping_path(@ticket_mapping) %> |
+<%= link_to 'Back', ticket_mappings_path %>

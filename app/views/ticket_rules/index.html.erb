@@ -1,0 +1,31 @@
+<h1>Listing ticket_rules</h1>
+
+<table>
+  <tr>
+    <th>Use vv</th>
+    <th>Use ve</th>
+    <th>Use vp</th>
+    <th>Cvss min</th>
+    <th>Cvss max</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ticket_rules.each do |ticket_rule| %>
+  <tr>
+    <td><%= ticket_rule.use_vv %></td>
+    <td><%= ticket_rule.use_ve %></td>
+    <td><%= ticket_rule.use_vp %></td>
+    <td><%= ticket_rule.cvss_min %></td>
+    <td><%= ticket_rule.cvss_max %></td>
+    <td><%= link_to 'Show', ticket_rule %></td>
+    <td><%= link_to 'Edit', edit_ticket_rule_path(ticket_rule) %></td>
+    <td><%= link_to 'Destroy', ticket_rule, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ticket rule', new_ticket_rule_path %>

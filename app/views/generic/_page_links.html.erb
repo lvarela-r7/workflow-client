@@ -1,0 +1,31 @@
+<%
+#name      ||= ''
+#items     ||= 0
+#count     ||= 0
+#offset    ||= 0
+#page      ||= 1
+#num_pages ||= 1
+%>
+<div id="page_links">
+	<span class="index">
+		<% if items.size > 0 %>
+			<%=h (offset ||= 0)+1 %>-<%=h offset + items.size %> of <%=h pluralize(count, name) %> 
+			<%#=h "#{(offset ||= 0)+1}-#{offset + items.size} of #{pluralize(count, name)}" %>
+		<% else %>
+			0 <%=h name.pluralize %>
+		<% end %>
+	</span>
+	<% if num_pages > 1 %>
+		<%= link_to '', page_link(:page => 0), {:class => 'start' } %>
+		<%= link_to '', page_link(:page => page-1), {:class => 'prev' } %>
+		<% 1.upto(num_pages) do |p|  %>
+			<% if p == page %>
+				<span class="current"><%=h page %></span>
+			<% else %>
+				<%= link_to p, page_link(:page => p) %>
+			<% end %>
+		<% end %>
+		<%= link_to '', page_link(:page => [page+1,num_pages].min), {:class => 'next' } %>
+		<%= link_to '', page_link(:page => num_pages), {:class => 'end' } %>
+	<% end %>
+</div>

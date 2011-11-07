@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  module_name: MyString
+  module_type: MyString
+  edit_path: MyString
+  delete_path: MyString
+
+two:
+  module_name: MyString
+  module_type: MyString
+  edit_path: MyString
+  delete_path: MyString

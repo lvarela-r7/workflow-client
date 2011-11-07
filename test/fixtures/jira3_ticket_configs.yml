@@ -1,0 +1,17 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  project_id: 1
+  priority_id: 1
+  assignee_id: 1
+  ticket_on_vuln_severity: 1
+  default_reporter: MyString
+  issue_type_id: 1
+
+two:
+  project_id: 1
+  priority_id: 1
+  assignee_id: 1
+  ticket_on_vuln_severity: 1
+  default_reporter: MyString
+  issue_type_id: 1

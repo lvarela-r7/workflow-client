@@ -1,0 +1,192 @@
+<%
+show_timestamps ||= false
+detailed ||= false
+host_record ||= false
+password_mask_bool ||= false # Note that his is /not/ honored when @config[:mask] is set to true!
+show_inactive ||= false
+%>
+
+<%
+  uniq_auths = {}
+  auths.each do |auth| 
+    unless auth.active
+      unless show_inactive
+        next
+      end
+    end
+		next unless auth.ptype =~ /^password/ # Skip non-passwords for this table
+    cred = [auth.user,auth.pass]
+    uniq_auths[cred] ||= 0
+    uniq_auths[cred] +=  1
+  end
+%>
+<% if !host_record and !detailed and !uniq_auths.empty? %>
+<table id="credential_summary" class="list">
+<caption>Guessed password summary</caption>
+<thead>
+	<tr>
+      <%= sortable_th "User", "user" %>
+      <%= sortable_th "Password", "pass" %>
+      <%= sortable_th "Service Count", "service_count" %>
+	</tr>
+</thead>
+<% reset_cycle("rows") %>
+
+<%
+  if params[:sort_by] && ["user","pass","service_count"].include?(params[:sort_by])
+    sorted_uniq_auths = uniq_auths.sort { |x,y| 
+      if params[:sort_by] == "user"
+        if params[:sort_dir] == "desc"
+          y[0][0].to_s <=> x[0][0].to_s
+        else
+          x[0][0].to_s <=> y[0][0].to_s
+        end
+      elsif params[:sort_by] == "pass"
+        if params[:sort_dir] == "desc"
+          y[0][1].to_s <=> x[0][1].to_s
+        else
+          x[0][1].to_s <=> y[0][1].to_s
+        end
+      elsif params[:sort_by] == "service_count"
+        if params[:sort_dir] == "desc"
+          y[1].to_i <=> x[1].to_i
+        else
+          x[1].to_i <=> y[1].to_i
+        end
+      end
+    }
+  else
+    sorted_uniq_auths = uniq_auths
+  end
+%>
+
+<% sorted_uniq_auths.each do |user_pass,count| %>
+	<tr class="<%=h row_cycle %>">
+		<td><%=h (user_pass[0].to_s.empty? ? '<blank>' : user_pass[0].to_s) %></td>
+        <td><%=h (password_mask(user_pass[1].to_s,password_mask_bool)) %></td>
+		<td><%= count %></td>
+	</tr>
+<% end %>
+</table>
+<br>
+<% end %>
+<% if host_record %>
+	<h3>Authentication Tokens</h3>
+<% end %>
+<table id="credential_details" class="list">
+	<% if not host_record %>
+		<caption>Authentication Token Details <%= "(includes #{@inactive_count} unverified tokens)" if show_inactive && @inactive_count > 0%> </caption>
+	<% end %>
+		<thead>
+			<tr>
+				<% if show_timestamps %>
+					<th>Time</th>
+				<% end %>
+				<%= sortable_th "Address", "address" %>
+				<%= sortable_th "Port", "port" %>
+				<%= sortable_th "Service", "sname" %>
+				<%= sortable_th "Type", "ptype" %>
+				<%= sortable_th "User", "user" %>
+				<%= sortable_th "Password, Hash, or SSH key fingerprint", "pass" %>
+				<th>Source Credential or Session</th>
+				<%= sortable_th("Verified","verified") if show_inactive %>
+			</tr>
+			<% if auths.nil? || auths.empty? %>
+				</thead>
+				<tr><td class="odd" style="text-align: center" colspan=10> No credentials have been gathered</tr></td>
+			<% else %>
+			<% reset_cycle("rows") %>
+			<%
+				if params[:sort_by] && %w{address port sname ptype user pass verified}.include?(params[:sort_by])
+					sorted_auths = auths.sort { |x,y|
+						if params[:sort_by] == "user"
+							if params[:sort_dir] == "desc"
+								y.user.to_s <=> x.user.to_s
+							else
+								x.user.to_s <=> y.user.to_s
+							end
+						elsif params[:sort_by] == "pass"
+							if params[:sort_dir] == "desc"
+								y.pass.to_s <=> x.pass.to_s
+							else
+								x.pass.to_s <=> y.pass.to_s
+							end
+						elsif params[:sort_by] == "ptype"
+							if params[:sort_dir] == "desc"
+								y.ptype.to_s <=> x.ptype.to_s
+							else
+								x.ptype.to_s <=> y.ptype.to_s
+							end
+						elsif params[:sort_by] == "sname"
+							if params[:sort_dir] == "desc"
+								y.service.name.to_s <=> x.service.name.to_s
+							else
+								x.service.name.to_s <=> y.service.name.to_s
+							end
+						elsif params[:sort_by] == "port"
+							if params[:sort_dir] == "desc"
+								y.service.port.to_i <=> x.service.port.to_i
+							else
+								x.service.port.to_i <=> y.service.port.to_i
+							end
+						elsif params[:sort_by] == "verified"
+							if params[:sort_dir] == "desc"
+								y.updated_at <=> x.updated_at
+							else
+								x.updated_at <=> y.updated_at
+							end
+						elsif params[:sort_by] == "address"
+							if params[:sort_dir] == "desc"
+								Rex::Socket.addr_aton(y.service.host.address) <=> Rex::Socket.addr_aton(x.service.host.address)
+							else
+								Rex::Socket.addr_aton(x.service.host.address) <=> Rex::Socket.addr_aton(y.service.host.address)
+							end
+						end
+					}
+				else
+					sorted_auths = auths.sort{ |a,b|
+						[
+							Rex::Socket.addr_aton(a.service.host.address), a.service.port, a.ptype, a.source_id.to_i
+						] <=> [
+						Rex::Socket.addr_aton(b.service.host.address), b.service.port, b.ptype, b.source_id.to_i
+						]
+					}
+				end
+
+				sorted_auths.each do |auth| 
+					unless auth.active
+						unless show_inactive
+							next
+						end
+					end
+					if auth.ptype == "ssh_key"
+						pass = auth.proof.match(/KEY=([^,]+)/)[1] if auth.proof.respond_to?(:match)
+						pass ||= auth.pass
+						pass = link_for_ssh_key_loot(pass)
+					elsif auth.ptype == "smb_hash"
+						pass = link_for_smb_hash_loot(auth.service.host.id,auth.pass)
+					elsif auth.ptype =~ /^password/
+						pass = auth.pass
+					else
+						next # Skip anything else
+					end
+					pass = password_mask(pass,password_mask_bool)
+				%>
+			</thead>
+			<tr class="<%=h row_cycle %>">
+				<% if show_timestamps %>
+					<td><%=h (auth.created_at || '')%></td>
+				<% end %>
+				<td><%= auth.service && auth.service.host && auth.service.host.address ? (link_to h(auth.service.host.address), auth.service.host) : '' %></td>
+				<td><%= auth.service && auth.service.port ? auth.service.port : '' %></td>
+				<td><%= auth.service && auth.service.name ? link_for_service_name(auth.service) : '' %></td>
+				<td><%=h (auth.ptype_human) %></td>
+				<td><%=h (auth.user.to_s.empty? ? '<blank>' : auth.user.to_s) %></td>
+				<td><%= (auth.ptype.match(/^(ssh_key|smb_hash)$/) ? ( @config[:mask] ?  h(pass) : pass ) : h(pass || '')) %></td>
+				<td><%= credential_source_formatted(auth) %></td>
+				<%= "<td>#{h(auth.active ? auth.updated_at : "never")}</td>" if show_inactive %>
+			</tr>
+		<% end %>
+	<% end %>
+</table>
+<br>

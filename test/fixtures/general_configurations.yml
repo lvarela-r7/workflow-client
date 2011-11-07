@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  scan_history_polling: 
+  scan_manager_polling: 
+  scan_start_polling: 
+
+two:
+  scan_history_polling: 
+  scan_manager_polling: 
+  scan_start_polling: 

@@ -1,0 +1,17 @@
+FAILSAFE:
+	To ensure ticketing is failsafe there are a couple steps that should be followed to ensure there are no loss of tickets or duplication:
+
+ 	1.	A DB record of all scans processed per module should be recorded
+ 	2.	Before tickets are processed they should be loaded into the DB 'tickets_to_be_created'
+ 		DB Columns:
+ 		* host
+        * ticket_data
+	3.	Each time a ticket is successfully created it should be removed from the DB and the ticket ID stored in the DB 'tickets_created'
+	    * host
+	    * module_name
+	    * ticket_id
+
+
+DUPLICATION AVOIDANCE:
+There will always be a record for each ticket created, it will be just two rows in the DB: module_name/ticket_id
+ticket_id = <ticket_system: device_id/site_name/nsc_name> + port + vuln_id + vkey

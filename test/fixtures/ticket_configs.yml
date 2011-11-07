@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ticket_client: MyString
+  username: MyString
+  password: MyString
+
+two:
+  ticket_client: MyString
+  username: MyString
+  password: MyString

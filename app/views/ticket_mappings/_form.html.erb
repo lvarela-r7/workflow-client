@@ -1,0 +1,69 @@
+<%= form_for(@ticket_mapping) do |f| %>
+  <% if @ticket_mapping.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@ticket_mapping.errors.count, "error") %> prohibited this ticket_mapping from being saved:</h2>
+
+      <ul>
+      <% @ticket_mapping.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :node_address %><br />
+    <%= f.text_field :node_address %>
+  </div>
+  <div class="field">
+    <%= f.label :node_name %><br />
+    <%= f.text_field :node_name %>
+  </div>
+  <div class="field">
+    <%= f.label :vendor %><br />
+    <%= f.text_field :vendor %>
+  </div>
+  <div class="field">
+    <%= f.label :product %><br />
+    <%= f.text_field :product %>
+  </div>
+  <div class="field">
+    <%= f.label :family %><br />
+    <%= f.text_field :family %>
+  </div>
+  <div class="field">
+    <%= f.label :version %><br />
+    <%= f.text_field :version %>
+  </div>
+  <div class="field">
+    <%= f.label :vulnerability_status %><br />
+    <%= f.text_field :vulnerability_status %>
+  </div>
+  <div class="field">
+    <%= f.label :vulnerability_id %><br />
+    <%= f.text_field :vulnerability_id %>
+  </div>
+  <div class="field">
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </div>
+  <div class="field">
+    <%= f.label :proof %><br />
+    <%= f.text_field :proof %>
+  </div>
+  <div class="field">
+    <%= f.label :solution %><br />
+    <%= f.text_field :solution %>
+  </div>
+  <div class="field">
+    <%= f.label :scan_start %><br />
+    <%= f.text_field :scan_start %>
+  </div>
+  <div class="field">
+    <%= f.label :scan_end %><br />
+    <%= f.text_field :scan_end %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

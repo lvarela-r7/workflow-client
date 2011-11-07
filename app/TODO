@@ -1,0 +1,46 @@
+1. Flush out the NSCConnectionManager
+	- The NSCConnection Manager will store all NSC Connection objects. **DONE**
+	- The NSCConnection manager will serve as the abstraction layer for all all NSC Connection calls **DONE**
+	- We will use delegation via method_missing to wrap all method calls, determine if the session has **DONE**
+	- timed out and re-login the NeXpose instance.  **DONE**
+
+2. Flush out workflow engine
+	- Finish and test the history manager
+
+3. Overhaul the UI component
+	- Fix the update for ticket modules
+	- Fix the delete of modules
+
+4. Write the ARCH Spec for the Database, consider upgrade paths, recovering from DB loss, etc.
+
+5. Finish scan history manager.
+
+6. Finish JIRA 4 client *DONE
+
+7. Add NeXpose ticketing to NeXpose gem  *DONE*
+
+8. Write up ARCH_SPEC for the different ticketing conventions:
+	- ticket/vuln/device
+	- ticket/vuln/site
+	- ticket/vuln
+	- ticket/site (Childrens hospital)
+
+9. Implement the different ticketing conventions:
+	- ticket/vuln/device
+	- ticket/vuln/site
+	- ticket/vuln
+	- ticket/site (Childrens hospital)
+
+10. Implement remedy client
+
+11. Implement a simple email module
+
+12. Add ticketing rules
+
+13. Add ticketing format (vuln/site, vuln/device)
+
+14. Need to expand ticketing modules to include custom fields
+
+15. Weird bug in NSC connections where the nsc config does not show up after toggling it on and off.
+
+16. Convert to https

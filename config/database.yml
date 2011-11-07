@@ -1,0 +1,19 @@
+production:
+ adapter: postgresql
+ database: nexflow_prod
+ host: 127.0.0.1
+ port: 5422
+ username: postgres
+ password: msf3Password
+ pool: 256
+ timeout: 5
+
+development:
+ adapter: postgresql
+ database: nexflow_dev
+ host: 127.0.0.1
+ port: 5422
+ username: postgres
+ password: msf3Password
+ pool: 256
+ timeout: 5

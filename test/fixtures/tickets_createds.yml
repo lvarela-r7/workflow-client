@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  host: MyString
+  module_name: MyString
+  ticket_id: MyString
+
+two:
+  host: MyString
+  module_name: MyString
+  ticket_id: MyString

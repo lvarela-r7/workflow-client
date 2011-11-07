@@ -1,0 +1,30 @@
+<% if nfs_exports.length > 0 %>
+<% host_record ||= false %>
+<% if host_record %>
+<h3>Exposed NFS Exports</h3>
+<% end %>
+<table class="list" id="shares_nfs">
+	<% if not host_record %>
+		<caption>Exposed NFS Exports</caption>
+	<% end %>
+	<thead>
+		<tr>
+			<th>Export Name</th>
+			<th>Access List</th>
+			<th>Information</th>
+		</tr>
+	</thead>
+	<tbody>
+	<% nfs_exports.each do |si| %>
+		<% si.data[:exports].each do |s| %>
+			<tr class="<%=h row_cycle %>">
+				<td><%=h si.host.address%>:<%=h s[0] %></td>
+				<td><%=h s[1] %></td>
+				<td><%=h s[2].to_s %></td>
+			</tr>
+		<% end %>
+	<% end %>
+	</tbody>
+</table>
+<% end %>
+

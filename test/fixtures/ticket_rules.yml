@@ -1,0 +1,15 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  use_vv: false
+  use_ve: false
+  use_vp: false
+  cvss_min: 1
+  cvss_max: 1
+
+two:
+  use_vv: false
+  use_ve: false
+  use_vp: false
+  cvss_min: 1
+  cvss_max: 1

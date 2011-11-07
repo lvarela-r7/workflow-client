@@ -1,0 +1,12 @@
+#overview
+	%div{:id => "detailed", :class => "tab_panel"}
+		%form
+			%div{:class => "stepLead", :style => "width: 100%;"}
+				.step
+					- @modules.each do |m|
+						%h3 #{m.title}
+						%div{:class => "stepInfo", :id => "modules"}
+							#{m.description}
+						.btnRow
+							.btn
+								= link_to 'Add', "/#{m.view}/new"

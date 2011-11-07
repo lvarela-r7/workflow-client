@@ -1,0 +1,136 @@
+%div{:class => 'ticket_client_config', :id => 'jira3'}
+	= render 'authentication', :parent_client => 'jira3_config'
+	%dl
+		%dt
+			= label_tag('Project ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[project_id]', (@jira3_ticket_client ? @jira3_ticket_client.project_id : '')
+
+	%dl
+		%dt
+			= label_tag('Priority ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[priority_id]', (@jira3_ticket_client ? @jira3_ticket_client.priority_id : '')
+
+	%dl
+		%dt
+			= label_tag('Assignee ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[assignee_id]', (@jira3_ticket_client ? @jira3_ticket_client.assignee_id : '')
+
+	%dl
+		%dt
+			= label_tag('Default Reporter*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[default_reporter]', (@jira3_ticket_client ? @jira3_ticket_client.default_reporter : '')
+
+	%dl
+		%dt
+			= label_tag('Issue Type ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[issue_type_id]', (@jira3_ticket_client ? @jira3_ticket_client.issue_type_id : '')
+
+%div{:class => 'ticket_client_config', :id => 'jira4'}
+	= render 'authentication', :parent_client => 'jira4_config'
+	%dl
+		%dt
+			= label_tag('Default assignee*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[assignee]', (@jira4_ticket_client ? @jira4_ticket_client.assignee : '')
+	%dl
+		%dt
+			= label_tag('Default reporter*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[reporter]', (@jira4_ticket_client ? @jira4_ticket_client.reporter : '')
+	%dl
+		%dt
+			= label_tag('Issue Type ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[issue_id]', (@jira4_ticket_client ? @jira4_ticket_client.issue_id : '')
+	%dl
+		%dt
+			= label_tag('Project name*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[project_name]', (@jira4_ticket_client ? @jira4_ticket_client.project_name : '')
+	%dl
+		%dt
+			= label_tag('Default priority ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[priority_id]', (@jira4_ticket_client ? @jira4_ticket_client.priority_id : '')
+
+
+%div{:class => 'ticket_client_config', :id => 'nexpose'}
+	- if NscConfig.all and not NscConfig.all.empty?
+		%dl
+			%dt
+				= label_tag 'Select NeXpose Client'
+			%dd
+				=collection_select :nexpose_config, :nexpose_client_id, NscConfig.all, :id, :host
+		%dl
+			%dt
+				= label_tag 'Select default user'
+			%dd
+				=collection_select :nexpose_config, :nexpose_default_user, @user_list, :user_name, :user_name
+	- else
+		%p
+			There are no configured NeXpose clients.
+
+%div{:class => 'ticket_client_config', :id => 'remedy'}
+	- form_for(@remedy_ticket_config, :html => {:multipart => true}) do |remedy_form|
+		%fieldset
+			%legend{:align => "center"}
+				%b Data Import
+			%dl
+				%dt
+					= remedy_form.label 'Select WSDL file'
+				%dd
+					= remedy_form.file_field :wsdl
+				.buttons
+					.btn
+						= remedy_form.submit 'Parse WSDL'
+
+		- if @wsdl_operations and not @wsdl_operations.empty?
+			%fieldset
+				%legend{:align => "center"}
+					%b WSDL Operation
+				= label_tag 'Select the ticketing operation:'
+				= select nil, "remedy_ticket_op_id", convert_array_to_value_map(@wsdl_operations.keys), {}, {:id => "wsdl_operations"}
+
+				- index = -1
+				- @wsdl_operations.each do |keys, wsdl_input|
+					- if wsdl_input
+						- index = index + 1
+						%div{:id => "wsdl_op_#{index}"}
+							- if wsdl_input[:header]
+								- wsdl_input[:header].each do |key, value|
+									%fieldset
+										%legend{:align => "center"}
+											%b Header Input
+										- value.each do |input|
+											%dl
+												%dt
+													- is_required = !(input[:minOccurs] and input[:minOccurs].to_i == 0)
+													- if is_required
+														= label_tag(input[:name] + '*', nil, {:style => "color:red"})
+													- else
+														= label_tag(input[:name])
+												%dd
+													= ((input[:type].instance_of? Array) ? (select "remedy_config_#{index}[#{input[:name]}]", nil, normalize_array_map_to_string_array(input[:type])) : (is_sensitive_field?(input[:name]) ? (password_field_tag "remedy_config_#{index}[#{input[:name]}]") : (text_field_tag "remedy_config_#{index}[#{input[:name]}]")))
+
+							- if wsdl_input[:body]
+								- wsdl_input[:body].each do |key, value|
+									%fieldset
+										%h4
+											* - Required input
+										%legend{:align => "center"}
+											%b Body Input
+										- value.each do |input|
+											%dl
+												%dt
+													- is_required = !(input[:minOccurs] and input[:minOccurs].to_i == 0)
+													- if is_required
+														= label_tag(input[:name] + '*', nil, {:style => "color:red"})
+													- else
+														= label_tag(input[:name])
+												%dd
+													= ((input[:type].instance_of? Array) ? (select "remedy_config_#{index}[#{input[:name]}]", nil, normalize_array_map_to_string_array(input[:type])) : (is_sensitive_field?(input[:name]) ? (password_field_tag "remedy_config_#{index}[#{input[:name]}]") : (text_field_tag "remedy_config_#{index}[#{input[:name]}]")))

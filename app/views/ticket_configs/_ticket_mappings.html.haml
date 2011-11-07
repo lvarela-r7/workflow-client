@@ -1,0 +1,88 @@
+= f.fields_for :ticket_mapping do |mapping_data|
+	%div{:class => 'dashboard-title', :id => 'ticket-mapping-bar', :style => 'margin-bottom: 10px;'}
+		Ticket Mappings
+		%div{:id => 'ticket-mapping-expander', :class => 'collapsed'}
+
+	%div{:class => 'ticket-mapping invisible'}
+		%fieldset{:style => 'width: auto;'}
+			%table{:id => "nexpose_ticket_mapping", :class => "list"}
+				%p
+					The following table is used to map NeXpose specific data to fields within your ticket client.
+				%thead{:class => "list-table-header"}
+					%th NeXpose Field
+					%th Ticket Client Field
+				%tr{:class => 'odd'}
+					%td{:class => 'even'}
+						=mapping_data.label "Node Address"
+					%td
+						=mapping_data.text_field :node_address, :value => (@ticket_mappings ? @ticket_mappings.node_address : '')
+				%tr{:class => 'odd'}
+					%td
+						=mapping_data.label "Node Name"
+					%td
+						=mapping_data.text_field :node_name, :value =>  (@ticket_mappings ? @ticket_mappings.node_name : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Vendor"
+					%td
+						=mapping_data.text_field :vendor, :value =>  (@ticket_mappings ? @ticket_mappings.vendor : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Product"
+					%td
+						=mapping_data.text_field :product, :value =>  (@ticket_mappings ? @ticket_mappings.product : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Family"
+					%td
+						=mapping_data.text_field :family, :value =>  (@ticket_mappings ? @ticket_mappings.family : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Version"
+					%td
+						=mapping_data.text_field :version, :value =>  (@ticket_mappings ? @ticket_mappings.version : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Vulnerability Status"
+					%td
+						=mapping_data.text_field :vulnerability_status, :value =>  (@ticket_mappings ? @ticket_mappings.vulnerability_status : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Product"
+					%td
+						=mapping_data.text_field :product, :value =>  (@ticket_mappings ? @ticket_mappings.product : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Vulnerability ID"
+					%td
+						=mapping_data.text_field :vulnerability_id, :value =>  (@ticket_mappings ? @ticket_mappings.vulnerability_id : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Description"
+					%td
+						=mapping_data.text_field :description, :value =>  (@ticket_mappings ? @ticket_mappings.description : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Proof"
+					%td
+						=mapping_data.text_field :proof, :value =>  (@ticket_mappings ? @ticket_mappings.proof : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Solution"
+					%td
+						=mapping_data.text_field :solution, :value =>  (@ticket_mappings ? @ticket_mappings.solution : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Scan Start"
+					%td
+						=mapping_data.text_field :scan_start, :value =>  (@ticket_mappings ? @ticket_mappings.scan_start : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "Scan End"
+					%td
+						=mapping_data.text_field :scan_end, :value =>  (@ticket_mappings ? @ticket_mappings.scan_end : '')
+				%tr{:class => "odd"}
+					%td
+						=mapping_data.label "CVSS Score"
+					%td
+						=mapping_data.text_field :cvss_score, :value =>  (@ticket_mappings ? @ticket_mappings.cvss_score : '')

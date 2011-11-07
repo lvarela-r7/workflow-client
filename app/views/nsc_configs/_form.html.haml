@@ -1,0 +1,64 @@
+%h1 Configure a NeXpose Console
+
+- if flash.notice
+	- if flash.notice.eql? 'Good'
+		.success= 'Connection accepted'
+	- elsif flash.notice.eql? 'Bad'
+		.errors= 'Problems connecting to the NSC'
+
+- form_for @nsc_config do |f|
+	- if @nsc_config.errors.any?
+		#error_explanation
+			%h2
+				#{pluralize(@nsc_config.errors.count, "error")} prohibited this NSC configuration from being saved:
+
+			%ul
+				- @nsc_config.errors.full_messages.each do |msg|
+					%li
+						#{msg}
+
+
+	.one_col_with_sidebar
+		%fieldset
+			%dl
+				%dt
+					= f.label :host, "Host Address"
+				%dd
+					= f.text_field :host, :autocomplete => :off
+			%dl
+				%dt
+					= f.label :username, "Username"
+				%dd
+					= f.text_field :username, :autocomplete => :off
+			%dl
+				%dt
+					= f.label :password, "Password\n"
+				%dd
+					= f.password_field :password, :autocomplete => :off
+			%dl
+				%dt
+					= f.label :silo_id, "Silo ID"
+				%dd
+					= f.text_field :silo_id, :autocomplete => :off
+			%dl
+				%dt
+					= f.label :port, "Port"
+				%dd
+					= f.text_field :port, :autocomplete => :off, :value => "3780"
+			%dl
+				%dt
+					= f.label :active, "Active"
+				%dd
+					= f.check_box :is_active, {:checked => 'checked'}
+
+			.test_area
+				%p Test the connection to the NSC before adding it to ensure input values are correct
+				.buttons
+					.btn
+						= f.submit 'Test Connection'
+
+			.buttons
+				.btn
+					= f.submit 'Save'
+
+= link_to 'Cancel', '/nsc_configs'

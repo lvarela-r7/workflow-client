@@ -1,0 +1,2 @@
+module RemedyTicketConfigsHelper
+end

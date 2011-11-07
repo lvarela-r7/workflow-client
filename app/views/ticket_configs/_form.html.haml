@@ -1,0 +1,92 @@
+= javascript_include_tag "raphael-min.js"
+= javascript_include_tag "g.raphael-min.js"
+= javascript_include_tag "g.pie-min.js"
+= javascript_include_tag "g.line.js"
+= javascript_include_tag 'ticket_config'
+
+#overview
+	%div{:id => "detailed", :class => "tab_panel"}
+		-if flash.notice
+			.success= flash.notice
+		-if flash[:error]
+			.errors= flash[:error]
+		- form_for(@ticket_config, :html => { :multipart => true }) do |f|
+			- if @ticket_client and @ticket_client.errors.any?
+				#error_explanation
+					%h2
+						#{pluralize(@ticket_client.errors.count, "error")} prohibited this ticket configuration from being saved:
+
+					%ul
+						- @ticket_client.errors.keys.each do |field|
+							- @ticket_client.errors[field].each do |msg|
+								%li{:style => 'list-style: square inside none;'}
+									#{msg}
+
+			%div{:class => "stepLead", :style => "width: 100%;"}
+				.step
+					%h3 Add Ticket Module
+					.stepInfo
+						.one_col_with_sidebar
+							.ticket_heading
+								%div{:style => 'margin-bottom: 20px;'}
+									%h4
+										* - Required input
+									%dl
+										%dt
+											= f.label 'Active'
+										%dd
+											= f.check_box :is_active, {:checked => 'checked'}
+									%dl
+										%dt
+											= f.label('Module Name*', nil, {:style => "color:red"})
+										%dd
+											= f.text_field :module_name
+									.buttons
+										.btn
+											= f.submit 'Create a test ticket', :id => 'create_test_ticket_btn'
+										.btn
+											= f.submit 'Save'
+									.nexpose_no_test_ticket
+										%p
+											You cannot create a test NeXpose ticket.
+
+							%div{:class => 'dashboard-title', :id => 'ticket-client-config-bar', :style => 'margin-bottom: 10px;'}
+								Ticket Client Config
+								%div{:id => 'ticket-client-expander', :class => 'collapsed'}
+
+							- ticket_client_class = 'ticket-client'
+							- ticket_client_class = ticket_client_class + (@show_ticket_client_div ? '' : ' invisible')
+							%div{:class => ticket_client_class, :style => 'margin-bottom: 10px;'}
+								%fieldset{:style => 'width: auto;'}
+									#client_selector
+										%b
+											='Ticketing client: '
+										&nbsp;&nbsp;&nbsp;&nbsp;
+										=collection_select nil, :ticket_client, TicketClients.all, :client, :client, {:selected => @ticket_type}, {:id => 'id_selected'}
+
+									=render 'ticket_client_configs'
+
+							=render 'ticket_mappings', :f => f
+
+							%div{:class => 'dashboard-title', :id => 'ticket-format-bar', :style => 'margin-bottom: 10px;'}
+								Ticketing Scope
+								%div{:id => 'ticket-format-expander', :class => 'collapsed'}
+
+							%div{:class => 'ticket-format invisible'}
+								%fieldset{:style => 'width: auto;'}
+									- first = true
+									- TicketingStyles.all.each do |ticket_style|
+										=radio_button_tag 'test', 'yes', first,  {}
+										%b
+											= ticket_style.name
+										%p
+											= ticket_style.description
+										%br
+										- if first == true then first = false end
+
+							%div{:class => 'dashboard-title', :id => 'ticket-rules-bar', :style => 'margin-bottom: 10px;'}
+								Ticketing Rules
+								%div{:id => 'ticket-rules-expander', :class => 'collapsed'}
+
+							%div{:class => 'ticket-rules invisible'}
+								= render 'ticket_rules', :f => f

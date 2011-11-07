@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Use vv:</b>
+  <%= @ticket_rule.use_vv %>
+</p>
+
+<p>
+  <b>Use ve:</b>
+  <%= @ticket_rule.use_ve %>
+</p>
+
+<p>
+  <b>Use vp:</b>
+  <%= @ticket_rule.use_vp %>
+</p>
+
+<p>
+  <b>Cvss min:</b>
+  <%= @ticket_rule.cvss_min %>
+</p>
+
+<p>
+  <b>Cvss max:</b>
+  <%= @ticket_rule.cvss_max %>
+</p>
+
+
+<%= link_to 'Edit', edit_ticket_rule_path(@ticket_rule) %> |
+<%= link_to 'Back', ticket_rules_path %>

@@ -1,0 +1,23 @@
+<h1>Listing remedy_ticket_configs</h1>
+
+<table>
+  <tr>
+    <th>Mappings</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @remedy_ticket_configs.each do |remedy_ticket_config| %>
+  <tr>
+    <td><%= remedy_ticket_config.mappings %></td>
+    <td><%= link_to 'Show', remedy_ticket_config %></td>
+    <td><%= link_to 'Edit', edit_remedy_ticket_config_path(remedy_ticket_config) %></td>
+    <td><%= link_to 'Destroy', remedy_ticket_config, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Remedy ticket config', new_remedy_ticket_config_path %>

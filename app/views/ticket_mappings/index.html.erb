@@ -1,0 +1,47 @@
+<h1>Listing ticket_mappings</h1>
+
+<table>
+  <tr>
+    <th>Node address</th>
+    <th>Node name</th>
+    <th>Vendor</th>
+    <th>Product</th>
+    <th>Family</th>
+    <th>Version</th>
+    <th>Vulnerability status</th>
+    <th>Vulnerability</th>
+    <th>Description</th>
+    <th>Proof</th>
+    <th>Solution</th>
+    <th>Scan start</th>
+    <th>Scan end</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ticket_mappings.each do |ticket_mapping| %>
+  <tr>
+    <td><%= ticket_mapping.node_address %></td>
+    <td><%= ticket_mapping.node_name %></td>
+    <td><%= ticket_mapping.vendor %></td>
+    <td><%= ticket_mapping.product %></td>
+    <td><%= ticket_mapping.family %></td>
+    <td><%= ticket_mapping.version %></td>
+    <td><%= ticket_mapping.vulnerability_status %></td>
+    <td><%= ticket_mapping.vulnerability_id %></td>
+    <td><%= ticket_mapping.description %></td>
+    <td><%= ticket_mapping.proof %></td>
+    <td><%= ticket_mapping.solution %></td>
+    <td><%= ticket_mapping.scan_start %></td>
+    <td><%= ticket_mapping.scan_end %></td>
+    <td><%= link_to 'Show', ticket_mapping %></td>
+    <td><%= link_to 'Edit', edit_ticket_mapping_path(ticket_mapping) %></td>
+    <td><%= link_to 'Destroy', ticket_mapping, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ticket mapping', new_ticket_mapping_path %>

@@ -1,0 +1,23 @@
+#overview
+	%div{:id => "detailed", :class => "tab_panel"}
+		%form
+			%div{:class => "stepLead", :style => "width: 100%;"}
+				.step
+					%h3 Engine Configuration
+					%div{:class => 'stepInfo', :style => 'min-height: 50px;'}
+						%table{:id => "events", :class => "list"}
+
+							- @general_configurations.each do |general_configuration|
+								%tr{:class => "odd"}
+									%td{:width => "1"}
+										%b Scan history polling
+									%td{:width => "1"}
+										= general_configuration.scan_history_polling().to_s + '  ' + @time_frame
+								%tr{:class => "even"}
+									%td{:width => "1"}
+										%b NSC Polling Time
+									%td{:width => "1"}
+										= general_configuration.nsc_polling
+					.btnRow
+						.btn
+							= link_to 'Edit',  edit_general_configuration_path(@general_configurations)

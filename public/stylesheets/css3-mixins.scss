@@ -1,0 +1,129 @@
+// ---- CSS3 SASS MIXINS ----
+// https://github.com/madr/css3-sass-mixins
+
+//  Should IE filters be used or not?
+//  PROS: gradients, drop shadows etc will be handled by css.
+//  CONS: will harm the site performance badly, 
+//        especially on sites with heavy rendering and scripting. 
+$useIEFilters: 0; // might be 0 or 1. disabled by default.
+
+@mixin border-radius ($radius: 5px) {
+  -moz-border-radius: $radius; /* Gecko */
+  -webkit-border-radius: $radius; /* Webkit */
+  -khtml-border-radius: $radius; /* Konqueror */
+  border-radius: $radius; /* CSS3 */
+}
+
+@mixin bottom-border-radius ($radius: 5px) {
+  -moz-border-radius-bottomleft: $radius; /* Gecko */
+  -moz-border-radius-bottomright: $radius;
+  -webkit-border-bottom-left-radius: $radius;  /* Webkit */
+  -webkit-border-bottom-right-radius: $radius;
+  -khtml-border-bottom-left-radius: $radius; /* Konqueror */
+  -khtml-border-bottom-right-radius: $radius;
+  border-bottom-left-radius: $radius; /* CSS3 */
+  border-bottom-right-radius: $radius;
+}
+
+@mixin top-border-radius ($radius: 5px) {
+  -moz-border-radius-topleft: $radius; /* Gecko */
+  -moz-border-radius-topright: $radius;
+  -webkit-border-top-left-radius: $radius;  /* Webkit */
+  -webkit-border-top-right-radius: $radius;
+  -khtml-border-top-left-radius: $radius; /* Konqueror */
+  -khtml-border-top-right-radius: $radius;
+  border-top-left-radius: $radius; /* CSS3 */
+  border-top-right-radius: $radius;
+}
+
+@mixin box-shadow ($x: 5px, $y:5px, $offset:6px, $hex:#DDDDDD, $ie: $useIEFilters) {
+  -moz-box-shadow: $x $y $offset $hex;
+  -o-box-shadow: $x $y $offset $hex;
+  -webkit-box-shadow: $x $y $offset $hex;
+  box-shadow: $x $y $offset $hex;
+  
+  @if $ie == 1 {
+    $iecolor: '#' + red($hex) + green($hex) + blue($hex);
+    filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=#{$x}, OffY=#{$y}, Color='#{$iecolor}');
+    -ms-filter: quote(progid:DXImageTransform.Microsoft.dropshadow(OffX=#{$x}, OffY=#{$y}, Color='#{$iecolor}'));
+  }
+}
+
+@mixin linear-gradient($from, $to, $ie: $useIEFilters) {
+  @if $ie != 1 {
+    background-color: $to;
+  }
+
+  background-image: -moz-linear-gradient($from, $to);
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, $from),color-stop(1, $to));
+  background-image: -webkit-linear-gradient($from, $to);
+  background-image: -o-linear-gradient($from, $to);
+  background-image: -ms-linear-gradient(top, $from, $to);
+  background-image: linear-gradient(top, $from, $to);
+
+  @if $ie == 1 { 
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$from}', endColorstr='#{$to}');
+    -ms-filter: quote(progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$from}', endColorstr='#{$to}'));
+  }
+}
+
+// From http://css-tricks.com/snippets/css/cross-browser-opacity/
+@mixin opacity($opacity, $ie: $useIEFilters) {
+  /* Netscape */
+  -moz-opacity: $opacity;
+
+  /* Safari 1.x */
+  -khtml-opacity: $opacity;
+
+  /* Good browsers */
+  opacity: $opacity;
+
+  @if $ie == 1 {
+    /* IE 8 */
+    -ms-filter: quote(progid:DXImageTransform.Microsoft.Alpha(Opacity=#{$opacity*100}));
+    /* IE 5-7 */
+    filter: alpha(opacity=#{$opacity*100});
+  }
+}
+
+
+@mixin rgba($hex, $alpha, $ie: $useIEFilters) {
+  @if $ie == 1 { 
+    // this formula is not accurate enough, will be fixed with sass 3.1
+    $hexopac: '#' + ceil((($alpha * 255)/16) *10) + $hex;
+    background-color: none;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#{$hexopac}',EndColorStr='#{$hexopac}}');
+    -ms-filter: quote(progid:DXImageTransform.Microsoft.gradient(startColorStr='#{$hexopac}',EndColorStr='#{$hexopac}'));
+  }
+  @else {
+    background-color: $hex;
+    background-color: rgba(red($hex), green($hex), blue($hex), $alpha);
+  }
+}
+
+@mixin rotate ($deg, $ie: $useIEFilters) {
+  -moz-transform: rotate(#{$deg}deg);
+  -o-transform: rotate(#{$deg}deg);
+  -webkit-transform: rotate(#{$deg}deg);
+  // not ready, impediment: cos required!
+  //@if $ie == 1 {
+  //  filter: progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', M11=0.99144486137381, M12=--0.130526192220052, M21=0.130526192220052, M22=0.99144486137381);
+  //  -ms-filter: quote(progid:DXImageTransform.Microsoft.Matrix(SizingMethod='auto expand', M11=0.99144486137381, M12=--0.130526192220052, M21=0.130526192220052, M22=0.99144486137381));
+  //  zoom: 1;
+  //}
+}
+
+@mixin text-shadow ($x: 2px, $y: 2px, $blur: 2px, $hex: #888, $ie: $useIEFilters) {
+  text-shadow: $x $y $blur $hex;
+  @if $ie == 1 {
+    filter: dropshadow(color=$hex, offx=$x, offy=$y);
+  }
+}
+
+@mixin transition ($value) {
+  -moz-transition: $value;
+  -o-transition: $value;
+  -webkit-transition: $value;
+  transition: $value;
+}
+// ==== /CSS3 SASS MIXINS ====

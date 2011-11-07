@@ -1,0 +1,21 @@
+%h1 Edit Engine Configuration
+
+- form_for @general_configuration do |f|
+	.one_col_with_sidebar
+		%fieldset
+			%dl
+				%dt
+					=f.label 'History lookup timeframe'
+				%dd
+					=f.number_field :scan_history_polling, {:autocomplete => :off, :size => '5'}
+					=collection_select :scan_history_time_frame, :id, ScanHistoryTimeFrame.all, :id, :time_type, {:size => '5'}
+			%dl
+				%dt
+					=f.label 'NSC polling time (seconds)'
+				%dd
+					=f.number_field :nsc_polling, {:autocomplete => :off, :size => '5'}
+			.buttons
+				.btn
+					= f.submit 'Update'
+
+= link_to 'Cancel', general_configurations_path

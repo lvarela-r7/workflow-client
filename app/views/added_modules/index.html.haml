@@ -1,0 +1,31 @@
+= javascript_include_tag 'nexpose_consoles'
+
+#nexpose_consoles
+	#overview
+		%div{:id => "detailed", :class => "tab_panel"}
+			=form_tag '/added_modules/destroy', :method => :delete, :name => 'added_modules_form' do
+				%div{:class => "stepLead", :style => "width: 100%;"}
+					.step
+						%h3 Modules
+						.stepInfo
+							%table{:class => "list"}
+								%thead{:class => "list-table-header"}
+									%th{:class => "checkbox"}
+										= check_box_tag "all_added_modules", 1, false, {:class => 'master_checkbox'}
+									%th Module Type
+									%th Module Name
+									%th Active
+								- @added_modules.each do |added_module|
+									%tr{:class => "#{cycle('odd', 'even')}"}
+										%td
+											= check_box_tag("added_module_ids[]", dom_id(added_module), false, {:class => 'child_checkbox'})
+										%td
+											= 'Ticketing'
+										%td
+											= link_to(h(added_module.module_name), module_specific_edit_path(added_module))
+										%td
+											=  added_module.is_active? ? 'Yes' : 'No'
+
+						.btnRow
+							%div{:class => "btn"}
+								=submit_tag "Delete", :class => "delete", :confirm => "Delete selected NeXpose Consoles?"

@@ -1,0 +1,37 @@
+<%= form_for(@ticket_rule) do |f| %>
+  <% if @ticket_rule.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@ticket_rule.errors.count, "error") %> prohibited this ticket_rule from being saved:</h2>
+
+      <ul>
+      <% @ticket_rule.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :use_vv %><br />
+    <%= f.check_box :use_vv %>
+  </div>
+  <div class="field">
+    <%= f.label :use_ve %><br />
+    <%= f.check_box :use_ve %>
+  </div>
+  <div class="field">
+    <%= f.label :use_vp %><br />
+    <%= f.check_box :use_vp %>
+  </div>
+  <div class="field">
+    <%= f.label :cvss_min %><br />
+    <%= f.text_field :cvss_min %>
+  </div>
+  <div class="field">
+    <%= f.label :cvss_max %><br />
+    <%= f.text_field :cvss_max %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

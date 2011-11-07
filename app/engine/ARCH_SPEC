@@ -1,0 +1,91 @@
+*WorkFlowEngine
+- Launch point for the engine
+
+managers
+- All managers are singletons
+    *NSCConnectionManager
+    - Responsible for wrapping the NeXpose Connection class to renew invalid sessions
+
+    *ScanHistoryManager
+    - Singleton
+    - Runs on a separate execution thread
+    - Used to poll NeXpose incase there was a scan that was not processed by the engine
+
+    *ScanManager
+    - Singleton
+    - Runs on a separate execution thread
+    - An obervable instance which updates observers on the status of a scan (moving to a gem)
+
+    *ScanStartNotificationManager
+    - Singleton
+    - Runs on a separate execution thread
+    - An obervable instance which updates observers on newly recognized scans (moving to a gem)
+
+    *RuleManager
+    - Singleton
+    - Loads all rules reflectively
+    - Handles fact assertion
+
+rules
+-
+Asserting Facts:
+include RuleBy
+
+engine :engine do |e|
+    Init RuleBook => r
+    init ruled in r => r.init_methods
+    # now assert facts
+    e.assert fact
+    # fire activations created by rules
+    e.match
+end
+
+Defining a RuleBook:
+MyRuleBook < RuleBy::RuleBook
+    def add_rule
+        rule :rule_name, [Fact, :f, f.something == something] do |v|
+            # execute something
+        end
+    end
+end
+
+Each module should extend a base class for which a method 'load_rules' should be overridden
+The rules manager will be used to reflectively load each modules Rules into the RETE.
+After the completion of each scan a scan info object will be popultated with scan data at which
+point the assertion of this scan fact will trigger the firing of rules.
+
+The information a user configures will be stored in the DB and loaded as rules. We will therefore
+add triggers to the model objects to re-load/load new rules as configured by a user.
+
+rule storage:
+Rules are not DB sprecific, they are defined within the rules directory which are reflectively loaded at startup.
+
+APPLICATION FLOW:
+
+1. Load all rules
+2. NeXpose is polled for scan info
+   - running scan manager
+
+   - scan history manager
+
+
+3. If new scan info has been found that has not been processed by the engine it is asserted and triggers a rule
+4. Rule books process facts as they come in.
+
+UI Side:
+
+Login Page:
+
+Main Page:
+- Header always shows main banner
+- Footer always shows logging output
+
+Options for main page:
+	Table
+		Right Side:
+		- General Config
+		- Add NSC Console
+		- Add module
+
+		Left Side:
+		- Loaded Modules
