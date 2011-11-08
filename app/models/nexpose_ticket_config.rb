@@ -1,5 +1,4 @@
 class NexposeTicketConfig < ActiveRecord::Base
-	validates_presence_of :default_assignee, :message => '(Ticket Client Config) The default config ID should exist.'
 
 	has_one :ticket_config, :as => :ticket_client
 
