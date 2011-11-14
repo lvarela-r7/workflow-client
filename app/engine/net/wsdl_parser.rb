@@ -1,5 +1,10 @@
 class WSDLParser < Nokogiri::XML::SAX::Document
 
+
+	# types => data types used by WS
+	# messages => Define the data elements, can contain one or more parts. ie: function parameters
+	# operations => (portType) operations that can be performed by an endpoint.
+	#
 	attr_reader :operations, :types, :elements, :documentation, :messages, :headers
 
 	@in_types = false
