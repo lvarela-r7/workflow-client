@@ -1,16 +1,22 @@
 class WSDLParser < Nokogiri::XML::SAX::Document
 
+	# PARSE STRATEGY
+	# For each major type needed the base data type is an ARRAY which
+	# will store a map of attributes. Nested elements will be marked
+	# with a "children" tag recursively.  Children will therefore
+	# be an array of the attributes in that child and then another
+	# "children" attribute if there are more sub-elements.
 
-	# types => data types used by WS
-	# messages => Define the data elements, can contain one or more parts. ie: function parameters
-	# operations => (portType) operations that can be performed by an endpoint.
-	#
-	attr_reader :operations, :types, :elements, :documentation, :messages, :headers
+	# TOP LEVEL ELEMENTS
+	# wsdl:types => data types used by WS
+	# wsdl:messages => Define the data elements, can contain one or more parts. ie: function parameters
+	# wsdl:portType => operations that can be performed by an endpoint.
+	# wsdl:binding
+	# wsdl:service
 
-	@in_types = false
-	@in_operation = false
-	@in_message = false
-	@in_type_block = false
+	attr_reader :port_types, :types, :messages, :bindings, :services, :wsdl_definitions
+
+	WSDL_SCHEMA_URL = ["^http:\/\/schemas\.xmlsoap\.org\/wsdl[\/]{0,1}$"]
 
 	#-------------------------------------------------------------------------------------------------------------------
 	#
@@ -28,16 +34,27 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	private
 
 	#-------------------------------------------------------------------------------------------------------------------
-	#
+	# Initialize the base array types
 	#-------------------------------------------------------------------------------------------------------------------
 	def initialize
-		@operations = {}
-		@types = {}
-		@elements = {}
-		@messages = {}
-		@headers = {}
-		@documentation = ""
-		@last_seen_operation_name = ""
+		@port_types = []
+		@types = []
+		@messages = []
+		@bindings = []
+		@services = []
+		@wsdl_definitions = {}
+
+		@in_types = false
+		@in_port_types = false
+		@in_message = false
+		@in_bindings = false
+		@in_services = false
+		@in_wsdl_definitions = false
+
+		# Use this default if wsdl:definitions tag not found
+		@wsdl_namespace = 'wsdl'
+
+		@depth = 0
 
 		super
 	end
@@ -47,10 +64,7 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	#-------------------------------------------------------------------------------------------------------------------
 	def end_element name
 		set_in_block name, false
-
-		if not name =~ /types/i and name =~ /type/i
-			@in_type_block = false
-		end
+		@depth = @depth - 1
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
@@ -59,11 +73,17 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	def start_element name, attrs = []
 		set_in_block name, true
 		if @in_types
-			parse_types name, attrs
+			add_data name, attrs, @types
 		elsif @in_message
-			parse_message name, attrs
-		elsif @in_operation
-			parse_operation name, attrs
+			add_data name, attrs, @messages
+		elsif @in_port_types
+			add_data name, attrs, @port_types
+		elsif @in_bindings
+			add_data name, attrs, @bindings
+		elsif @in_services
+			add_data name, attrs, @services
+		elsif @in_wsdl_definitions
+			parse_wsdl_definitions attrs
 		end
 	end
 
@@ -71,9 +91,35 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	#
 	#-------------------------------------------------------------------------------------------------------------------
 	def characters string
-	   if @in_document
-		   @documentation = string.chomp
-	   end
+
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	#
+	#-------------------------------------------------------------------------------------------------------------------
+	def parse_wsdl_definitions attrs
+		attrs.each do |attr_array|
+			key = attr_array[0].to_s.chomp
+			value = attr_array[1].to_s.chomp
+			if key =~ /xmlns:/ and is_wsdl_url?(value)
+				@wsdl_namespace = key.split(':')[1]
+			end
+
+			@wsdl_definitions[key] = value
+		end
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	#
+	#-------------------------------------------------------------------------------------------------------------------
+	def is_wsdl_url? input
+		WSDL_SCHEMA_URL.each do |url|
+			if input =~ /#{url}/
+				return true
+			end
+		end
+
+		false
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
@@ -81,113 +127,59 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	#-------------------------------------------------------------------------------------------------------------------
 	def set_in_block name, is_in
 		case name
-			when /documentation/
-				@in_document = is_in
-			when /types/
+			# Parse out the namespaces
+			when /#{@wsdl_namespace}:definitions/
+				@in_wsdl_definitions = is_in
+			when /#{@wsdl_namespace}:portType/
+				@in_port_types = is_in
+			when /#{@wsdl_namespace}:types/
 				@in_types = is_in
-			when /message/
+			when /#{@wsdl_namespace}:message/
 				@in_message = is_in
-			when /wsdl:operation/
-				@in_operation = is_in
-		end
-	end
-
-	#-------------------------------------------------------------------------------------------------------------------
-	# Parses out the WSDL types.
-	#-------------------------------------------------------------------------------------------------------------------
-	def parse_types name, attrs = []
-	   	# skip schema  and types tag
-		if name.eql? 'xsd:schema' or name =~ /types/
-			return
-		end
-
-		if name =~ /element/ and not @in_type_block
-			add_element attrs
-		elsif name =~ /type/i
-			@in_type_block = true
-			tag_name = get_attr attrs, "name"
-			@types[tag_name] = []
-		elsif @in_type_block
-			if name =~ /restriction/ or name =~ /sequence/
-				@types[@types.keys.last] << ["parent-type", name]
-			end
-
-			if attrs and not attrs.empty?
-				@types[@types.keys.last] << attrs.flatten
-			end
+			when /#{@wsdl_namespace}:binding/
+				@in_bindings = is_in
+			when /#{@wsdl_namespace}:service/
+				@in_services = is_in
 		end
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
 	#
 	#-------------------------------------------------------------------------------------------------------------------
-	def parse_message name, attrs
-		if name =~ /message/
-			@messages[get_attr(attrs, "name")] = []
-		elsif name =~ /part/
-			input = [name, get_attr(attrs, "element")]
-			@messages[@messages.keys.last] << input
-		end
-	end
+	def add_data element_name, attributes, element_array
+		last_map = element_array.last
 
-	#-------------------------------------------------------------------------------------------------------------------
-	#
-	#-------------------------------------------------------------------------------------------------------------------
-	def parse_operation name, attrs
-		op_name = get_attr(attrs, "name")
-		message = get_attr(attrs, "message")
-		if op_name and not op_name.to_s.empty?
-			@last_seen_operation_name = op_name
-		end
-
-		if not @last_seen_operation_name.to_s.empty?
-			if name =~ /operation/ and not @operations[@last_seen_operation_name]
-				@operations[@last_seen_operation_name] = []
-			elsif name =~ /input/
-				if message
-					@operations[@last_seen_operation_name] << ["message", message]
-				end
-			elsif name =~ /header/
-				unless @headers[@last_seen_operation_name]
-					@headers[@last_seen_operation_name] = []
-				end
-				if message
-					@headers[@last_seen_operation_name] << message
-				end
+		if last_map.nil? or @depth == 0
+			last_map = {}
+			last_map['element_name'] = element_name.to_s.chomp
+			attributes.each do |attribute|
+			   last_map[attribute[0].to_s.chomp] = attribute[1].to_s.chomp
 			end
-		 end
-	end
-
-	#-------------------------------------------------------------------------------------------------------------------
-  	# Parses out SOAP elements.
-	#-------------------------------------------------------------------------------------------------------------------
-	def add_element attrs = []
-		# Just parse out the name and associated type
-		name = ""
-		type = ""
-		attrs.each do |attr|
-			case attr[0].to_s
-				when /name/
-					name = attr[1].to_s
-				when /type/
-					type = attr[1].to_s
+			element_array << last_map
+		else
+			# Find current element
+			starting_depth = @depth - 1
+			while starting_depth > 0
+				last_child = last_map['children'].last
+				unless last_child.nil?
+					last_map = last_child
+				end
+				starting_depth = starting_depth - 1 
 			end
+
+			if (last_map['children'].nil?)
+				last_map['children'] = []
+			end
+
+			next_map = {}
+			next_map['element_name'] = element_name.to_s.chomp
+			attributes.each do |attribute|
+				next_map[attribute[0].to_s.chomp] = attribute[1].to_s.chomp
+			end
+			last_map['children'] << next_map
 		end
 
-		@elements[name] = type
+		@depth = @depth + 1
 	end
 
-	#-------------------------------------------------------------------------------------------------------------------
-	# Returns the attribute value with name @name
-	#-------------------------------------------------------------------------------------------------------------------
-	def get_attr attrs, name
-
-		attrs.each do |attr|
-			if attr[0].eql? name.to_s
-				return attr[1]
-			end
-		end
-
-		nil
-	end
 end

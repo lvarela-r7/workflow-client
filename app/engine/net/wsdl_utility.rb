@@ -5,64 +5,39 @@ class WSDLUtil
 		@parsed_wsdl = parsed_wsdl
 	end
 
-	#-------------------------------------------------------------------------------------------------------------------
-	# Returns a map of operations to needed input for executing that operation. The input needed is a map
-	# broken up by :body and :headers which both contain an array of element mappings of the basic inputs needed.
-	# The basic input is a map of :name, :type, and possible a :minOccurs value.
+	# operations_name => [port]
 	#
-	# ie: Get => [:body =>[{"Get" => [[{:name => "ID", :type => "xsd:string"}]]}]]}, :header => nil]
+
+	#-------------------------------------------------------------------------------------------------------------------
+	#
+	# PortType => {operation => {body => [type definitions], header => {header definitions} }}
+	#
+	# 1. For each port type iterate over the port_type array and find where the 'name' is equal
+	# 2. Aggregate an array of messages where element_name is of type /input/ (we want to store the name of the message)
+	# 3. From the array in 2 convert each message into its individual parts if there is a type we store that array
+	#    if NOT we search for the complex type parts from the types map.
 	#
 	# @exclude_file_ops - Remove all types that indicate file upload ie: xsd:base64Binary
 	#-------------------------------------------------------------------------------------------------------------------
-	def get_operations_and_parameters exclude_file_ops
+	def get_soap_input_operations exclude_file_ops
 		ops_and_params = {}
 
-		operations_and_headers.each do |message_type, enclosed_body|
-			enclosed_body.each do |key, value|
-				outer_map = {}
+		# TODO Remember GPS
+		operations_and_headers.each do |port_type, operations|
+			if ops_and_params[port_type].nil?
+				ops_and_params[port_type] = {}
+			end
 
-				# Load the messages
-				value.flatten.each do |message|
-					inner_map = {}
-					unless "message".eql? message
-						# Strip off the namespace
-						message = strip_namespace message
-
-						# Look up the parts for this message in the messages struct
-						parts = @parsed_wsdl.messages[message].flatten
-						parts.each do |part|
-							unless part =~ /part/
-								stripped_part = strip_namespace(part)
-								translated_element = @parsed_wsdl.elements[stripped_part] || stripped_part
-								if translated_element
-									input_data = load_types_for_part strip_namespace(translated_element)
-									if input_data
-										if exclude_file_ops
-											remove_file_ops input_data
-										end
-										unless inner_map[stripped_part]
-											inner_map[stripped_part] = []
-										end
-										inner_map[stripped_part] = input_data
-									end
-								end
-							end
-						end
-					end
-					unless inner_map.empty?
-						if outer_map[message_type]
-							outer_map[message_type].merge! inner_map
-						else
-							outer_map[message_type] = inner_map
-						end
-					end
-				end
-				if ops_and_params[key]
-				   ops_and_params[key].merge! outer_map
-				else
-					ops_and_params[key] = outer_map
+			operations.each do |operation|
+				# First handle headers
+				headers = operation['headers']
+				if headers.nil? or headers.empty?
+					next
 				end
 
+				headers.each do |header|
+					ops_and_params['header']
+				end
 			end
 		end
 
@@ -75,13 +50,160 @@ class WSDLUtil
 	private
 
 	#-------------------------------------------------------------------------------------------------------------------
-	#
+	# returns an array of the basic message data types
+	# TODO: for now only returns input types
+	#-------------------------------------------------------------------------------------------------------------------
+	def get_message_parts message_name
+		data_array = []
+
+		# Find the message
+		@parsed_wsdl.messages.each do |message|
+			# We found the message, now load all the input
+			if message_name =~ /#{message['name']}/
+				# Parse over children where 'name' == parameters
+				# look for base data type in the types array
+				# TODO: See if there is a better way to do this
+
+				message_children = message['children']
+				unless (message_children.nil? and message_children.empty?)
+					message_children.each do |message_child|
+						if message_child['name'] =~ /parameters/i
+							# Load data array from types map
+							type_name = message_child['element']
+							if type_name.include? ':'
+								type_name = type_name.split(':')[1]
+							end
+							loaded_types = load_from_type_map type_name
+
+							unless (loaded_types.nil? and loaded_types.empty?)
+								data_array.concat loaded_types
+							end
+						else
+							data_array << message_child
+						end
+					end
+				end
+
+			end
+		end
+
+		data_array
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# Loads all the base elements from the type map
+	#-------------------------------------------------------------------------------------------------------------------
+	def load_from_type_map type_name
+		# Parse tree until 'name' = type_name
+		# then parse children and get all element_name = element, has a 'name' and 'type'
+		parent_name = nil
+		data_types = {}
+		children = []
+		@parsed_wsdl.types.each do |type|
+			if type['name'] =~ /#{type_name}/
+				# We found what we are looking for now parse over the children
+				children << type['children']
+				children.each do |child|
+					# Is this a child we want
+					if child['element_name'] =~ /element/ and not child['name'].nil? and not child['type'].nil?
+						if data_types[parent_name].nil?
+							data_types[parent_name] = []
+						end
+						data_types[parent_name] << child
+					else
+						child_children = child['children']
+						if child_children.nil? or child_children.empty?
+							next
+						end
+
+						children.concat child_children
+					end
+
+				end
+			end
+			break
+		end
+
+		children
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# The goal here is to create an array of bindings with addition input and the the operation data.
+	# This function returns a hash of port_type to an array of the operations and headers needed.
+	# Ex: port_type => [operation_name => OP, headers => [message+headers]]
 	#-------------------------------------------------------------------------------------------------------------------
 	def operations_and_headers
-		merged = {}
-		merged[:body] = @parsed_wsdl.operations
-		merged[:header] = @parsed_wsdl.headers
-		merged
+		output = {}
+
+		# iterate over bindings
+		@parsed_wsdl.bindings.each do |binding|
+			#find the operation name and additional input
+			port_type = binding['type'].to_s
+			if port_type.include? ':'
+				port_type = port_type.split(':')[1]
+			end
+
+			child_bindings = binding['children']
+			is_soap_binding = false
+			child_bindings.each do |child_binding|
+
+				if child_binding['element_name'] =~ /soap/ and not is_soap_binding
+					is_soap_binding = true
+				end
+
+				if child_binding['element_name'] =~ /operation/
+					input = {}
+					operation_name = child_binding['name']
+					input['operation_name'] = operation_name
+					if exists?(port_type, operation_name, output)
+						next
+					end
+
+					# For now we just care to parse out all the input headers if any.
+					next_nodes = child_binding['children']
+					input['headers'] = []
+					next_nodes.each do |next_node|
+						if next_node['element_name'] =~ /input/
+							# See if the input contains headers
+							child_nodes = next_node['children']
+							unless child_nodes.nil?
+								child_nodes.each do |child_node|
+									if child_node['element_name'] =~ /header/
+										input['headers'] << child_node['message']
+									end
+								end
+							end
+						end
+					end
+
+					if is_soap_binding
+						if output[port_type].nil?
+							output[port_type] = []
+						end
+						output[port_type] << input
+					end
+				end
+			end
+		end
+		output
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	#
+	#-------------------------------------------------------------------------------------------------------------------
+	def exists? port_type, opertaion_name, output_hash
+		data_array = output_hash[port_type]
+		if data_array.nil?
+			return false
+		end
+
+		data_array.each do |data|
+			if data['operation_name'].to_s.eql?(opertaion_name)
+				return true
+			end
+		end
+
+		false
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
