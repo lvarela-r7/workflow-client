@@ -202,7 +202,7 @@ class TicketConfigsController < ApplicationController
 		wsdl_doc = File.read(Rails.root.join('public', 'uploads', wsdl_file_name))
 		parsed_wsdl = WSDLParser.parse wsdl_doc
 		wsdl_util = WSDLUtil.new parsed_wsdl
-		wsdl_util.get_operations_and_parameters true
+		wsdl_util.get_soap_input_operations true
 	end
 
 	def get_ticket_type type
