@@ -10,7 +10,7 @@ class WSDLUtil
 
 	#-------------------------------------------------------------------------------------------------------------------
 	#
-	# PortType => {operation => {body => [type definitions], header => {header definitions} }}
+	# PortType => {operation => {body => [{type definitions}], header => {header definitions} }}
 	#
 	# 1. For each port type iterate over the port_type array and find where the 'name' is equal
 	# 2. Aggregate an array of messages where element_name is of type /input/ (we want to store the name of the message)
@@ -22,11 +22,8 @@ class WSDLUtil
 	def get_soap_input_operations exclude_file_ops
 		ops_and_params = {}
 
-		# TODO Remember GPS
 		operations_and_headers.each do |port_type, operations|
-			if ops_and_params[port_type].nil?
-				ops_and_params[port_type] = {}
-			end
+			ops_and_params[port_type] = {}
 
 			operations.each do |operation|
 				# First handle headers
@@ -36,8 +33,16 @@ class WSDLUtil
 				end
 
 				headers.each do |header|
-					ops_and_params['header']
+					if ops_and_params[port_type]['headers'].nil?
+						# Headers are represented as an array of maps
+						ops_and_params[port_type]['headers'] = {}
+					end
+
+					header_elements = get_message_parts(header)
+					ops_and_params[port_type]['headers'][header] = header_elements
 				end
+
+
 			end
 		end
 
@@ -96,32 +101,51 @@ class WSDLUtil
 	def load_from_type_map type_name
 		# Parse tree until 'name' = type_name
 		# then parse children and get all element_name = element, has a 'name' and 'type'
-		parent_name = nil
+
 		data_types = {}
 		children = []
-		@parsed_wsdl.types.each do |type|
-			if type['name'] =~ /#{type_name}/
+		top_level_elements = @parsed_wsdl.types
+		top_level_elements.each do |type_element|
+			type_element_children = type_element['children']
+			if (!type_element_children.nil? && type_element_children.empty? && type_element['name'] =~ /#{type_name}/)
 				# We found what we are looking for now parse over the children
-				children << type['children']
+				parent_name = type_element['name']
+				children << type_element_children
 				children.each do |child|
 					# Is this a child we want
-					if child['element_name'] =~ /element/ and not child['name'].nil? and not child['type'].nil?
+					child_element_name = child['element']
+					if (!child_element_name.nil? && child_element_name =~ /element/ && !child['name'].nil? && !child['type'].nil?)
+						child_parent_name = child['parent_name']
+						unless (child_parent_name.nil? and child_parent_name.empty?)
+							parent_name = child['parent_name']
+						end
+
 						if data_types[parent_name].nil?
 							data_types[parent_name] = []
 						end
 						data_types[parent_name] << child
 					else
-						child_children = child['children']
+						# Don't modify the base data structure
+						child_children = child['children'].clone
+						child_children['parent_name'] = child['name']
 						if child_children.nil? or child_children.empty?
 							next
 						end
 
+						# Add the children to be parsed over
 						children.concat child_children
 					end
 
 				end
+				# We found the node we were looking for now break out
+				break
 			end
-			break
+
+			# Keep adding the child elements
+			child_elements = type_element['children']
+			if (!child_elements.nil? && !child_elements.empty?)
+				top_level_elements.concat child_elements
+			end
 		end
 
 		children

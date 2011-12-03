@@ -1,5 +1,8 @@
 == Rapid7 Workflow Engine
 
-GOAL: To provide a method of integrating 3rd party application with Rapid7 products.
+GOAL:
+To provide a method of integrating 3rd party applications with Rapid7 products.
+
+ARCHITECTURE:
 
 
