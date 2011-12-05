@@ -3,6 +3,7 @@
 GOAL:
 To provide a method of integrating 3rd party applications with Rapid7 products.
 
-ARCHITECTURE:
-
-
+TICKETING:
+Currently a module is implemented which allows users to setup
+Nexpose as an input source and a ticketing software as an output,
+such as: JIRA, Nexpose (Nexpose ticketing) and SOAP supported endpoints.
