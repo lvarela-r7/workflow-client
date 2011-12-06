@@ -28,21 +28,28 @@ class WSDLUtil
 			operations.each do |operation|
 				# First handle headers
 				headers = operation['headers']
-				if headers.nil? or headers.empty?
-					next
-				end
+				unless headers.nil? && headers.empty?
+					headers.each do |header|
+						if ops_and_params[port_type]['headers'].nil?
+							ops_and_params[port_type]['headers'] = {}
+						end
 
-				headers.each do |header|
-					if ops_and_params[port_type]['headers'].nil?
-						# Headers are represented as an array of maps
-						ops_and_params[port_type]['headers'] = {}
+						header = remove_namespace(header)
+						header_elements = get_message_parts(header)
+						ops_and_params[port_type]['headers'][header] = header_elements
 					end
-
-					header_elements = get_message_parts(header)
-					ops_and_params[port_type]['headers'][header] = header_elements
 				end
 
+				# We first need to retrieve the message inputs from the port_types
+				# We then retrieve the types for the message
+				if ops_and_params[port_type]['operations'].nil?
+					ops_and_params[port_type]['operations'] = {}
+				end
+				op_name = remove_namespace(operation['operation_name'].to_s)
+				ops_and_params[port_type]['operations'][op_name] = load_types_from_port_type_op op_name
 
+				# Load the headers needed
+				ops_and_params[port_type]['operations'][op_name]['headers'] = operation['headers']
 			end
 		end
 
@@ -54,12 +61,41 @@ class WSDLUtil
 	###################
 	private
 
+	def load_types_from_port_type_op operation
+
+		type_map = {}
+
+		node = load_port_type_with_name operation
+		node.each do |child|
+			if child['element_name'] =~ /input/
+				type_map.merge! get_message_parts child['message']
+			end
+		end
+
+		type_map
+	end
+
+	def load_port_type_with_name operation
+		port_types = @parsed_wsdl.port_types
+		port_types.each do |port_type|
+			name = port_type['name']
+			if operation.eql? name
+			   return port_type['children']
+			end
+
+			port_type_children = port_type['children']
+			if (!port_type_children.nil? and !port_type_children.empty?)
+				port_types.concat port_type['children']
+			end
+		end
+	end
+
 	#-------------------------------------------------------------------------------------------------------------------
 	# returns an array of the basic message data types
 	# TODO: for now only returns input types
 	#-------------------------------------------------------------------------------------------------------------------
 	def get_message_parts message_name
-		data_array = []
+		core_data_map = {}
 
 		# Find the message
 		@parsed_wsdl.messages.each do |message|
@@ -70,21 +106,23 @@ class WSDLUtil
 				# TODO: See if there is a better way to do this
 
 				message_children = message['children']
+				parent_name = remove_namespace(message_name)
 				unless (message_children.nil? and message_children.empty?)
 					message_children.each do |message_child|
 						if message_child['name'] =~ /parameters/i
 							# Load data array from types map
-							type_name = message_child['element']
-							if type_name.include? ':'
-								type_name = type_name.split(':')[1]
-							end
+							type_name = remove_namespace(message_child['element'])
 							loaded_types = load_from_type_map type_name
 
 							unless (loaded_types.nil? and loaded_types.empty?)
-								data_array.concat loaded_types
+								core_data_map.update loaded_types
 							end
 						else
-							data_array << message_child
+							if core_data_map[parent_name].nil?
+								core_data_map[parent_name] = []
+							end
+
+							core_data_map[parent_name] << message_child
 						end
 					end
 				end
@@ -92,34 +130,40 @@ class WSDLUtil
 			end
 		end
 
-		data_array
+		core_data_map
 	end
 
+	def remove_namespace name
+		if name.include? ':'
+			name = name.split(':')[1]
+		end
+		name
+	end
 	#-------------------------------------------------------------------------------------------------------------------
 	# Loads all the base elements from the type map
 	#-------------------------------------------------------------------------------------------------------------------
-	def load_from_type_map type_name
+	def load_from_type_map name_sought
 		# Parse tree until 'name' = type_name
 		# then parse children and get all element_name = element, has a 'name' and 'type'
 
 		data_types = {}
 		children = []
 		top_level_elements = @parsed_wsdl.types
+
+		# Start parse over the 'types' elements
 		top_level_elements.each do |type_element|
 			type_element_children = type_element['children']
-			if (!type_element_children.nil? && type_element_children.empty? && type_element['name'] =~ /#{type_name}/)
+			type_name = type_element['name']
+
+			# If the base elements are sub-elements
+			if (!type_element_children.nil? && !type_element_children.empty? && type_name =~ /#{ name_sought}/)
 				# We found what we are looking for now parse over the children
 				parent_name = type_element['name']
-				children << type_element_children
+				children.concat type_element_children
 				children.each do |child|
 					# Is this a child we want
-					child_element_name = child['element']
+					child_element_name = child['element_name']
 					if (!child_element_name.nil? && child_element_name =~ /element/ && !child['name'].nil? && !child['type'].nil?)
-						child_parent_name = child['parent_name']
-						unless (child_parent_name.nil? and child_parent_name.empty?)
-							parent_name = child['parent_name']
-						end
-
 						if data_types[parent_name].nil?
 							data_types[parent_name] = []
 						end
@@ -127,7 +171,11 @@ class WSDLUtil
 					else
 						# Don't modify the base data structure
 						child_children = child['children'].clone
-						child_children['parent_name'] = child['name']
+						child_name = child['name']
+						if (!child_name.nil? && !child_name.empty?)
+							parent_name = child_name
+						end
+
 						if child_children.nil? or child_children.empty?
 							next
 						end
@@ -139,6 +187,17 @@ class WSDLUtil
 				end
 				# We found the node we were looking for now break out
 				break
+
+		    # If the element is referenced by another
+			elsif type_element['name'] =~ /#{ name_sought}/
+				type_of_element = remove_namespace(type_element['type'])
+				if !type_of_element.nil?
+					# Detect loop
+					unless type_of_element.to_s.eql? type_name
+						# Then recurse
+						return load_from_type_map (remove_namespace(type_of_element))
+					end
+				end
 			end
 
 			# Keep adding the child elements
@@ -148,7 +207,7 @@ class WSDLUtil
 			end
 		end
 
-		children
+		data_types
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
@@ -162,10 +221,7 @@ class WSDLUtil
 		# iterate over bindings
 		@parsed_wsdl.bindings.each do |binding|
 			#find the operation name and additional input
-			port_type = binding['type'].to_s
-			if port_type.include? ':'
-				port_type = port_type.split(':')[1]
-			end
+			port_type = remove_namespace(binding['type'].to_s)
 
 			child_bindings = binding['children']
 			is_soap_binding = false
@@ -193,7 +249,7 @@ class WSDLUtil
 							unless child_nodes.nil?
 								child_nodes.each do |child_node|
 									if child_node['element_name'] =~ /header/
-										input['headers'] << child_node['message']
+										input['headers'] << remove_namespace(child_node['message'])
 									end
 								end
 							end
@@ -228,17 +284,6 @@ class WSDLUtil
 		end
 
 		false
-	end
-
-	#-------------------------------------------------------------------------------------------------------------------
-	#
-	#-------------------------------------------------------------------------------------------------------------------
-	def strip_namespace name
-		if name.include? ":"
-			name = name.split(":")[1]
-		end
-
-		name
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
