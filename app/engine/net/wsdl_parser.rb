@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Class used to parse a WSDL document.
+#
+# @author: Christopher Lee, christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
 class WSDLParser < Nokogiri::XML::SAX::Document
 
 	# PARSE STRATEGY

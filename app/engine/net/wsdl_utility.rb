@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Class used to perform operations on a parsed WSDL file.
+#
+# @author: Christopher Lee, christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
 class WSDLUtil
 
 	# TODO: Array parsing and representation

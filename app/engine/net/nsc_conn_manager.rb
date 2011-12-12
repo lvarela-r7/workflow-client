@@ -1,10 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Singleton class that manages all Nexpose connections.
+#
+# @author: Christopher Lee, christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
 require 'rubygems'
 require 'nexpose'
 require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
 
-#
-# Manages all NeXpose connections.
-#
 class NSCConnectionManager
 
 	private_class_method :new
@@ -142,9 +145,10 @@ class NSCConnectionManager
 end
 
 
-#
-# Wraps the NeXpose::Connection objects
-#
+#-----------------------------------------------------------------------------------------------------------------------
+# Wraps the NeXpose::Connection objects, uses delegation for all API calls, this eases the detection of am invalid/stale
+# session.
+#-----------------------------------------------------------------------------------------------------------------------
 class NexposeConnectionWrapper
 
 	def initialize nexpose_connection
