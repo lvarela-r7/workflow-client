@@ -1,2 +1,0 @@
-module Jira3TicketConfigsHelper
-end
