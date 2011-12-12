@@ -3,16 +3,13 @@
 	%ul.nav_tabs
 		%li{ :class => "h #{class_for_tab(:main)}"}
 			= link_to '/main' do
-				%span.tab Home
-		%li{ :class => "h #{class_for_tab(:modules)}"}
-			= link_to '/modules' do
-				%span.tab Modules
+				%span.tab Log
 		%li{ :class => "h #{class_for_tab(:added_modules)}"}
 			= link_to '/added_modules' do
-				%span.tab Added Modules
+				%span.tab Output Modules
 		%li{ :class => "h #{class_for_tab(:nsc_configs)}"}
 			= link_to '/nsc_configs' do
-				%span.tab Nexpose Consoles
+				%span.tab Input Modules
 		%li{ :class => "h #{class_for_tab(:general_configurations)}"}
 			= link_to '/general_configurations' do
 				%span.tab Configuration

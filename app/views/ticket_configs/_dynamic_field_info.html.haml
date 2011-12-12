@@ -1,0 +1,108 @@
+%div{:class => 'infoAlert' }
+	%b{:style => "color:black;horizontal-align:center"}
+		Dynamic Fields
+	%p
+		%i
+			The following represents a table of Nexpose input data items and the corresponding name that can be used within the parsed SOAP fields.<br>
+			For example if you have a field in your ticketing system named: "Description" you might want to use the vulnerability<br>
+			description returned by Nexpose, so in that field you would add "
+			%b{:style => "color:black"}$DESC$
+			". If you wish for there to be multiple data items in a field you would simply use a comma separated list for the output. <br>
+			For example if you wanted the node name to be a part of the description your field would be "
+			%b{:style => "color:black"}$NODE_NAME$, $DESC$
+			"<br>
+
+	%table{:id => "nexpose_ticket_mapping", :class => "list",  :bgcolor => "#CCCCCC"}
+		%thead{:class => "list-table-header"}
+			%th Nexpose field
+			%th Dynamic text
+		%tr{:class => 'odd'}
+			%td{:style => "color:black"}
+				Node Address
+			%td
+				%b{:style => "color:black"}
+					$NODE_ADDRESS$
+		%tr{:class => 'even'}
+			%td{:style => "color:black"}
+				Node Name
+			%td
+				%b{:style => "color:black"}
+					$NODE_NAME$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				Vendor
+			%td
+				%b{:style => "color:black"}
+					$VENDOR$
+		%tr{:class => "even"}
+			%td{:style => "color:black"}
+				Product
+			%td
+				%b{:style => "color:black"}
+					$PRODUCT$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				Family
+			%td
+				%b{:style => "color:black"}
+					$FAMILY$
+		%tr{:class => "even"}
+			%td{:style => "color:black"}
+				Version
+			%td
+				%b{:style => "color:black"}
+					$VERSION$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				Vulnerability Status
+			%td
+				%b{:style => "color:black"}
+					$VULN_STAT$
+		%tr{:class => "even"}
+			%td{:style => "color:black"}
+				Product
+			%td
+				%b{:style => "color:black"}
+					$PRODUCT$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				Vulnerability ID
+			%td
+				%b{:style => "color:black"}
+					$VULN_ID$
+		%tr{:class => "even"}
+			%td{:style => "color:black"}
+				Description
+			%td
+				%b{:style => "color:black"}
+					$DESC$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				Proof
+			%td
+				%b{:style => "color:black"}
+					$PROOF$
+		%tr{:class => "even"}
+			%td{:style => "color:black"}
+				Solution
+			%td
+				%b{:style => "color:black"}
+					$SOLUTION$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				Scan Start
+			%td
+				%b{:style => "color:black"}
+					$SCAN_START$
+		%tr{:class => "even"}
+			%td{:style => "color:black"}
+				Scan End
+			%td
+				%b{:style => "color:black"}
+					$SCAN_END$
+		%tr{:class => "odd"}
+			%td{:style => "color:black"}
+				CVSS Score
+			%td
+				%b{:style => "color:black"}
+					$CVSS_SCORE$

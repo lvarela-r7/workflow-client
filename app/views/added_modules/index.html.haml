@@ -28,4 +28,6 @@
 
 						.btnRow
 							%div{:class => "btn"}
-								=submit_tag "Delete", :class => "delete", :confirm => "Delete selected NeXpose Consoles?"
+								=submit_tag "Delete", :class => "delete", :confirm => "Delete selected output modules?"
+							%div{:class => "btn"}
+								=link_to "Add an output module", 'modules', :class => "new"

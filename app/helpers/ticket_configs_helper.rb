@@ -1,15 +1,5 @@
 module TicketConfigsHelper
 
-
-	def normalize_array_map_to_string_array wsdl_val_array
-		values = []
-		wsdl_val_array.each do |input|
-			values << input[:value]
-		end
-
-		values
-	end
-
 	def is_sensitive_field? label
 		case label
 			when /password/i
@@ -19,14 +9,66 @@ module TicketConfigsHelper
 		end
 	end
 
+	def get_input_type input
+		input_type = "("
+		if input['type'].instance_of? Hash
+			input_type += remove_namespace(input['type']['type'])
+		else
+			input_type += remove_namespace(input['type'])
+		end
+
+		input_type += ")"
+		input_type
+	end
+
+	def is_required_input? input
+
+		return !(input['minOccurs'].to_i == 0) if (input['minOccurs'])
+
+		return (input['nillable'].to_s.eql?('false')) if (input['nillable'])
+
+		true
+	end
+
+	def remove_namespace input
+		if input.include? ':'
+			return input.split(':')[1]
+		end
+
+		input
+	end
+
 	def convert_array_to_value_map input
 		map = {}
 
-		input.each_index do |index|
-			map[input[index]] = index
+		index = 0
+		input.each do |port_type, headers_and_ops|
+			headers_and_ops['operations'].each do |key, value|
+				op_name = port_type.to_s + "|" + key.to_s
+				map[op_name] = index
+				index += 1
+			end
 		end
 
 		map
 	end
 
+	def get_headers headers, wsdl_operations
+		map = {}
+		headers.each do |header|
+			map[header] = wsdl_operations[header]
+		end
+
+		map
+	end
+
+	def has_operations? input
+		input.each do |key, value|
+			unless 'headers'.eql? key
+				return true
+			end
+		end
+
+		false
+	end
 end

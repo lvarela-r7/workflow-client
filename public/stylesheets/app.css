@@ -14,6 +14,13 @@ table, caption, tbody, tfoot, thead, tr, th, td, dd {
 	background: transparent;
 }
 
+.infoAlert {
+    background: url("/images/info.png") no-repeat scroll 5px 5px #F7FAFB;
+    border: 1px solid #0176C4;
+    color: #000000;
+    padding: 5px 5px 5px 30px;
+}
+
 .btn input {
 	margin: 0;
 	padding: 0;
@@ -782,7 +789,6 @@ div#breadcrumb {
 	border: 1px solid #dddddd;
 	border-top: 1px solid #cacaca;
 	padding: 15px;
-	background-image: url(../images/steps.png);
 	background-repeat: no-repeat;
 	min-height: 80px;
 }
@@ -792,7 +798,6 @@ div#breadcrumb {
 	border: 1px solid #dddddd;
 	border-top: 1px solid #cacaca;
 	padding: 15px;
-	background-image: url(../images/steps.png);
 	background-repeat: no-repeat;
 	min-height: 0;
 }
@@ -1685,11 +1690,6 @@ form dt input[type=checkbox] {
 
 div.one_col_no_sidebar fieldset {
 	float: none;
-}
-
-
-div.two_col_with_sidebar fieldset, div.one_col_with_sidebar fieldset {
-	width: 570px;
 }
 
 

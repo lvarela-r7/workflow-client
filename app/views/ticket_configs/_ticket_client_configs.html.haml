@@ -89,48 +89,55 @@
 					.btn
 						= remedy_form.submit 'Parse WSDL'
 
-		- if @wsdl_operations and not @wsdl_operations.empty?
+		- if (!@wsdl_operations.nil? && !@wsdl_operations.empty?)
+			= render 'dynamic_field_info'
+
 			%fieldset
 				%legend{:align => "center"}
-					%b WSDL Operation
-				= label_tag 'Select the ticketing operation:'
-				= select nil, "remedy_ticket_op_id", convert_array_to_value_map(@wsdl_operations.keys), {}, {:id => "wsdl_operations"}
-
+					%b SOAP Operation
+				= label_tag 'Select the operation (Port Type|Operation):'
+				= select nil, "remedy_ticket_op_id", convert_array_to_value_map(@wsdl_operations), {}, {:id => "wsdl_operations"}
+				%h4
+					* - Required input
 				- index = -1
-				- @wsdl_operations.each do |keys, wsdl_input|
-					- if wsdl_input
+				- @wsdl_operations.each do |port_type, headers_and_ops|
+					- headers_and_ops['operations'].each do |operation, inputs|
 						- index = index + 1
+						- proper_op_name = port_type.to_s + "|" + operation.to_s
 						%div{:id => "wsdl_op_#{index}"}
-							- if wsdl_input[:header]
-								- wsdl_input[:header].each do |key, value|
-									%fieldset
-										%legend{:align => "center"}
-											%b Header Input
-										- value.each do |input|
-											%dl
-												%dt
-													- is_required = !(input[:minOccurs] and input[:minOccurs].to_i == 0)
-													- if is_required
-														= label_tag(input[:name] + '*', nil, {:style => "color:red"})
-													- else
-														= label_tag(input[:name])
-												%dd
-													= ((input[:type].instance_of? Array) ? (select "remedy_config_#{index}[#{input[:name]}]", nil, normalize_array_map_to_string_array(input[:type])) : (is_sensitive_field?(input[:name]) ? (password_field_tag "remedy_config_#{index}[#{input[:name]}]") : (text_field_tag "remedy_config_#{index}[#{input[:name]}]")))
+							- if inputs['headers'] && !inputs['headers'].empty?
+								- headers = get_headers(inputs['headers'], @wsdl_operations[port_type]['headers'])
+								%fieldset
+									%legend{:align => "center"}
+										%b Header Input
+									- headers.each do |key, value|
+										- value.each do |header_name, header_inputs|
+											%fieldset
+												%legend{:align => "center"}
+													%b #{header_name}
+												- header_inputs.each do |input|
+													%dl
+														%dt
+															- if is_required_input?(input)
+																= label_tag(input['name'] + '*' + "  #{get_input_type(input)}", nil, {:style => "color:red"})
+															- else
+																= label_tag(input['name']) + "  #{get_input_type(input)}"
+														%dd
+															= ((input['type'].instance_of? Hash) ? (select "remedy_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "remedy_config_#{index}[#{input['name']}]") : (text_field_tag "remedy_config_#{index}[#{input['name']}]")))
 
-							- if wsdl_input[:body]
-								- wsdl_input[:body].each do |key, value|
-									%fieldset
-										%h4
-											* - Required input
-										%legend{:align => "center"}
-											%b Body Input
+							- if has_operations?(inputs)
+								%fieldset
+									%legend{:align => "center"}
+										%b Body Input
+									- inputs.each do |key, value|
+										- if 'headers'.eql? key
+											- next
 										- value.each do |input|
 											%dl
 												%dt
-													- is_required = !(input[:minOccurs] and input[:minOccurs].to_i == 0)
-													- if is_required
-														= label_tag(input[:name] + '*', nil, {:style => "color:red"})
+													- if is_required_input?(input)
+														= label_tag(input['name'] + '*' + "  #{get_input_type(input)}", nil, {:style => "color:red"})
 													- else
-														= label_tag(input[:name])
+														= label_tag(input['name']) + "  #{get_input_type(input)}"
 												%dd
-													= ((input[:type].instance_of? Array) ? (select "remedy_config_#{index}[#{input[:name]}]", nil, normalize_array_map_to_string_array(input[:type])) : (is_sensitive_field?(input[:name]) ? (password_field_tag "remedy_config_#{index}[#{input[:name]}]") : (text_field_tag "remedy_config_#{index}[#{input[:name]}]")))
+													= ((input['type'].instance_of? Hash) ? (select "remedy_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "remedy_config_#{index}[#{input['name']}]") : (text_field_tag "remedy_config_#{index}[#{input['name']}]")))

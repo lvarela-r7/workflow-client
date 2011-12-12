@@ -41,7 +41,7 @@ function load_selected_client() {
 		jQuery('.nexpose_no_test_ticket').show();
 		jQuery("div#nexpose").show();
 	}
-	else if (val == "Remedy")
+	else
 	{
 		jQuery('#ticket-mapping-bar').hide();
 		jQuery("div#remedy").show();

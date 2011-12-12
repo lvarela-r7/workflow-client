@@ -22,7 +22,7 @@ class TicketConfigsController < ApplicationController
 			session[:wsdl_file_name]  = wsdl_file_name
 
 			# Ensure the div is setup and open.
-			@ticket_type = "Remedy"
+			@ticket_type = "SOAP supported"
 			@show_ticket_client_div = true
 		end
 
@@ -89,7 +89,7 @@ class TicketConfigsController < ApplicationController
 				ticket_client = Jira4TicketConfig.new(Jira4TicketConfig.parse_model_params params[:jira4_config])
 			when /Nexpose/
 				ticket_client = NexposeTicketConfig.new(NexposeTicketConfig.parse_model_params params[:nexpose_config])
-			when /Remedy/
+			when /^SOAP/
 				op_id = params[:remedy_ticket_op_id].chomp.to_i
 				wsdl_file_name = session[:wsdl_file_name]
 				operation = get_wsdl_operations(wsdl_file_name).keys[op_id]
@@ -217,7 +217,7 @@ class TicketConfigsController < ApplicationController
 				@jira4_ticket_client = @ticket_config.ticket_client
 				return 'Jira4x'
 			when /Remedy/
-				return 'Remedy'
+				return 'SOAP'
 			else
 				return 'Nexpose'
 		end

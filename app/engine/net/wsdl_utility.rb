@@ -1,15 +1,18 @@
 class WSDLUtil
 
+	# TODO: Array parsing and representation
 
-	def initialize parsed_wsdl
-		@parsed_wsdl = parsed_wsdl
-	end
-
-	# operations_name => [port]
-	#
+	FILE_TYPES = ['base64Binary']
 
 	#-------------------------------------------------------------------------------------------------------------------
-	#
+	# This utility uses an underlying parsed WSDL object to perform operations.
+	#-------------------------------------------------------------------------------------------------------------------
+	def initialize parsed_wsdl
+		@parsed_wsdl = parsed_wsdl
+		@exclude_file_ops = false
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
 	# PortType => {operation => {body => [{type definitions}], header => {header definitions} }}
 	#
 	# 1. For each port type iterate over the port_type array and find where the 'name' is equal
@@ -20,6 +23,12 @@ class WSDLUtil
 	# @exclude_file_ops - Remove all types that indicate file upload ie: xsd:base64Binary
 	#-------------------------------------------------------------------------------------------------------------------
 	def get_soap_input_operations exclude_file_ops
+
+		if @parsed_wsdl.wsdl_version != 1.2
+		 	raise "Unsupported WSDL version: #{@parsed_wsdl.wsdl_version}"
+		end
+
+		@exclude_file_ops = exclude_file_ops
 		ops_and_params = {}
 
 		operations_and_headers.each do |port_type, operations|
@@ -28,16 +37,19 @@ class WSDLUtil
 			operations.each do |operation|
 				# First handle headers
 				headers = operation['headers']
-				unless headers.nil? && headers.empty?
+				if ops_and_params[port_type]['headers'].nil?
+					ops_and_params[port_type]['headers'] = {}
+				end
+				if (!headers.nil? && !headers.empty?)
 					headers.each do |header|
-						if ops_and_params[port_type]['headers'].nil?
-							ops_and_params[port_type]['headers'] = {}
-						end
 
 						header = remove_namespace(header)
 						header_elements = get_message_parts(header)
 						ops_and_params[port_type]['headers'][header] = header_elements
 					end
+				else
+					# Load basic auth headers
+					ops_and_params[port_type]['headers']['Basic Authentication'] = load_basic_auth
 				end
 
 				# We first need to retrieve the message inputs from the port_types
@@ -49,7 +61,11 @@ class WSDLUtil
 				ops_and_params[port_type]['operations'][op_name] = load_types_from_port_type_op op_name
 
 				# Load the headers needed
-				ops_and_params[port_type]['operations'][op_name]['headers'] = operation['headers']
+				headers_for_op = operation['headers']
+				if (headers_for_op.nil? || headers_for_op.empty?)
+					headers_for_op = ['Basic Authentication']
+				end
+				ops_and_params[port_type]['operations'][op_name]['headers'] = headers_for_op
 			end
 		end
 
@@ -61,6 +77,9 @@ class WSDLUtil
 	###################
 	private
 
+	#-------------------------------------------------------------------------------------------------------------------
+	# Finds all the base types from a portType
+	#-------------------------------------------------------------------------------------------------------------------
 	def load_types_from_port_type_op operation
 
 		type_map = {}
@@ -75,8 +94,11 @@ class WSDLUtil
 		type_map
 	end
 
+	#-------------------------------------------------------------------------------------------------------------------
+	# Find a base type for a specific operation
+	#-------------------------------------------------------------------------------------------------------------------
 	def load_port_type_with_name operation
-		port_types = @parsed_wsdl.port_types
+		port_types = @parsed_wsdl.port_types.clone
 		port_types.each do |port_type|
 			name = port_type['name']
 			if operation.eql? name
@@ -95,23 +117,26 @@ class WSDLUtil
 	# TODO: for now only returns input types
 	#-------------------------------------------------------------------------------------------------------------------
 	def get_message_parts message_name
+		message_name = remove_namespace(message_name)
 		core_data_map = {}
 
 		# Find the message
 		@parsed_wsdl.messages.each do |message|
 			# We found the message, now load all the input
-			if message_name =~ /#{message['name']}/
-				# Parse over children where 'name' == parameters
-				# look for base data type in the types array
-				# TODO: See if there is a better way to do this
+			if message_name.eql?(remove_namespace(message['name']))
 
 				message_children = message['children']
-				parent_name = remove_namespace(message_name)
+				parent_name = message_name
 				unless (message_children.nil? and message_children.empty?)
 					message_children.each do |message_child|
-						if message_child['name'] =~ /parameters/i
+
+						unless is_base_type?(message_child)
 							# Load data array from types map
-							type_name = remove_namespace(message_child['element'])
+							message_child_element = message_child['element']
+							unless message_child_element
+								message_child_element = message_child['type']
+							end
+							type_name = remove_namespace(message_child_element)
 							loaded_types = load_from_type_map type_name
 
 							unless (loaded_types.nil? and loaded_types.empty?)
@@ -127,36 +152,51 @@ class WSDLUtil
 					end
 				end
 
+				break
 			end
 		end
 
 		core_data_map
 	end
 
+	def is_base_type? type_node
+		type = type_node['type']
+		if type
+			return is_xml_schema_type?(type)
+		end
+
+		false
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# Removes namespace prefix if any
+	#-------------------------------------------------------------------------------------------------------------------
 	def remove_namespace name
 		if name.include? ':'
 			name = name.split(':')[1]
 		end
 		name
 	end
+
 	#-------------------------------------------------------------------------------------------------------------------
 	# Loads all the base elements from the type map
 	#-------------------------------------------------------------------------------------------------------------------
 	def load_from_type_map name_sought
 		# Parse tree until 'name' = type_name
 		# then parse children and get all element_name = element, has a 'name' and 'type'
+		name_sought = remove_namespace(name_sought)
 
 		data_types = {}
 		children = []
-		top_level_elements = @parsed_wsdl.types
-
+		top_level_elements = @parsed_wsdl.types.clone
+		                                       1
 		# Start parse over the 'types' elements
 		top_level_elements.each do |type_element|
 			type_element_children = type_element['children']
 			type_name = type_element['name']
 
 			# If the base elements are sub-elements
-			if (!type_element_children.nil? && !type_element_children.empty? && type_name =~ /#{ name_sought}/)
+			if (!type_element_children.nil? && !type_element_children.empty? && type_name =~ /#{name_sought}/)
 				# We found what we are looking for now parse over the children
 				parent_name = type_element['name']
 				children.concat type_element_children
@@ -167,8 +207,27 @@ class WSDLUtil
 						if data_types[parent_name].nil?
 							data_types[parent_name] = []
 						end
+
+						if @exclude_file_ops && is_file_type?(child['type'])
+							next
+						end
+
+						# Try to load reference to enumeration if the type is not
+						# a XML schema base type
+						child_type = child['type']
+						if (!child_type.nil? && !(is_xml_schema_type?(child_type)))
+							# Change the type to an array of hash values
+							# (:name, :type, :value)
+							new_type = load_enumeration_data child_type
+							if new_type
+								child['type'] = new_type
+							end
+						end
+
+						# TODO: recursively load other types.
+
 						data_types[parent_name] << child
-					else
+					elsif child['children']
 						# Don't modify the base data structure
 						child_children = child['children'].clone
 						child_name = child['name']
@@ -176,7 +235,7 @@ class WSDLUtil
 							parent_name = child_name
 						end
 
-						if child_children.nil? or child_children.empty?
+						if child_children.empty?
 							next
 						end
 
@@ -208,6 +267,81 @@ class WSDLUtil
 		end
 
 		data_types
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# Builds and returns basic authentication header
+	#-------------------------------------------------------------------------------------------------------------------
+	def load_basic_auth
+		basic_auth = {}
+		basic_auth['Basic Authentication'] = []
+		basic_auth['Basic Authentication'] << {'name' => 'Name', 'type' => 'string', 'nillable' => 'true'}
+		basic_auth['Basic Authentication'] << {'name' => 'Password', 'type' => 'string', 'nillable' => 'true'}
+		basic_auth
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# Returns true iff the passed in type represent a file format
+	#-------------------------------------------------------------------------------------------------------------------
+	def is_file_type? type
+		FILE_TYPES.each do |file_type|
+			if type =~ /#{file_type}/
+				return true
+			end
+		end
+
+		false
+	end
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# Parses over the 'types' map and loads all the enumerations that are part of the passed in name type.
+	# The map construct is of the form {name => type_name, type => (string,int,etc), values => [array of vals] }
+	#-------------------------------------------------------------------------------------------------------------------
+	def load_enumeration_data type_name
+		type_name = remove_namespace(type_name)
+
+		# Iterate of the types table until we find the type name sought and the element_name is simpleType
+		top_level_elements = @parsed_wsdl.types.clone
+
+		# Start parse over the 'types' elements
+		top_level_elements.each do |type_element|
+			name = type_element['name']
+			element_name = type_element['element_name']
+			child_elements = type_element['children']
+
+			if (!name.nil? && name.eql?(type_name) && element_name =~ /simpleType/)
+				# We found what we are looking for, now define the
+				input = {}
+				input['name'] = name
+				input['values'] = []
+				child_elements.each do |child|
+					element_name = child['element_name']
+					if element_name
+						case element_name
+							when /enumeration/
+								input['values'] << child['value']
+							when /restriction/
+								input['type'] = child['base']
+						end
+					end
+
+					# Continue iteration over the children
+					inner_child_elements = child['children']
+					if inner_child_elements
+						child_elements.concat inner_child_elements
+					end
+				end
+
+				return input
+			end
+
+			# Keep adding the child elements
+			if (!child_elements.nil? && !child_elements.empty?)
+				top_level_elements.concat child_elements
+			end
+		end
+
+		nil
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
@@ -287,88 +421,11 @@ class WSDLUtil
 	end
 
 	#-------------------------------------------------------------------------------------------------------------------
-	# Remove all related file input entries
-	#-------------------------------------------------------------------------------------------------------------------
-	def remove_file_ops input_array
-
-		names_to_remove = []
-
-		input_array.each_index do |index|
-			data = input_array[index]
-
-			# The last index indicates type
-			if data[:type] =~ /base64/
-				names_to_remove << data[:name]
-            end
-		end
-
-		data_types_to_delete = []
-		names_to_remove.each do |name|
-			# TODO: Explain!
-			if name.include? '_'
-				name = name.split("_")[0].to_s
-			end
-
-			input_array.each do |data|
-				if data[:name].include? name
-					data_types_to_delete << data
-				end
-			end
-		end
-
-		data_types_to_delete.each do |data_type_to_delete|
-			input_array.delete data_type_to_delete
-		end
-	end
-
-	#-------------------------------------------------------------------------------------------------------------------
 	#
 	#
 	#-------------------------------------------------------------------------------------------------------------------
-	def load_types_for_part part
-		parsed_types = @parsed_wsdl.types[part]
-	    output_data = []
-
-		if parsed_types
-			parsed_types.each do |type|
-				# These are all arrays
-				added_data = {}
-				skip_next = false
-
-				type.each_index do |index|
-
-					if skip_next
-						skip_next = false
-						next
-					end
-
-					type_info = type[index].to_s
-					next_type_info = type[index + 1].to_s
-
-					case type_info
-						when 'name', 'value', 'minOccurs'
-							added_data[type_info.to_s.intern] = next_type_info
-							skip_next = true
-
-						when 'type'
-							added_data[type_info.to_s.intern] = next_type_info
-							unless next_type_info.to_s.start_with? 'xsd'
-								# In this case, we have a defined data type
-								added_data[type_info.to_s.intern] = load_types_for_part(strip_namespace(next_type_info))
-							else
-								added_data[type_info.to_s.intern] = next_type_info
-							end
-							skip_next = true
-					end
-				end
-
-				unless added_data.empty?
-					output_data << added_data
-				end
-			end
-		end
-
-		output_data
+	def is_xml_schema_type? type
+		type =~ /^#{@parsed_wsdl.xml_schema_qualifier}/
 	end
 
 end

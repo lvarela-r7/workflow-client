@@ -14,9 +14,10 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	# wsdl:binding
 	# wsdl:service
 
-	attr_reader :port_types, :types, :messages, :bindings, :services, :wsdl_definitions
+	attr_reader :port_types, :types, :messages, :bindings, :services, :wsdl_definitions, :xml_schema_qualifier, :wsdl_version
 
-	WSDL_SCHEMA_URL = ["^http:\/\/schemas\.xmlsoap\.org\/wsdl[\/]{0,1}$"]
+	WSDL_SCHEMA_URL = ["^http:\/\/schemas\.xmlsoap\.org\/wsdl[\/]{0,1}$", "^http:\/\/www\.w3\.org\/ns\/wsdl[\/]{0,1}$"]
+	XML_SCHEMA_URL = "^http:\/\/www\.w3\.org\/2001\/XMLSchema[\/]{0,1}$"
 
 	#-------------------------------------------------------------------------------------------------------------------
 	#
@@ -52,7 +53,9 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 		@in_wsdl_definitions = false
 
 		# Use this default if wsdl:definitions tag not found
-		@wsdl_namespace = 'wsdl'
+		@wsdl_namespace = ''
+		@xml_schema_qualifier = ''
+		@wsdl_version = 0
 
 		@depth = 0
 
@@ -101,8 +104,12 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 		attrs.each do |attr_array|
 			key = attr_array[0].to_s.chomp
 			value = attr_array[1].to_s.chomp
-			if key =~ /xmlns:/ and is_wsdl_url?(value)
-				@wsdl_namespace = key.split(':')[1]
+			if key =~ /xmlns:/
+				if is_wsdl_url?(value)
+					@wsdl_namespace = key.split(':')[1]
+				elsif value =~ /#{XML_SCHEMA_URL}/
+					@xml_schema_qualifier = key.split(':')[1]
+				end
 			end
 
 			@wsdl_definitions[key] = value
@@ -113,8 +120,14 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	#
 	#-------------------------------------------------------------------------------------------------------------------
 	def is_wsdl_url? input
-		WSDL_SCHEMA_URL.each do |url|
-			if input =~ /#{url}/
+		WSDL_SCHEMA_URL.each_index do |index|
+			if input =~ /#{WSDL_SCHEMA_URL[index]}/
+				case index
+					when 0
+						@wsdl_version = 1.2
+					when 1
+						@wsdl_version = 2.0
+				end
 				return true
 			end
 		end
@@ -128,7 +141,7 @@ class WSDLParser < Nokogiri::XML::SAX::Document
 	def set_in_block name, is_in
 		case name
 			# Parse out the namespaces
-			when /#{@wsdl_namespace}:definitions/
+			when /.*:definitions/
 				@in_wsdl_definitions = is_in
 			when /#{@wsdl_namespace}:portType/
 				@in_port_types = is_in

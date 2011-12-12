@@ -8,10 +8,8 @@
 					.step
 						.btnRow
 							%div{:class => "btn"}
-								= link_to "Add a NeXpose Console", new_nsc_config_path, :class => "new"
-							%div{:class => "btn"}
-								=submit_tag "Delete", :class => "delete", :confirm => "Delete selected NeXpose Consoles?"
-						%h3 NeXpose Consoles
+								= link_to "Add a Nexpose Console", new_nsc_config_path, :class => "new"
+						%h3 Added Modules
 						.stepInfo
 							%table{:class => "list"}
 								%thead{:class => "list-table-header"}
@@ -33,3 +31,8 @@
 											= nsc_config.port
 										%td
 											=  nsc_config.is_active? ? 'Yes' : 'No'
+
+							- unless @nsc_configs.empty?
+								.btnRow
+									%div{:class => "btn"}
+										=submit_tag "Delete", :class => "delete", :confirm => "Delete selected Nexpose Consoles?"
