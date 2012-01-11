@@ -1,9 +1,20 @@
 == Rapid7 Workflow Engine
 
+#####
 GOAL:
+#####
 To provide a method of integrating 3rd party applications with Rapid7 products.
 
+##########
 TICKETING:
+##########
 Currently a module is implemented which allows users to setup
 Nexpose as an input source and a ticketing software as an output,
 such as: JIRA, Nexpose (Nexpose ticketing) and SOAP supported endpoints.
+
+#############################
+STARTING THE WORKFLOW ENGINE:
+#############################
+1. Download the latest version of postgres and setup a database with a password.
+2. Configure config/database.yml 'production' attributes to use the database attributes setup in 1
+3. From the script directory run: >rails server webrick -b 127.0.0.1 -p <port> -e production
