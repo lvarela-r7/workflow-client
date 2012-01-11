@@ -3,7 +3,7 @@ class CreateScansProcessed < ActiveRecord::Migration
     create_table :scans_processed do |t|
       t.string :host
       t.string :scan_id
-	  t.string :module
+      t.string :module
     end
   end
 

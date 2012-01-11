@@ -1,4 +1,4 @@
-class RemedyTicketConfig < ActiveRecord::Base
+class SOAPTicketConfig < ActiveRecord::Base
 	serialize :mappings, Hash
 
 	has_one :ticket_config, :as => :ticket_client
@@ -13,8 +13,8 @@ class RemedyTicketConfig < ActiveRecord::Base
 	end
 
 	def self.parse_model_params params, wsdl_file_name, operation
-		op_id = params[:remedy_ticket_op_id]
-		key = "remedy_config_#{op_id}"
+		op_id = params[:soap_ticket_op_id]
+		key = "soap_config_#{op_id}"
         input = params[key]
 
 		# Add the operation and the file name

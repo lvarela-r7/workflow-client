@@ -1,7 +1,9 @@
+require "nexpose"
+
 class Test
-	def self.client_name
-		'name-arse'
-	end
+  def self.client_name
+    'name-arse'
+  end
 end
 
 begin
@@ -10,14 +12,14 @@ begin
 	nexpose_client.login
 =end
 
-	# ticket_info: A hash of the data to be used to create a ticket in NeXpose:
-	# :name        => The name of the ticket (Required)
-	# :device_id   => The NeXpose device ID for the device being ticketed (Required)
-	# :assigned_to => The NeXpose user to whom this ticket is assigned (Required)
-	# :priority    => "low,moderate,normal,high,critical" (Required)
-	#
-	# :vulnerabilities => An array of NeXpose vuln IDs  (Required)
-	# :comments        => An array of comments to accompany this ticket
+  # ticket_info: A hash of the data to be used to create a ticket in NeXpose:
+  # :name        => The name of the ticket (Required)
+  # :device_id   => The NeXpose device ID for the device being ticketed (Required)
+  # :assigned_to => The NeXpose user to whom this ticket is assigned (Required)
+  # :priority    => "low,moderate,normal,high,critical" (Required)
+  #
+  # :vulnerabilities => An array of NeXpose vuln IDs  (Required)
+  # :comments        => An array of comments to accompany this ticket
 
 =begin
 	vulns = ['adobe-reader-getplus-bof']
@@ -34,7 +36,11 @@ begin
 	puts (nexpose_client.delete_ticket [18])
 =end
 
-	test = {}
-	puts 'hi' if test.keys.nil?
+  nsc_connection = Nexpose::Connection.new('localhost', 'v4test', 'buynexpose')
+  nsc_connection.login
+  adhoc_report_generator = Nexpose::ReportAdHoc.new nsc_connection
+  adhoc_report_generator.addFilter 'scan', '6'
+  data = adhoc_report_generator.generate
+  puts data.to_s
 
 end

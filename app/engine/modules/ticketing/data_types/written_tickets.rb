@@ -8,7 +8,7 @@ class WrittenTickets
     (@written_tickets.count key.to_s.chomp).to_i > 0
   end
 
-	# key: A string of dev-id|port|vid|vkey
+  # key: A string of dev-id|port|vid|vkey
   def add_key key
     @written_tickets << key
   end

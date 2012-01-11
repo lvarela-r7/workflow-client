@@ -11,18 +11,20 @@ helpers do
       "<a href='/?version=#{version}'>#{version}</a>"
     end
   end
-  
+
   def jquery_src
-    if params[:version] == 'edge' then "/vendor/jquery.js"
-    else "http://code.jquery.com/jquery-#{params[:version]}.js"
+    if params[:version] == 'edge' then
+      "/vendor/jquery.js"
+    else
+      "http://code.jquery.com/jquery-#{params[:version]}.js"
     end
   end
-  
+
   def test *names
     names = ["/vendor/qunit.js", "settings"] + names
     names.map { |name| script_tag name }.join("\n")
   end
-  
+
   def script_tag src
     src = "/test/#{src}.js" unless src.index('/')
     %(<script src="#{src}" type="text/javascript"></script>)
@@ -36,8 +38,8 @@ end
 
 [:get, :post, :put, :delete].each do |method|
   send(method, '/echo') {
-    data = { :params => params }.update(request.env)
-    
+    data = {:params => params}.update(request.env)
+
     if request.xhr?
       content_type 'application/json'
       data.to_json

@@ -3,8 +3,8 @@ class CreateTicketClients < ActiveRecord::Migration
     create_table :ticket_clients do |t|
       t.string :id
       t.string :client
-	  t.string :client_connector
-	  t.string :formatter
+      t.string :client_connector
+      t.string :formatter
     end
   end
 

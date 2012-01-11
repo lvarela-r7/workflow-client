@@ -5,7 +5,7 @@ class CreateAddedModules < ActiveRecord::Migration
       t.string :module_type
       t.string :edit_path
       t.string :delete_path
-	  t.boolean :is_active
+      t.boolean :is_active
     end
   end
 

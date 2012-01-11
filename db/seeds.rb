@@ -9,7 +9,7 @@ TicketClients.delete_all
 TicketClients.create(:id => 1, :client => 'Jira3x', :client_connector => 'Jira3Client', :formatter => 'JiraFormatter')
 TicketClients.create(:id => 2, :client => 'Jira4x', :client_connector => 'Jira4Client', :formatter => 'JiraFormatter')
 TicketClients.create(:id => 3, :client => 'Nexpose', :client_connector => 'NexposeClient')
-TicketClients.create(:id => 4, :client => 'SOAP supported', :client_connector => 'RemedyClient')
+TicketClients.create(:id => 4, :client => 'SOAP supported', :client_connector => 'SOAPClient')
 
 ScanHistoryTimeFrame.delete_all
 ScanHistoryTimeFrame.create(:id=> 1, :time_type => 'Day(s)', :multiplicate => 86400)
@@ -23,7 +23,7 @@ TicketingStyles.create(:id=>2, :name => 'Vulnerability per Site', :description =
 TicketingStyles.create(:id=>3, :name => 'Vulnerability per NSC', :description => 'A ticket is created for each unique vulnerability found anywhere')
 
 ModuleType.delete_all
-ModuleType.create(:id => 1, :view => 'ticket_configs', :title => "Ticketing", :description=>"Allows integration of NeXpose scan result data and supported ticketing tools.")
+ModuleType.create(:id => 1, :view => 'ticket_configs', :title => "Ticketing", :description=>"Allows integration of Nexpose scan result data and supported ticketing tools.")
 
 if GeneralConfiguration.all.empty?
   # Default of 1 week

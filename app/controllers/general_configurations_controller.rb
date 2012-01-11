@@ -5,14 +5,14 @@ class GeneralConfigurationsController < ApplicationController
     @general_configurations = GeneralConfiguration.all
 
     unless @general_configurations.empty?
-        #There should only be one
-        scan_history_time_frame = ScanHistoryTimeFrame.find_by_id @general_configurations[0].scan_history_polling_time_frame
-        @time_frame = scan_history_time_frame.time_type
+      #There should only be one
+      scan_history_time_frame = ScanHistoryTimeFrame.find_by_id @general_configurations[0].scan_history_polling_time_frame
+      @time_frame = scan_history_time_frame.time_type
     end
 
     respond_to do |format|
       format.html # index.html.haml.old
-      format.xml  { render :xml => @general_configurations }
+      format.xml { render :xml => @general_configurations }
     end
   end
 
@@ -22,15 +22,15 @@ class GeneralConfigurationsController < ApplicationController
     @general_configurations = GeneralConfiguration.all
 
     unless @general_configurations.empty?
-        #There should only be one
-        scan_history_time_frame = ScanHistoryTimeFrame.find_by_id @general_configurations[0].scan_history_polling_time_frame
-        @time_frame = scan_history_time_frame.time_type
+      #There should only be one
+      scan_history_time_frame = ScanHistoryTimeFrame.find_by_id @general_configurations[0].scan_history_polling_time_frame
+      @time_frame = scan_history_time_frame.time_type
     end
 
 
     respond_to do |format|
       format.html # index.html.haml.old
-      format.xml  { render :xml => @general_configurations }
+      format.xml { render :xml => @general_configurations }
     end
   end
 
@@ -41,7 +41,7 @@ class GeneralConfigurationsController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.haml
-      format.xml  { render :xml => @general_configuration }
+      format.xml { render :xml => @general_configuration }
     end
   end
 
@@ -60,10 +60,10 @@ class GeneralConfigurationsController < ApplicationController
     respond_to do |format|
       if @general_configuration.save
         format.html { redirect_to(@general_configuration, :notice => 'General configuration was successfully created.') }
-        format.xml  { render :xml => @general_configuration, :status => :created, :location => @general_configuration }
+        format.xml { render :xml => @general_configuration, :status => :created, :location => @general_configuration }
       else
         format.html { render :action => "new" }
-        format.xml  { render :xml => @general_configuration.errors, :status => :unprocessable_entity }
+        format.xml { render :xml => @general_configuration.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -77,10 +77,10 @@ class GeneralConfigurationsController < ApplicationController
     respond_to do |format|
       if @general_configuration.update_attributes(params[:general_configuration])
         format.html { redirect_to '/general_configurations' }
-        format.xml  { head :ok }
+        format.xml { head :ok }
       else
         format.html { render :action => "edit" }
-        format.xml  { render :xml => @general_configuration.errors, :status => :unprocessable_entity }
+        format.xml { render :xml => @general_configuration.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -93,7 +93,7 @@ class GeneralConfigurationsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to(general_configurations_url) }
-      format.xml  { head :ok }
+      format.xml { head :ok }
     end
   end
 end

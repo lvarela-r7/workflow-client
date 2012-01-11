@@ -6,7 +6,7 @@ class CreateTicketRules < ActiveRecord::Migration
       t.boolean :use_vp
       t.integer :cvss_min
       t.integer :cvss_max
-	  t.integer :ticket_config_id
+      t.integer :ticket_config_id
     end
   end
 

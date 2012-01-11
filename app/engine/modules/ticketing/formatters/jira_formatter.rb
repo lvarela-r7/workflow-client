@@ -31,7 +31,7 @@ class JiraFormatter < Formatter
     vuln_solution_paragraph = build_paragraph ticket_info[:solution]
     vuln_solution_paragraph.get_paragraph.each do |output|
       if @in_link_build and not output[:link]
-         add_new_line formatted_output
+        add_new_line formatted_output
       end
 
       do_formated_paragraph formatted_output, output
@@ -41,24 +41,24 @@ class JiraFormatter < Formatter
   end
 
   def do_formated_paragraph appended, output
-      if output[:sentence]
-        @in_link_build = false
-        appended << output[:sentence]
+    if output[:sentence]
+      @in_link_build = false
+      appended << output[:sentence]
+      add_new_line appended
+    else
+      if output[:link]
+        @in_link_build = true
+        description = output[:link][0]
+        link = make_link output[:link][1]
+        line_item = '*'
+        line_item << description
+        line_item << '*'
+        line_item << ': '
+        line_item << link
+        appended << (make_list_item line_item)
         add_new_line appended
-      else
-        if output[:link]
-          @in_link_build = true
-          description = output[:link][0]
-          link = make_link output[:link][1]
-          line_item = '*'
-          line_item << description
-          line_item << '*'
-          line_item << ': '
-          line_item << link
-          appended << (make_list_item line_item)
-          add_new_line appended
-        end
       end
+    end
   end
 
   def do_underline input
@@ -101,6 +101,6 @@ class JiraFormatter < Formatter
   end
 
   def add_new_line input
-      input << "\n"
+    input << "\n"
   end
 end

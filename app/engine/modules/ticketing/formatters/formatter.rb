@@ -18,7 +18,7 @@ class Formatter
     paragraph = Paragraph.new
     input.each do |line|
       if line.kind_of? Hash
-        line.each {|key,value| paragraph.add_link key, value}
+        line.each { |key, value| paragraph.add_link key, value }
       else
         line.gsub!(/[\r\n\t]/, '\r' => '', '\n' => '', '\t' => '')
         if line.empty?

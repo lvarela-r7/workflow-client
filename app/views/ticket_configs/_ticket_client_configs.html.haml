@@ -2,7 +2,7 @@
 	= render 'authentication', :parent_client => 'jira3_config'
 	%dl
 		%dt
-			= label_tag('Project ID*', nil, {:style => "color:red"})
+			= label_tag('jira3_config_project_id', 'Project ID*', {:style => "color:red"})
 		%dd
 			= text_field_tag 'jira3_config[project_id]', (@jira3_ticket_client ? @jira3_ticket_client.project_id : '')
 
@@ -75,19 +75,19 @@
 		%p
 			There are no configured NeXpose clients.
 
-%div{:class => 'ticket_client_config', :id => 'remedy'}
-	- form_for(@remedy_ticket_config, :html => {:multipart => true}) do |remedy_form|
+%div{:class => 'ticket_client_config', :id => 'soap'}
+	- form_for(@ticket_config, :html => {:multipart => true}) do |soap_form|
 		%fieldset
 			%legend{:align => "center"}
 				%b Data Import
 			%dl
 				%dt
-					= remedy_form.label 'Select WSDL file'
+					= soap_form.label 'Select WSDL file'
 				%dd
-					= remedy_form.file_field :wsdl
+					= soap_form.file_field :wsdl
 				.buttons
 					.btn
-						= remedy_form.submit 'Parse WSDL'
+						= soap_form.submit 'Parse WSDL'
 
 		- if (!@wsdl_operations.nil? && !@wsdl_operations.empty?)
 			= render 'dynamic_field_info'
@@ -96,7 +96,7 @@
 				%legend{:align => "center"}
 					%b SOAP Operation
 				= label_tag 'Select the operation (Port Type|Operation):'
-				= select nil, "remedy_ticket_op_id", convert_array_to_value_map(@wsdl_operations), {}, {:id => "wsdl_operations"}
+				= select nil, "soap_ticket_op_id", convert_array_to_value_map(@wsdl_operations), {}, {:id => "wsdl_operations"}
 				%h4
 					* - Required input
 				- index = -1
@@ -123,7 +123,7 @@
 															- else
 																= label_tag(input['name']) + "  #{get_input_type(input)}"
 														%dd
-															= ((input['type'].instance_of? Hash) ? (select "remedy_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "remedy_config_#{index}[#{input['name']}]") : (text_field_tag "remedy_config_#{index}[#{input['name']}]")))
+															= ((input['type'].instance_of? Hash) ? (select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_#{index}[#{input['name']}]") : (text_field_tag "soap_config_#{index}[#{input['name']}]")))
 
 							- if has_operations?(inputs)
 								%fieldset
@@ -140,4 +140,4 @@
 													- else
 														= label_tag(input['name']) + "  #{get_input_type(input)}"
 												%dd
-													= ((input['type'].instance_of? Hash) ? (select "remedy_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "remedy_config_#{index}[#{input['name']}]") : (text_field_tag "remedy_config_#{index}[#{input['name']}]")))
+													= ((input['type'].instance_of? Hash) ? (select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_#{index}[#{input['name']}]") : (text_field_tag "soap_config_#{index}[#{input['name']}]")))

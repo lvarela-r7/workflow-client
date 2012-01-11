@@ -1,4 +1,3 @@
-
 class Paragraph
 
   def initialize

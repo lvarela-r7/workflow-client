@@ -19,34 +19,34 @@ class WorkFlowEngine
       @@initialized = true
     end
 
-	@logger = LogManager.instance
+    @logger = LogManager.instance
     @logger.add_log_message "[!] Initializing the WorkFlow Engine"
     @nsc_conn_manager = NSCConnectionManager.instance
     nsc_configs = NscConfig.all
 
-	added_connection = false
-	nsc_configs.each do |nsc_config|
-		if nsc_config.is_active?
-			@nsc_conn_manager.add_connection nsc_config
-			added_connection = true
-		end
-	end
+    added_connection = false
+    nsc_configs.each do |nsc_config|
+      if nsc_config.is_active?
+        @nsc_conn_manager.add_connection nsc_config
+        added_connection = true
+      end
+    end
 
-	if not nsc_configs or nsc_configs.empty?
-		@logger.add_log_message "[!] There are no configured NSC connections"
-	elsif not added_connection
-		@logger.add_log_message "[!] There are no active NSC connections"
-	end
+    if not nsc_configs or nsc_configs.empty?
+      @logger.add_log_message "[!] There are no configured NSC connections"
+    elsif not added_connection
+      @logger.add_log_message "[!] There are no active NSC connections"
+    end
 
-	#Starts notification manager
-	ScanStartNotificationManager.instance
+    #Starts notification manager
+    ScanStartNotificationManager.instance
 
-	#Start scan manager
-	ScanManager.instance
+    #Start scan manager
+    ScanManager.instance
 
-	# TODO: Need to develop a way to auto load modules
-	TicketManager.instance
-	@logger.add_log_message "[*] Loading ticket module"
+    # TODO: Need to develop a way to auto load modules
+    TicketManager.instance
+    @logger.add_log_message "[*] Loading ticket module"
 
 =begin
     poll_time = @config.get_value 'poll_time'

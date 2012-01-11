@@ -3,7 +3,8 @@
  */
 
 (function() {
-  jQuery(function($) {
-    return $(document).ready(function() {});
-  });
+    jQuery(function($) {
+        return $(document).ready(function() {
+        });
+    });
 }).call(this);

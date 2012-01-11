@@ -5,78 +5,78 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
 
 #-----------------------------------------------------------------------------------------------------------------------
 # == Synopsis
-# The interface used to communicate data tp the the Remedy Action Response System (ARS).
+# The interface used to communicate data to SOAP endpoints.
 #
 # == Author
-# Christopher Lee, Rapid7 LLC
+# Christopher Lee, christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
-class RemedyClient < TicketClient
+class SoapClient < TicketClient
 
 
-	def initialize
+  def initialize
 
-	end
+  end
 
-	#-------------------------------------------------------------------------------------------------------------------
-	# Creates a test ticket within remedy.
-	#-------------------------------------------------------------------------------------------------------------------
-	def create_test_ticket ticket_data
+  #-------------------------------------------------------------------------------------------------------------------
+  # Creates a test ticket within a soap endpoint.
+  #-------------------------------------------------------------------------------------------------------------------
+  def create_test_ticket ticket_data
 
-	end
+  end
 
-	def create_ticket ticket_data
+  def create_ticket ticket_data
 
-		if ticket_data[:body]
-			ticket_data[:body].each do |body_key, body_value|
-				puts "Input for: #{body_key}"
+    if ticket_data[:body]
+      ticket_data[:body].each do |body_key, body_value|
+        puts "Input for: #{body_key}"
 
-				body_value.each do |inputs|
-					if inputs[:minOccurs] and inputs[:minOccurs].to_i < 1
-						puts "Skipping optional value: #{inputs[:name]}"
-						next
-					end
+        body_value.each do |inputs|
+          if inputs[:minOccurs] and inputs[:minOccurs].to_i < 1
+            puts "Skipping optional value: #{inputs[:name]}"
+            next
+          end
 
-					puts "Enter a value for #{inputs[:name]} (type #{inputs[:type]})}: "
-					user_input = gets
-					soap_body_content[inputs[:name]] = user_input.chomp
-				end
-			end
-		end
+          puts "Enter a value for #{inputs[:name]} (type #{inputs[:type]})}: "
+          user_input = gets
+          soap_body_content[inputs[:name]] = user_input.chomp
+        end
+      end
+    end
 
-		# Headers need to be map of maps
-		ticket_data[:header].each do |body_key, body_value|
-			puts "Input for: #{body_key}"
-			inner_map = {}
+    # Headers need to be map of maps
+    ticket_data[:header].each do |body_key, body_value|
+      puts "Input for: #{body_key}"
+      inner_map = {}
 
-			body_value.each do |inputs|
-				if inputs[:minOccurs] and inputs[:minOccurs].to_i < 1
-					puts "Skipping optional value: #{inputs[:name]}"
-					next
-				end
+      body_value.each do |inputs|
+        if inputs[:minOccurs] and inputs[:minOccurs].to_i < 1
+          puts "Skipping optional value: #{inputs[:name]}"
+          next
+        end
 
-				puts "Enter a value for #{inputs[:name]} (type #{inputs[:type]})}: "
-				user_input = gets
+        puts "Enter a value for #{inputs[:name]} (type #{inputs[:type]})}: "
+        user_input = gets
 
-				inner_map[inputs[:name]] = user_input.chomp
-			end
+        inner_map[inputs[:name]] = user_input.chomp
+      end
 
-			soap_header_content[body_key] = inner_map
+      soap_header_content[body_key] = inner_map
 
-		end
+    end
 
-		client.request :get do
-			soap.body = soap_body_content
-			soap.header = soap_header_content
-		end
+    client.request :get do
+      soap.body = soap_body_content
+      soap.header = soap_header_content
+    end
 
-	end
+  end
 
 
 end
 
-	#-------------------------------------------------------------------------------------------------------------------
-	#
-	#-------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------
+#
+#-------------------------------------------------------------------------------------------------------------------
 =begin
 begin
 		client = Savon::Client.new do
