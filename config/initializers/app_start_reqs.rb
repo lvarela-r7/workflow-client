@@ -9,5 +9,4 @@ begin
     Dir.mkdir uploads_dir
   end
 
-
 end
