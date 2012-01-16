@@ -38,21 +38,6 @@ module TicketConfigsHelper
 		input
 	end
 
-	def convert_array_to_value_map input
-		map = {}
-
-		index = 0
-		input.each do |port_type, headers_and_ops|
-			headers_and_ops['operations'].each do |key, value|
-				op_name = port_type.to_s + "|" + key.to_s
-				map[op_name] = index
-				index += 1
-			end
-		end
-
-		map
-	end
-
 	def get_headers headers, wsdl_operations
 		map = {}
 		headers.each do |header|

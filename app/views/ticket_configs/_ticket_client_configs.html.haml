@@ -96,7 +96,7 @@
 				%legend{:align => "center"}
 					%b SOAP Operation
 				= label_tag 'Select the operation (Port Type|Operation):'
-				= select nil, "soap_ticket_op_id", convert_array_to_value_map(@wsdl_operations), {}, {:id => "wsdl_operations"}
+				= select nil, "soap_ticket_op_id", @wsdl_id_op_map, {}, {:id => "wsdl_operations"}
 				%h4
 					* - Required input
 				- index = -1

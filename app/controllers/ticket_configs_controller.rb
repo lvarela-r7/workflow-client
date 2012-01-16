@@ -17,6 +17,7 @@ class TicketConfigsController < ApplicationController
     wsdl_file_name = params[:wsdl_file_name]
     if wsdl_file_name
       @wsdl_operations = get_wsdl_operations wsdl_file_name
+      @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
 
       # Store this file name in the session for later use
       session[:wsdl_file_name] = wsdl_file_name
@@ -44,7 +45,7 @@ class TicketConfigsController < ApplicationController
   end
 
   #-------------------------------------------------------------------------------------------------------------------
-  #
+  # Saves a new ticket configuration OR fires off a test ticket to the server OR uploads WSDL data.
   #-------------------------------------------------------------------------------------------------------------------
   def create
     if not create_test_ticket? and not wsdl_upload?
@@ -55,6 +56,7 @@ class TicketConfigsController < ApplicationController
         redirect_to '/added_modules'
       else
         load_default_models
+        load_nexpose_user_list
         render :action => 'new'
       end
     end
@@ -92,9 +94,11 @@ class TicketConfigsController < ApplicationController
       when /^SOAP/
         op_id = params[:soap_ticket_op_id].chomp.to_i
         wsdl_file_name = session[:wsdl_file_name]
-        operation = get_wsdl_operations(wsdl_file_name).keys[op_id]
-        input_map = SOAPTicketingConfig.parse_model_params(params, wsdl_file_name, operation)
-        ticket_client = SOAPTicketingConfig.new
+        @wsdl_operations = get_wsdl_operations wsdl_file_name
+        @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
+        operation = @wsdl_id_op_map.rassoc(op_id)[0]
+        input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, operation)
+        ticket_client = SOAPTicketConfig.new
         ticket_client.mappings = input_map
     end
 
@@ -224,6 +228,24 @@ class TicketConfigsController < ApplicationController
       else
         return 'Nexpose'
     end
+  end
+
+  #-------------------------------------------------------------------------------------------------------------------
+  #
+  #-------------------------------------------------------------------------------------------------------------------
+  def convert_array_to_value_map input
+    map = {}
+
+    index = 0
+    input.each do |port_type, headers_and_ops|
+      headers_and_ops['operations'].each do |key, value|
+        op_name = port_type.to_s + "|" + key.to_s
+        map[op_name] = index
+        index += 1
+      end
+    end
+
+    map
   end
 
 end
