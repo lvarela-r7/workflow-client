@@ -1233,6 +1233,7 @@ a.refresh {
     padding: 8px 15px 7px 15px;
     color: #fff;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .dashboard-title #ticket-client-expander, .dashboard-title #ticket-mapping-expander, .dashboard-title #ticket-format-expander, .dashboard-title #ticket-rules-expander {
