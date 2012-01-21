@@ -55,5 +55,22 @@ module TicketConfigsHelper
 		end
 
 		false
-	end
+  end
+
+  def get_value key, current_operation, operation, input_map, is_header
+    value = nil
+    if current_operation.eql? operation
+      if is_header
+        value = input_map['headers'][key]
+      else
+        value = input_map[key]
+      end
+    end
+
+    if value
+      return value
+    end
+
+    ""
+  end
 end

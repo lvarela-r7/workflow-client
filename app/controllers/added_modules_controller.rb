@@ -19,9 +19,9 @@ class AddedModulesController < ApplicationController
 
   end
 
+  #---------------------------------------------------------------------------------------------------------------------
   #
-  #
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def destroy
     modules_to_remove = params[:added_module_ids]
     if modules_to_remove and modules_to_remove.length > 0
@@ -39,6 +39,9 @@ class AddedModulesController < ApplicationController
 
   private
 
+  #---------------------------------------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------------------------------------
   def parse_key_and_id dom_id
     parsed_string = dom_id.split '_'
     # if size == 2 perfect

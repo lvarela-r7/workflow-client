@@ -57,7 +57,7 @@ class TicketConfigsController < ApplicationController
       else
         load_default_models
         load_nexpose_user_list
-        render :action => 'new'
+        render 'new'
       end
     end
   end
@@ -92,14 +92,15 @@ class TicketConfigsController < ApplicationController
       when /Nexpose/
         ticket_client = NexposeTicketConfig.new(NexposeTicketConfig.parse_model_params params[:nexpose_config])
       when /^SOAP/
-        op_id = params[:soap_ticket_op_id].chomp.to_i
+        @selected_soap_op_id = params[:soap_ticket_op_id].chomp.to_i
         wsdl_file_name = session[:wsdl_file_name]
         @wsdl_operations = get_wsdl_operations wsdl_file_name
         @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
-        operation = @wsdl_id_op_map.rassoc(op_id)[0]
-        input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, operation)
+        @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
+        @input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, @operation)
         ticket_client = SOAPTicketConfig.new
-        ticket_client.mappings = input_map
+        ticket_client.mappings = @input_map
+        @ticket_type = "SOAP supported"
     end
 
     ticket_client
@@ -136,7 +137,7 @@ class TicketConfigsController < ApplicationController
         when /nexpose/i
           raise 'Cannot create a test ticket with Nexpose'
         when /soap/i
-
+          @ticket_type = "SOAP supported"
       end
 
       if msg

@@ -12,14 +12,25 @@ class SOAPTicketConfig < ActiveRecord::Base
 		end
 	end
 
+  #
+  # The SOAP headers are stored in "soap_config_header_$Id"
+  # The body is stored in "soap_config_$Id"
+  #
 	def self.parse_model_params params, wsdl_file_name, operation
 		op_id = params[:soap_ticket_op_id]
+
+    # Parse out the headers
+    header_key = "soap_config_header_#{op_id}"
+    header_input = params[header_key]
+
+    # Parse out the SOAP body content
 		key = "soap_config_#{op_id}"
-        input = params[key]
+    input = params[key]
 
 		# Add the operation and the file name
 		input[:wsdl_file_name] = wsdl_file_name
 		input[:operation] = operation
+    input[:headers] = header_input
 		input
 	end
 end

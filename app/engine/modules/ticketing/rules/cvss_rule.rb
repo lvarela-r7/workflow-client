@@ -2,7 +2,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'rule'))
 
 class CVSSRule < Rule
 
-  @MAX_CVSS_SCORE = 10
+  @@MAX_CVSS_SCORE = 10
   @MIN_CVSS_SCORE = 1
 
   #

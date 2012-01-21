@@ -2,7 +2,7 @@ require 'eventmachine'
 require 'rubygems'
 require 'thread'
 require 'observer'
-require 'nexpose.rb'
+require 'nexpose'
 require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_manager'))
 
