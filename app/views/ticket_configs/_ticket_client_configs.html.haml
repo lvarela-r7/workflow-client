@@ -123,7 +123,7 @@
 															- else
 																= label_tag(input['name']) + "  #{get_input_type(input)}"
 														%dd
-															= ((input['type'].instance_of? Hash) ? (select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_header_#{index}[#{input['name']}]") : (text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true))))
+															= ((input['type'].instance_of? Hash) ? (select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, true)}) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true)) : (text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true))))
 
 							- if has_operations?(inputs)
 								%fieldset
@@ -140,4 +140,4 @@
 													- else
 														= label_tag(input['name']) + "  #{get_input_type(input)}"
 												%dd
-													= ((input['type'].instance_of? Hash) ? (select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_#{index}[#{input['name']}]") : (text_field_tag "soap_config_#{index}[#{input['name']}]")))
+													= ((input['type'].instance_of? Hash) ? (select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, false)}) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, false)) : (text_field_tag "soap_config_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, false))))

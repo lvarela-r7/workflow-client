@@ -12,7 +12,6 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
 #-----------------------------------------------------------------------------------------------------------------------
 class SoapClient < TicketClient
 
-
   def initialize
 
   end
