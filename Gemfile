@@ -19,7 +19,7 @@ gem 'rack-mount', '>= 0.6.14'
 
 gem 'httpi', '>= 0.9.4'
 
-gem 'eventmachine-eventmachine', '>= 0.2.19'
+gem 'eventmachine', '>= 0.2.19'
 
 gem 'librex', '>= 0.0.35'
 

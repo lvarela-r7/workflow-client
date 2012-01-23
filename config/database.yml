@@ -12,8 +12,8 @@ development:
  adapter: postgresql
  database: nexflow_dev
  host: 127.0.0.1
- port: 5422
+ port: 5432
  username: postgres
- password: msf3Password
+ password: postgres
  pool: 256
  timeout: 5

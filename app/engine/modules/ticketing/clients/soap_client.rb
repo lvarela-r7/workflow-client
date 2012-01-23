@@ -74,6 +74,18 @@ class SoapClient < TicketClient
 
 end
 
+client = Savon::Client.new do
+		wsdl.document = "/home/bperry/Documents/test.wsdl"
+end
+
+wsdl_parser = WSDLParser.parse client.wsdl.xml
+
+wsdl_util = WSDLUtil.new wsdl_parser
+
+actions = wsdl_util.get_soap_input_operations true
+
+puts actions.inspect
+
 #-------------------------------------------------------------------------------------------------------------------
 #
 #-------------------------------------------------------------------------------------------------------------------

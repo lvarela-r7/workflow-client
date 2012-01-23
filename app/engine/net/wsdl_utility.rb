@@ -34,12 +34,17 @@ class WSDLUtil
 
     if @parsed_wsdl.wsdl_version != 1.2
       raise "Unsupported WSDL version: #{@parsed_wsdl.wsdl_version}"
+    else
+        p @parsed_wsdl.wsdl_version
     end
 
     @exclude_file_ops = exclude_file_ops
     ops_and_params = {}
 
+	
     get_soap_ops_and_headers.each do |port_type, operations|
+    p port_type
+
       ops_and_params[port_type] = {}
 
       operations.each do |operation|
@@ -372,47 +377,74 @@ class WSDLUtil
     @parsed_wsdl.bindings.each do |binding|
       #find the operation name and additional input
       port_type = remove_namespace(binding['type'].to_s)
-
       child_bindings = binding['children']
       is_soap_binding = false
-      child_bindings.each do |child_binding|
+p child_bindings.inspect
+      if child_bindings.length == 0
+	      if binding['element_name'] =~ /soap/ and not is_soap_binding
+		      is_soap_binding = true
+	
+	      end
 
-        if child_binding['element_name'] =~ /soap/ and not is_soap_binding
-          is_soap_binding = true
-        end
+	      if binding['element_name'] =~ /operation/
+		      input = {}
+		      operation_name = binding['name']
+		      input['operation_name'] = operation_name
 
-        if child_binding['element_name'] =~ /operation/
-          input = {}
-          operation_name = child_binding['name']
-          input['operation_name'] = operation_name
-          if exists?(port_type, operation_name, output)
-            next
+		      if exists? port_type operation_name output
+			      next
+		      end
+	
+		      if is_soap_binding
+			      if output[port_type].nil?
+				      output[port_type] = []
+			      end
+			      output[port_type] << input
+		      end
+	      end		
+      else
+      	  child_bindings.each do |child_binding|
+	
+	        if child_binding['element_name'] =~ /soap/ and not is_soap_binding
+	          is_soap_binding = true
+
+	        end
+		
+		
+	        if child_binding['element_name'] =~ /operation/
+	          input = {}
+	          operation_name = child_binding['name']
+	          input['operation_name'] = operation_name
+	          if exists?(port_type, operation_name, output)
+	            next
+	          end
+	
+	          # For now we just care to parse out all the input headers if any.
+	          next_nodes = child_binding['children']
+
+	          input['headers'] = []
+	          next_nodes.each do |next_node|
+	            if next_node['element_name'] =~ /input/
+	              # See if the input contains headers
+	              child_nodes = next_node['children']
+	              unless child_nodes.nil?
+	                child_nodes.each do |child_node|
+	                  if child_node['element_name'] =~ /header/
+	                    input['headers'] << remove_namespace(child_node['message'])
+	                  end
+	                end
+	              end
+	            end
+	          end
+	
+	          if is_soap_binding
+	            if output[port_type].nil?
+	              output[port_type] = []
+	            end
+	            output[port_type] << input
+       		  end
           end
-
-          # For now we just care to parse out all the input headers if any.
-          next_nodes = child_binding['children']
-          input['headers'] = []
-          next_nodes.each do |next_node|
-            if next_node['element_name'] =~ /input/
-              # See if the input contains headers
-              child_nodes = next_node['children']
-              unless child_nodes.nil?
-                child_nodes.each do |child_node|
-                  if child_node['element_name'] =~ /header/
-                    input['headers'] << remove_namespace(child_node['message'])
-                  end
-                end
-              end
-            end
-          end
-
-          if is_soap_binding
-            if output[port_type].nil?
-              output[port_type] = []
-            end
-            output[port_type] << input
-          end
-        end
+	end
       end
     end
     output
