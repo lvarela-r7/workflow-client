@@ -23,8 +23,8 @@ class WSDLParser < Nokogiri::XML::SAX::Document
   attr_reader :port_types, :types, :messages, :bindings, :services,
               :wsdl_definitions, :xml_schema_qualifier, :wsdl_version
 
-  WSDL_SCHEMA_URL = ["^http://schemas\.xmlsoap\.org/wsdl/", "^http://www\.w3\.org/ns/wsdl/"]
-  XML_SCHEMA_URL = "^http://www\.w3\.org/2001/XMLSchema"
+  WSDL_SCHEMA_URL = ["^http:\/\/schemas\.xmlsoap\.org\/wsdl[\/]{0,1}$", "^http:\/\/www\.w3\.org\/ns\/wsdl[\/]{0,1}$"]
+  XML_SCHEMA_URL = "^http:\/\/www\.w3\.org\/2001\/XMLSchema[\/]{0,1}$"
 
   #-------------------------------------------------------------------------------------------------------------------
   #
@@ -33,7 +33,6 @@ class WSDLParser < Nokogiri::XML::SAX::Document
     instance = WSDLParser.new
     parser = Nokogiri::XML::SAX::Parser.new instance
     parser.parse doc
-    p instance.inspect
     instance
   end
 
@@ -149,17 +148,17 @@ class WSDLParser < Nokogiri::XML::SAX::Document
   def set_in_block name, is_in
     case name
       # Parse out the namespaces
-      when /definitions/
+      when /.*:definitions/
         @in_wsdl_definitions = is_in
-      when /portType/
+      when /#{@wsdl_namespace}:portType/
         @in_port_types = is_in
-      when /types/
+      when /#{@wsdl_namespace}:types/
         @in_types = is_in
-      when /message/
+      when /#{@wsdl_namespace}:message/
         @in_message = is_in
-      when /binding/
+      when /#{@wsdl_namespace}:binding/
         @in_bindings = is_in
-      when /service/
+      when /#{@wsdl_namespace}:service/
         @in_services = is_in
     end
   end
@@ -168,8 +167,8 @@ class WSDLParser < Nokogiri::XML::SAX::Document
   #
   #-------------------------------------------------------------------------------------------------------------------
   def add_data element_name, attributes, element_array
-    puts "adding data for element #{element_name}"
     last_map = element_array.last
+
     if last_map.nil? or @depth == 0
       last_map = {}
       last_map['element_name'] = element_name.to_s.chomp
