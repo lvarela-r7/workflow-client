@@ -43,7 +43,15 @@ GEM
     httpi (0.9.5)
       rack
     i18n (0.5.0)
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     jiraSOAP (0.10.6)
+=======
+    jiraSOAP (0.10.7)
+>>>>>>> Stashed changes
+=======
+    jiraSOAP (0.10.7)
+>>>>>>> Stashed changes
       handsoap (~> 1.1.8)
       nokogiri (~> 1.5.0)
     librex (0.0.65)
@@ -58,7 +66,15 @@ GEM
       rex (>= 1.0.2)
     nokogiri (1.5.0)
     nori (1.0.2)
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     pg (0.12.2)
+=======
+    pg (0.12.2-x86-mingw32)
+>>>>>>> Stashed changes
+=======
+    pg (0.12.2-x86-mingw32)
+>>>>>>> Stashed changes
     polyglot (0.3.3)
     rack (1.2.5)
     rack-mount (0.6.14)

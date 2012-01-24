@@ -2,5 +2,11 @@
 db/*.sqlite3
 log/*.log
 tmp/
+<<<<<<< HEAD
 config/database.yaml
 tags
+=======
+Gemfile.lock
+config/database.yml
+*.iml
+>>>>>>> ef1f217ac525ad8c046a3e16f3e683c95c89420a

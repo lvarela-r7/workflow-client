@@ -1,62 +1,62 @@
 %div{:class => 'ticket_client_config', :id => 'jira3'}
-	= render 'authentication', :parent_client => 'jira3_config'
+	= render 'authentication', :parent_client => 'jira3_config', :auth_data => @jira3_ticket_config
 	%dl
 		%dt
 			= label_tag('jira3_config_project_id', 'Project ID*', {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira3_config[project_id]', (@jira3_ticket_client ? @jira3_ticket_client.project_id : '')
+			= text_field_tag 'jira3_config[project_id]', (@jira3_ticket_config ? @jira3_ticket_config.project_id : '')
 
 	%dl
 		%dt
 			= label_tag('Priority ID*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira3_config[priority_id]', (@jira3_ticket_client ? @jira3_ticket_client.priority_id : '')
+			= text_field_tag 'jira3_config[priority_id]', (@jira3_ticket_config ? @jira3_ticket_config.priority_id : '')
 
 	%dl
 		%dt
 			= label_tag('Assignee ID*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira3_config[assignee_id]', (@jira3_ticket_client ? @jira3_ticket_client.assignee_id : '')
+			= text_field_tag 'jira3_config[assignee_id]', (@jira3_ticket_config ? @jira3_ticket_config.assignee_id : '')
 
 	%dl
 		%dt
 			= label_tag('Default Reporter*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira3_config[default_reporter]', (@jira3_ticket_client ? @jira3_ticket_client.default_reporter : '')
+			= text_field_tag 'jira3_config[default_reporter]', (@jira3_ticket_config ? @jira3_ticket_config.default_reporter : '')
 
 	%dl
 		%dt
 			= label_tag('Issue Type ID*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira3_config[issue_type_id]', (@jira3_ticket_client ? @jira3_ticket_client.issue_type_id : '')
+			= text_field_tag 'jira3_config[issue_type_id]', (@jira3_ticket_config ? @jira3_ticket_config.issue_type_id : '')
 
 %div{:class => 'ticket_client_config', :id => 'jira4'}
-	= render 'authentication', :parent_client => 'jira4_config'
+	= render 'authentication', :parent_client => 'jira4_config', :auth_data => @jira4_ticket_config
 	%dl
 		%dt
 			= label_tag('Default assignee*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira4_config[assignee]', (@jira4_ticket_client ? @jira4_ticket_client.assignee : '')
+			= text_field_tag 'jira4_config[assignee]', (@jira4_ticket_config ? @jira4_ticket_config.assignee : '')
 	%dl
 		%dt
 			= label_tag('Default reporter*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira4_config[reporter]', (@jira4_ticket_client ? @jira4_ticket_client.reporter : '')
+			= text_field_tag 'jira4_config[reporter]', (@jira4_ticket_config ? @jira4_ticket_config.reporter : '')
 	%dl
 		%dt
 			= label_tag('Issue Type ID*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira4_config[issue_id]', (@jira4_ticket_client ? @jira4_ticket_client.issue_id : '')
+			= text_field_tag 'jira4_config[issue_id]', (@jira4_ticket_config ? @jira4_ticket_config.issue_id : '')
 	%dl
 		%dt
 			= label_tag('Project name*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira4_config[project_name]', (@jira4_ticket_client ? @jira4_ticket_client.project_name : '')
+			= text_field_tag 'jira4_config[project_name]', (@jira4_ticket_config ? @jira4_ticket_config.project_name : '')
 	%dl
 		%dt
 			= label_tag('Default priority ID*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag 'jira4_config[priority_id]', (@jira4_ticket_client ? @jira4_ticket_client.priority_id : '')
+			= text_field_tag 'jira4_config[priority_id]', (@jira4_ticket_config ? @jira4_ticket_config.priority_id : '')
 
 
 %div{:class => 'ticket_client_config', :id => 'nexpose'}
@@ -123,7 +123,7 @@
 															- else
 																= label_tag(input['name']) + "  #{get_input_type(input)}"
 														%dd
-															= ((input['type'].instance_of? Hash) ? (select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_header_#{index}[#{input['name']}]") : (text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true))))
+															= ((input['type'].instance_of? Hash) ? (select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, true)}) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true)) : (text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true))))
 
 							- if has_operations?(inputs)
 								%fieldset
@@ -140,4 +140,4 @@
 													- else
 														= label_tag(input['name']) + "  #{get_input_type(input)}"
 												%dd
-													= ((input['type'].instance_of? Hash) ? (select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values']) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_#{index}[#{input['name']}]") : (text_field_tag "soap_config_#{index}[#{input['name']}]")))
+													= ((input['type'].instance_of? Hash) ? (select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, false)}) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, false)) : (text_field_tag "soap_config_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, false))))

@@ -1,4 +1,8 @@
+require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/model_helper'))
+
 class SOAPTicketConfig < ActiveRecord::Base
+  include ModelHelper
+
 	serialize :mappings, Hash
 
 	has_one :ticket_config, :as => :ticket_client
@@ -25,12 +29,13 @@ class SOAPTicketConfig < ActiveRecord::Base
 
     # Parse out the SOAP body content
 		key = "soap_config_#{op_id}"
-    input = params[key]
+    input = ModelHelper.flatten_map(params[key])
 
 		# Add the operation and the file name
 		input[:wsdl_file_name] = wsdl_file_name
 		input[:operation] = operation
     input[:headers] = header_input
 		input
-	end
+  end
+
 end

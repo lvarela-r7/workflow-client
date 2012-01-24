@@ -152,9 +152,14 @@ end
 class NexposeConnectionWrapper
 
   def initialize nexpose_connection
+    if not nexpose_connection
+      raise ArgumentError.new 'The nexpose connection cannot be null'
+    end
+
     @nexpose_connection = nexpose_connection
     @logged_in = false
     @logger = LogManager.instance
+    @failed_login_host_array = []
   end
 
   #
@@ -169,12 +174,22 @@ class NexposeConnectionWrapper
     begin
       unless @logged_in
         begin
-          @logger.add_log_message "[!] Attempting login to \"#{@nexpose_connection.host}\""
           @nexpose_connection.login
           @logged_in = true
+
+          # If login successfull remove from failed login array.
+          @failed_login_host_array.delete(@nexpose_connection.host)
+
           @logger.add_log_message "[!] Login to \"#{@nexpose_connection.host}\" successful"
         rescue Exception
-          @logger.add_log_message "[-] Login to \"#{@nexpose_connection.host}\" has failed!"
+
+          # If the failed attempt has already been logged, don't log again until a successfull login.
+          # TODO: Add logic to purge this list after a time period to remind the user.
+          host = @nexpose_connection.host
+          if not @failed_login_host_array.include?(host)
+            @logger.add_log_message "[-] Login to \"#{@nexpose_connection.host}\" has failed!"
+            @failed_login_host_array << host
+          end
         end
       end
 
