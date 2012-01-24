@@ -33,7 +33,7 @@ class WSDLUtil
   def get_soap_input_operations exclude_file_ops
 
     if @parsed_wsdl.wsdl_version != 1.2
-      raise "Unsupported WSDL version: #{@parsed_wsdl.wsdl_version}"
+      raise WSDLParseError, "Unsupported WSDL version: #{@parsed_wsdl.wsdl_version}"
     end
 
     @exclude_file_ops = exclude_file_ops

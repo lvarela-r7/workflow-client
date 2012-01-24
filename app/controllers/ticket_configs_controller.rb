@@ -2,6 +2,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../engine/modules/ti
 #require File.expand_path(File.join(File.dirname(__FILE__), '../engine/modules/ticketing/clients/remedy/remedy_client'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parser'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parse_error'))
 
 #-----------------------------------------------------------------------------------------------------------------------
 #
@@ -13,22 +14,37 @@ class TicketConfigsController < ApplicationController
   #
   #-------------------------------------------------------------------------------------------------------------------
   def new
+    # If a WSDL was defined
     # Parse the WSDL information.
     wsdl_file_name = params[:wsdl_file_name]
     if wsdl_file_name
-      @wsdl_operations = get_wsdl_operations wsdl_file_name
-      @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
+      parse_successful = true
+      begin
+        @wsdl_operations = get_wsdl_operations wsdl_file_name
+      rescue WSDLParseError => wsdl_error
+        # Set the error and reload
+        @ticket_client = SOAPTicketConfig.new
+        @ticket_client.errors[:base] << wsdl_error.to_s
+        load_defaults
+        render 'new'
+        parse_successful = false
+      end
 
-      # Store this file name in the session for later use
-      session[:wsdl_file_name] = wsdl_file_name
+      if parse_successful
+        @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
 
-      # Ensure the div is setup and open.
-      @ticket_type = "SOAP supported"
-      @show_ticket_client_div = true
+        # Store this file name in the session for later use
+        session[:wsdl_file_name] = wsdl_file_name
+
+        # Ensure the div is setup and open.
+        @ticket_type = "SOAP supported"
+        @show_ticket_client_div = true
+      end
+
     end
 
-    load_default_models
-    load_nexpose_user_list
+
+    load_defaults
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -40,8 +56,7 @@ class TicketConfigsController < ApplicationController
     @ticket_mappings = @ticket_config.ticket_mapping
     @ticket_rules = @ticket_config.ticket_rule
 
-    load_default_models
-    load_nexpose_user_list
+    load_defaults
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -55,8 +70,7 @@ class TicketConfigsController < ApplicationController
       if @ticket_client.save
         redirect_to '/added_modules'
       else
-        load_default_models
-        load_nexpose_user_list
+        load_defaults
         render 'new'
       end
     end
@@ -77,6 +91,19 @@ class TicketConfigsController < ApplicationController
         render :action => "edit"
       end
     end
+  end
+
+  private
+  ###################
+  # PRIVATE METHODS #
+  ###################
+
+  #-------------------------------------------------------------------------------------------------------------------
+  #
+  #-------------------------------------------------------------------------------------------------------------------
+  def load_defaults
+    load_default_models
+    load_nexpose_user_list
   end
 
   #-------------------------------------------------------------------------------------------------------------------
