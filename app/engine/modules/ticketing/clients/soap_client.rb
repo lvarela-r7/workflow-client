@@ -8,7 +8,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
 # The interface used to communicate data to SOAP endpoints.
 #
 # == Author
-# Christopher Lee, christopher_lee@rapid7.com
+# Brandon Perry Brandon_Perry@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
 class SoapClient < TicketClient
 
