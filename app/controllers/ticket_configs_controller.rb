@@ -18,7 +18,7 @@ class TicketConfigsController < ApplicationController
     # Parse the WSDL information.
     wsdl_file_name = params[:wsdl_file_name]
     if wsdl_file_name
-      parse_successful = true
+
       begin
         @wsdl_operations = get_wsdl_operations wsdl_file_name
       rescue WSDLParseError => wsdl_error
@@ -27,19 +27,17 @@ class TicketConfigsController < ApplicationController
         @ticket_client.errors[:base] << wsdl_error.to_s
         load_defaults
         render 'new'
-        parse_successful = false
+        return
       end
 
-      if parse_successful
-        @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
+      @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
 
-        # Store this file name in the session for later use
-        session[:wsdl_file_name] = wsdl_file_name
+      # Store this file name in the session for later use
+      session[:wsdl_file_name] = wsdl_file_name
 
-        # Ensure the div is setup and open.
-        @ticket_type = "SOAP supported"
-        @show_ticket_client_div = true
-      end
+      # Ensure the div is setup and open.
+      @ticket_type = "SOAP supported"
+      @show_ticket_client_div = true
 
     end
 
