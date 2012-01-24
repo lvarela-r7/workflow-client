@@ -12,9 +12,6 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
 #-----------------------------------------------------------------------------------------------------------------------
 class SoapClient < TicketClient
 
-<<<<<<< HEAD
-    attr_accessor :soap_body_content
-
   def initialize method, auth_data, endpoint
     @client = Savon::Client.new do
       wsdl.document = "/home/bperry/Desktop/Chris-Test-Web-Service.xml"
@@ -28,9 +25,6 @@ class SoapClient < TicketClient
     @soap_header_content["urn:AuthenticationInfo"]["urn:authentication"] = auth_data[:auth_type]
     @soap_header_content["urn:AuthenticationInfo"]["urn:locale"] = auth_data[:locale]
     @soap_header_content["urn:AuthenticationInfo"]["urn:timeZone"] = auth_data[:timezone]
-=======
-  def initialize
->>>>>>> ef1f217ac525ad8c046a3e16f3e683c95c89420a
 
     @soap_body_content = {}
     @method = method
