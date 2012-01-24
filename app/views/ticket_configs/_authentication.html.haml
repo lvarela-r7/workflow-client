@@ -5,19 +5,19 @@
 		%dt
 			= label_tag('Username*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag "#{parent_client}[username]", (@auth_data ? @auth_data.username : '')
+			= text_field_tag "#{parent_client}[username]", (auth_data ? auth_data.username : '')
 	%dl
 		%dt
 			= label_tag('Password*', nil, {:style => "color:red"})
 		%dd
-			= password_field_tag "#{parent_client}[password]", (@auth_data ? @auth_data.password : '')
+			= password_field_tag "#{parent_client}[password]", (auth_data ? auth_data.password : '')
 	%dl
 		%dt
 			= label_tag('Host*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag "#{parent_client}[host]", (@auth_data ? @auth_data.host : '')
+			= text_field_tag "#{parent_client}[host]", (auth_data ? auth_data.host : '')
 	%dl
 		%dt
 			= label_tag('Port*', nil, {:style => "color:red"})
 		%dd
-			= text_field_tag "#{parent_client}[port]", (@auth_data ? @auth_data.port : '8080')
+			= text_field_tag "#{parent_client}[port]", (auth_data ? auth_data.port : '8080')

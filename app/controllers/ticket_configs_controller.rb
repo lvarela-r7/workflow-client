@@ -23,8 +23,7 @@ class TicketConfigsController < ApplicationController
         @wsdl_operations = get_wsdl_operations wsdl_file_name
       rescue WSDLParseError => wsdl_error
         # Set the error and reload
-        @ticket_client = SOAPTicketConfig.new
-        @ticket_client.errors[:base] << wsdl_error.to_s
+        flash[:error] = wsdl_error.to_s
         load_defaults
         render 'new'
         return
@@ -37,7 +36,6 @@ class TicketConfigsController < ApplicationController
 
       # Ensure the div is setup and open.
       @ticket_type = "SOAP supported"
-      @show_ticket_client_div = true
 
     end
 
@@ -112,8 +110,10 @@ class TicketConfigsController < ApplicationController
     case params[:ticket_client]
       when /Jira3/
         ticket_client = Jira3TicketConfig.new(Jira3TicketConfig.parse_model_params params[:jira3_config])
+        @ticket_type = "Jira3x"
       when /Jira4/
         ticket_client = Jira4TicketConfig.new(Jira4TicketConfig.parse_model_params params[:jira4_config])
+         @ticket_type = "Jira4x"
       when /Nexpose/
         ticket_client = NexposeTicketConfig.new(NexposeTicketConfig.parse_model_params params[:nexpose_config])
       when /^SOAP/
@@ -152,10 +152,10 @@ class TicketConfigsController < ApplicationController
         when /jira3/i
         when /jira4/i
           ticket_client_data = Jira4TicketConfig.parse_model_params params[:jira4_config]
-          @jira4_ticket_client = Jira4TicketConfig.new ticket_client_data
-          @auth_data = @jira4_ticket_client
+          @jira4_ticket_config = Jira4TicketConfig.new ticket_client_data
+          @auth_data = @jira4_ticket_config
           @ticket_type = 'Jira4x'
-          @jira4_ticket_client.valid?
+          @jira4_ticket_config.valid?
           jira4_client = Jira4Client.new ticket_client_data[:username], ticket_client_data[:password], ticket_client_data[:host], ticket_client_data[:port]
           ticket_mappings = TicketMapping.new params[:ticket_config][:ticket_mapping_attributes]
           msg = jira4_client.create_test_ticket ticket_client_data, ticket_mappings
@@ -172,8 +172,7 @@ class TicketConfigsController < ApplicationController
       end
 
       @show_ticket_client_div = true
-      load_default_models
-      load_nexpose_user_list
+      load_defaults
       render :action => 'new'
       true
     else
@@ -217,10 +216,12 @@ class TicketConfigsController < ApplicationController
   def load_default_models
     if @ticket_config.nil?
       @ticket_config = TicketConfig.new params[:ticket_config]
+      @ticket_mappings = @ticket_config.ticket_mapping
+      @ticket_rules = @ticket_config.ticket_rule
       @ticket_config.ticket_mapping = TicketMapping.new
       @ticket_config.ticket_rule = TicketRule.new
-      @jira4_ticket_config = Jira4TicketConfig.new params[:jira4_ticket_config]
-      @jira3_ticket_config = Jira3TicketConfig.new params[:jira3_ticket_config]
+      @jira4_ticket_config = Jira4TicketConfig.new params[:jira4_config]
+      @jira3_ticket_config = Jira3TicketConfig.new params[:jira3_config]
     end
     @soap_ticket_config = SOAPTicketConfig.new params[:soap_ticket_config]
   end
