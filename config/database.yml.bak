@@ -12,7 +12,7 @@ development:
  adapter: postgresql
  database: nexflow_dev
  host: 127.0.0.1
- port: 5432
+ port: 5433
  username: postgres
  password: password
  pool: 256
