@@ -1,20 +1,23 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/model_helper'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/util'))
+
+class SOAPValidator < ActiveModel::Validator
+
+  def validate soap_record
+      mappings = soap_record.mappings
+      wsdl_file = mappings['wsdl_file_name']
+
+      puts mappings
+  end
+end
 
 class SOAPTicketConfig < ActiveRecord::Base
   include ModelHelper
 
+  validates_with SOAPValidator
+
 	serialize :mappings, Hash
-
 	has_one :ticket_config, :as => :ticket_client
-
-	validate do |client|
-		if client.ticket_config
-			next if client.ticket_config.valid?
-			client.ticket_config.errors.full_messages.each do |msg|
-				errors.add_to_base msg
-			end
-		end
-	end
 
   #
   # The SOAP headers are stored in "soap_config_header_$Id"

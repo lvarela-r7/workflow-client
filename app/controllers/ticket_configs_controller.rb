@@ -3,6 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../engine/modules/ti
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parser'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parse_error'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/util'))
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Handles ticket configuration
@@ -10,6 +11,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_p
 # @author: Christopher Lee
 #-----------------------------------------------------------------------------------------------------------------------
 class TicketConfigsController < ApplicationController
+  include Util
   respond_to :html
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -231,7 +233,7 @@ class TicketConfigsController < ApplicationController
   #
   #-------------------------------------------------------------------------------------------------------------------
   def get_wsdl_operations wsdl_file_name
-    wsdl_doc = File.read(Rails.root.join('public', 'uploads', wsdl_file_name))
+    wsdl_doc = Util.get_public_uploaded_file wsdl_file_name
     parsed_wsdl = WSDLParser.parse wsdl_doc
     wsdl_util = WSDLUtil.new parsed_wsdl
     @wsdl_operations = wsdl_util.get_soap_input_operations true
