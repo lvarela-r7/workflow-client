@@ -5,7 +5,9 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_u
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parse_error'))
 
 #-----------------------------------------------------------------------------------------------------------------------
+# Handles ticket configuration
 #
+# @author: Christopher Lee
 #-----------------------------------------------------------------------------------------------------------------------
 class TicketConfigsController < ApplicationController
   respond_to :html
@@ -20,7 +22,7 @@ class TicketConfigsController < ApplicationController
     if wsdl_file_name
 
       begin
-        @wsdl_operations = get_wsdl_operations wsdl_file_name
+        get_wsdl_operations wsdl_file_name
       rescue WSDLParseError => wsdl_error
         # Set the error and reload
         flash[:error] = wsdl_error.to_s
@@ -28,8 +30,6 @@ class TicketConfigsController < ApplicationController
         render 'new'
         return
       end
-
-      @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
 
       # Store this file name in the session for later use
       session[:wsdl_file_name] = wsdl_file_name
@@ -115,12 +115,15 @@ class TicketConfigsController < ApplicationController
         ticket_client = Jira4TicketConfig.new(Jira4TicketConfig.parse_model_params params[:jira4_config])
          @ticket_type = "Jira4x"
       when /Nexpose/
+        @ticket_type = "Nexpose"
         ticket_client = NexposeTicketConfig.new(NexposeTicketConfig.parse_model_params params[:nexpose_config])
       when /^SOAP/
         @selected_soap_op_id = params[:soap_ticket_op_id].chomp.to_i
         wsdl_file_name = session[:wsdl_file_name]
-        @wsdl_operations = get_wsdl_operations wsdl_file_name
-        @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
+
+        # Load the WSDL objects
+        get_wsdl_operations wsdl_file_name
+
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         @input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, @operation)
         ticket_client = SOAPTicketConfig.new
@@ -153,7 +156,6 @@ class TicketConfigsController < ApplicationController
         when /jira4/i
           ticket_client_data = Jira4TicketConfig.parse_model_params params[:jira4_config]
           @jira4_ticket_config = Jira4TicketConfig.new ticket_client_data
-          @auth_data = @jira4_ticket_config
           @ticket_type = 'Jira4x'
           @jira4_ticket_config.valid?
           jira4_client = Jira4Client.new ticket_client_data[:username], ticket_client_data[:password], ticket_client_data[:host], ticket_client_data[:port]
@@ -223,7 +225,6 @@ class TicketConfigsController < ApplicationController
       @jira4_ticket_config = Jira4TicketConfig.new params[:jira4_config]
       @jira3_ticket_config = Jira3TicketConfig.new params[:jira3_config]
     end
-    @soap_ticket_config = SOAPTicketConfig.new params[:soap_ticket_config]
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -233,7 +234,8 @@ class TicketConfigsController < ApplicationController
     wsdl_doc = File.read(Rails.root.join('public', 'uploads', wsdl_file_name))
     parsed_wsdl = WSDLParser.parse wsdl_doc
     wsdl_util = WSDLUtil.new parsed_wsdl
-    wsdl_util.get_soap_input_operations true
+    @wsdl_operations = wsdl_util.get_soap_input_operations true
+    @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -241,17 +243,23 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def get_ticket_type type
 
-    @auth_data = @ticket_config.ticket_client
-
     case type
       when /Jira3/
-        @jira3_ticket_client = @ticket_config.ticket_client
+        @jira3_ticket_config = @ticket_config.ticket_client
         return 'Jira3x'
       when /Jira4/
-        @jira4_ticket_client = @ticket_config.ticket_client
+        @jira4_ticket_config = @ticket_config.ticket_client
         return 'Jira4x'
       when /SOAP/
-        return 'SOAP'
+        soap_config = @ticket_config.ticket_client
+        @input_map = soap_config.mappings
+        # Important: de-serialized data is not converted to symbols, even if stored as such
+        wsdl_file_name = @input_map['wsdl_file_name']
+        get_wsdl_operations wsdl_file_name
+        @selected_soap_op_id = @input_map['selected_soap_id'].chomp.to_i
+        @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
+        session[:wsdl_file_name] = wsdl_file_name
+        return 'SOAP supported'
       else
         return 'Nexpose'
     end

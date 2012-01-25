@@ -35,6 +35,7 @@ class SOAPTicketConfig < ActiveRecord::Base
 		input[:wsdl_file_name] = wsdl_file_name
 		input[:operation] = operation
     input[:headers] = header_input
+    input[:selected_soap_id] = op_id
 		input
   end
 
