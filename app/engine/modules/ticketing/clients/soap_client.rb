@@ -155,6 +155,8 @@ class SoapClient < TicketClient
 
 end
 
+
+=begin
 auth_data = {}
 
 auth_data[:username] = "Test"
@@ -167,7 +169,7 @@ soap_client = SoapClient.new "create", auth_data, "http://127.0.0.1:8088/mockPor
 soap_client.create_test_ticket
 
 
-=begin
+
 client = Savon::Client.new do
     #wsdl.endpoint = "http://127.0.0.1:8088/mockPortSoapBinding"
 		wsdl.document = "/home/bperry/Desktop/Chris-Test-Web-Service.xml"
