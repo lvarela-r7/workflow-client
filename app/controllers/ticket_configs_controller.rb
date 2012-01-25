@@ -36,7 +36,7 @@ class TicketConfigsController < ApplicationController
 
       # Ensure the div is setup and open.
       @ticket_type = "SOAP supported"
-
+      @show_ticket_client_div = true
     end
 
 
