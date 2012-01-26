@@ -1,23 +1,106 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/model_helper'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/util'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parser'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/cache'))
 
 class SOAPValidator < ActiveModel::Validator
 
   def validate soap_record
       mappings = soap_record.mappings
-      wsdl_file = mappings['wsdl_file_name']
 
-      puts mappings
+      # Parse the port type and operation.
+      operation_def = mappings['operation']
+      op_parts = operation_def.split("|")
+      port_type = op_parts[0]
+      operation = op_parts[1]
+
+      wsdl_file_name = mappings['wsdl_file_name']
+      cache = Cache.instance
+
+      if cache.has_in_cache?(wsdl_file_name)
+         wsdl_operations = cache.get wsdl_file_name
+      else
+        wsdl_doc = Util.get_public_uploaded_file wsdl_file_name
+        parsed_wsdl = WSDLParser.parse wsdl_doc
+        wsdl_util = WSDLUtil.new parsed_wsdl
+        wsdl_operations = wsdl_util.get_soap_input_operations true
+        cache.add_to_cache(wsdl_file_name, wsdl_operations)
+      end
+
+      # From the WSDL ops get the header and operations array
+      # that contain info about the different data ops.
+      op_hash = wsdl_operations[port_type]['operations'][operation]
+      op_array = []
+      op_headers = nil
+      op_hash.each do |key, value|
+        if 'headers'.eql?(key)
+          op_headers = value
+        else
+           op_array = op_array.concat value
+        end
+      end
+
+      # TODO: Skip header validation for now
+      # Gather header data
+
+      # For each mapping item do required validation and
+      # type validation.
+
+      mappings.each do |key, value|
+        # Skip headers
+        if 'header'.eql?(key) and value.kind_of?(Hash)
+          next
+        end
+
+        # TODO: Need to find a quicker way to do this.
+        # TODO: Add more validation as we go along
+        op_array.each do |param|
+          if key.eql?(param['name']) && param['type']
+
+            # Validation for numeric types
+            if param['type'] =~ /int|long|short|byte/
+              # Validate the value is a number
+              if not (value.to_s.chomp =~ /^\d+$/)
+                soap_record.errors[:base] << "The field #{key} requires an integer."
+              end
+
+            # Validation for date (format: YYYY-MM-DD)
+            elsif param['type'] =~ /date/
+              if not (value =~ /(\d{4})-(\d{2})-(\d{2})/)
+                 soap_record.errors[:base] << "The field #{key} requires a date (format : YYYY-MM-DD)"
+              end
+            end
+
+            # Validation for dateTime (format: YYYY-MM-DDThh:mm:ss)
+            elsif param['type'] =~ /dateTime/
+              if not (value =~ /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/)
+                 soap_record.errors[:base] << "The field #{key} requires a dateTime (format : YYYY-MM-DDThh:mm:ss)"
+              end
+            end
+          end
+      end
+
+
   end
 end
 
 class SOAPTicketConfig < ActiveRecord::Base
-  include ModelHelper
 
   validates_with SOAPValidator
 
 	serialize :mappings, Hash
+
 	has_one :ticket_config, :as => :ticket_client
+
+  validate do |client|
+		if client.ticket_config
+			next if client.ticket_config.valid?
+			client.ticket_config.errors.full_messages.each do |msg|
+				errors.add_to_base msg
+      end
+    end
+  end
 
   #
   # The SOAP headers are stored in "soap_config_header_$Id"

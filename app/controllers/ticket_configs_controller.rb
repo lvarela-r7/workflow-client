@@ -1,9 +1,9 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/modules/ticketing/clients/jira4_client'))
-#require File.expand_path(File.join(File.dirname(__FILE__), '../engine/modules/ticketing/clients/remedy/remedy_client'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parser'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parse_error'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/util'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/cache'))
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Handles ticket configuration
@@ -24,7 +24,7 @@ class TicketConfigsController < ApplicationController
     if wsdl_file_name
 
       begin
-        get_wsdl_operations wsdl_file_name
+        load_wsdl_ops wsdl_file_name
       rescue WSDLParseError => wsdl_error
         # Set the error and reload
         flash[:error] = wsdl_error.to_s
@@ -124,7 +124,7 @@ class TicketConfigsController < ApplicationController
         wsdl_file_name = session[:wsdl_file_name]
 
         # Load the WSDL objects
-        get_wsdl_operations wsdl_file_name
+        load_wsdl_ops wsdl_file_name
 
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         @input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, @operation)
@@ -232,12 +232,20 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   #
   #-------------------------------------------------------------------------------------------------------------------
-  def get_wsdl_operations wsdl_file_name
-    wsdl_doc = Util.get_public_uploaded_file wsdl_file_name
-    parsed_wsdl = WSDLParser.parse wsdl_doc
-    wsdl_util = WSDLUtil.new parsed_wsdl
-    @wsdl_operations = wsdl_util.get_soap_input_operations true
-    @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
+  def load_wsdl_ops wsdl_file_name
+    # Check if this object already exist in the cache.
+    cache = Cache.instance
+    if cache.has_in_cache?(wsdl_file_name)
+      @wsdl_operations = cache.get(wsdl_file_name)
+    else
+      wsdl_doc = Util.get_public_uploaded_file wsdl_file_name
+      parsed_wsdl = WSDLParser.parse wsdl_doc
+      wsdl_util = WSDLUtil.new parsed_wsdl
+      @wsdl_operations = wsdl_util.get_soap_input_operations true
+      cache.add_to_cache(wsdl_file_name, @wsdl_operations)
+    end
+
+     @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -257,7 +265,7 @@ class TicketConfigsController < ApplicationController
         @input_map = soap_config.mappings
         # Important: de-serialized data is not converted to symbols, even if stored as such
         wsdl_file_name = @input_map['wsdl_file_name']
-        get_wsdl_operations wsdl_file_name
+        load_wsdl_ops wsdl_file_name
         @selected_soap_op_id = @input_map['selected_soap_id'].chomp.to_i
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         session[:wsdl_file_name] = wsdl_file_name
