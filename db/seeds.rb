@@ -25,7 +25,6 @@ TicketingStyles.create(:id=>3, :name => 'Vulnerability per NSC', :description =>
 ModuleType.delete_all
 ModuleType.create(:id => 1, :view => 'ticket_configs', :title => "Ticketing", :description=>"Allows integration of Nexpose scan result data and supported ticketing tools.")
 
-if GeneralConfiguration.all.empty?
-  # Default of 1 week
-  GeneralConfiguration.create(:scan_history_polling => 1, :scan_history_polling_time_frame => 2, :nsc_polling => 10)
-end
+IntegerProperty.create(:property_key => 'scan_history_polling', :property_value => 1)
+IntegerProperty.create(:property_key => 'scan_history_polling_time_frame', :property_value => 2)
+IntegerProperty.create(:property_key => 'nsc_polling', :property_value => 10)

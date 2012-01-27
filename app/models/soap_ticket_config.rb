@@ -4,6 +4,13 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_p
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/cache'))
 
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# Handles SOAP validation
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
 class SOAPValidator < ActiveModel::Validator
 
   def validate soap_record
@@ -61,20 +68,20 @@ class SOAPValidator < ActiveModel::Validator
             # Validation for numeric types
             if param['type'] =~ /int|long|short|byte/
               # Validate the value is a number
-              if not (value.to_s.chomp =~ /^\d+$/)
+              unless (value.to_s.chomp =~ /^\d+$/)
                 soap_record.errors[:base] << "The field #{key} requires an integer."
               end
 
             # Validation for date (format: YYYY-MM-DD)
             elsif param['type'] =~ /date/
-              if not (value =~ /(\d{4})-(\d{2})-(\d{2})/)
+              unless (value =~ /(\d{4})-(\d{2})-(\d{2})/)
                  soap_record.errors[:base] << "The field #{key} requires a date (format : YYYY-MM-DD)"
               end
             end
 
             # Validation for dateTime (format: YYYY-MM-DDThh:mm:ss)
             elsif param['type'] =~ /dateTime/
-              if not (value =~ /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/)
+              unless (value =~ /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/)
                  soap_record.errors[:base] << "The field #{key} requires a dateTime (format : YYYY-MM-DDThh:mm:ss)"
               end
             end
@@ -85,6 +92,13 @@ class SOAPValidator < ActiveModel::Validator
   end
 end
 
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# The SOAP model definition
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
 class SOAPTicketConfig < ActiveRecord::Base
 
   validates_with SOAPValidator

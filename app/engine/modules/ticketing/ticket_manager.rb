@@ -29,13 +29,16 @@ class TicketManager
   end
 
   #
-  # Observed scan manager calls into this
+  # Observed scan manager and scan history manager calls into this
   #
   def update scan_info
-    if scan_info[:status].to_s =~ /finished/i
+    status = scan_info[:status].to_s
+    if (status =~ /finished/i || status =~/stopped/i)
       has_ticket = false
       @ticket_processing_queue.each do |ticket|
+        # If this ticket is already in the process queue then don't add.
         if ticket[:scan_id].to_i == scan_info[:scan_id].to_i and ticket[:host].to_s.eql?(scan_info[:host].to_s)
+          has_ticket = true
           break
         end
       end

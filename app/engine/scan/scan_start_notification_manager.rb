@@ -94,7 +94,8 @@ class ScanStartNotificationManager
     @running_scans = {}
     @listeners = []
     @semaphore = Mutex.new
-    start_poller GeneralConfiguration.all[0].nsc_polling.to_i
+    nsc_poll_rate_in_seconds = IntegerProperty.find_by_property_key('nsc_polling').property_value
+    start_poller nsc_poll_rate_in_seconds
   end
 
   #

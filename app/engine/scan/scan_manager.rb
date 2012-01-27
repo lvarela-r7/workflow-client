@@ -7,12 +7,17 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manag
 require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_manager'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'scan_start_notification_manager'))
 
-#
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
 # Used to start site device scans where a user is able to specify the maximum amount of scans that
 # should be running at a time.  This class does not guarantee that there will be no more than the
 # maximum amount of scans specified will be running BUT scans will not be started from this class
 # until the current amount of scans running is less than or equal to the maximum.
 #
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
 class ScanManager
   include Observable
 
@@ -102,8 +107,7 @@ class ScanManager
   #
   def initialize
     @logger = LogManager.instance
-    @period = GeneralConfiguration.all[0].nsc_polling.to_i
-    @semaphore = Mutex.new
+    @period = IntegerProperty.find_by_property_key('nsc_polling').property_value
     @scans_observed = {}
     start_poller
 

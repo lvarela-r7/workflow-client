@@ -7,6 +7,7 @@ WorkFlowEngineOnRails::Application.routes.draw do
   match "main/get_log" => "main#get_log"
   match 'ticket_configs/show' => 'ticket_configs#show'
   match 'ticket_configs/new/:wsdl_file_name' => 'ticket_configs#new'
+  match 'integer_property/edit' => "integer_property#edit"
 
   resources :modules
   resources :added_modules
@@ -15,7 +16,7 @@ WorkFlowEngineOnRails::Application.routes.draw do
 
   resources :ticket_configs
 
-  resources :general_configurations
+  resources :integer_property
 
   resources :nsc_configs
 

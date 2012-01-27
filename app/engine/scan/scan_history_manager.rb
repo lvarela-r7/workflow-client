@@ -1,18 +1,31 @@
 require 'rubygems'
 require 'nexpose'
+require 'observer'
 require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_manager'))
 
 
-#------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
 # This class is used to find the latest scans per site that falls within the user configured
 # time period.  These scans are then passed into the main ticketing system.
-#------------------------------------------------------------------------------------------------------
+#
+# == ALORITHM DEFINITION:
+# Scans in nexpose are incremental, starting from 1 to current scan ID.
+# In a constantly running thread:
+# 1. Start from scan_id = 1
+# 2. For the host, scan ID, and module-key we check to see if this exists in the scans_processed table
+# 3. Next we call scan_statistics(scan_id) to determine if the date matches the range
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
 
 # TODO: Add to the DB Manager scan-id's processed, and associated site-ids
 # TODO: Ensure site is not currently being scanned before generating the report
 # TODO: Possibly check site devices as well - phase 2
 class ScanHistoryManager
+  include Observable
 
   private_class_method :new
 
@@ -21,9 +34,9 @@ class ScanHistoryManager
     @@instance
   end
 
+  #---------------------------------------------------------------------------------------------------------------------
   #
-  #
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def initialize
     # A map of
     @site_last_scanned = {}
@@ -33,9 +46,9 @@ class ScanHistoryManager
     @time_range = Time.now - (ScanHistoryTimeFrame.find_by_id time_frame_id).multiplicate
   end
 
+  #---------------------------------------------------------------------------------------------------------------------
   #
-  #
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def do_scan_history_check
 
 
@@ -86,12 +99,12 @@ class ScanHistoryManager
   end
 
 
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   # Parses the time value sent in the Raw XML report.
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def parse_utc_time iso_8601_time
     # We only go as granular as minutes
-    if iso_8601_time =~ /(\d\d\d\d)(\d\d)(\d\d)T(\d\d)(\d\dd+)/
+    if iso_8601_time =~ /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/
       year = $1.to_i
       month = $2.to_i
       day = $3.to_i

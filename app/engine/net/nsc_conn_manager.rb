@@ -1,7 +1,9 @@
 #-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
 # Singleton class that manages all Nexpose connections.
 #
-# @author: Christopher Lee, christopher_lee@rapid7.com
+# == Author
+# Christopher Lee, christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
 
 require 'rubygems'

@@ -8,7 +8,7 @@ class GeneralConfigurationsControllerTest < ActionController::TestCase
   test "should get index" do
     get :index
     assert_response :success
-    assert_not_nil assigns(:general_configurations)
+    assert_not_nil assigns(:integer_property)
   end
 
   test "should get new" do
