@@ -67,6 +67,7 @@ class NSCConnectionManager
 
   end
 
+
   def get_nsc_connection host
     @nsc_connections[host]
   end
@@ -74,6 +75,9 @@ class NSCConnectionManager
   #
   #
   # TODO: Ensure values are not stale.
+  #---------------------------------------------------------------------------------------------------------------------
+  # Returns a map of the host-name to the wrapped connection object.
+  #---------------------------------------------------------------------------------------------------------------------
   def get_nsc_connections
     @nsc_connections
   end

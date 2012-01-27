@@ -99,23 +99,6 @@ class ScanHistoryManager
   end
 
 
-  #---------------------------------------------------------------------------------------------------------------------
-  # Parses the time value sent in the Raw XML report.
-  #---------------------------------------------------------------------------------------------------------------------
-  def parse_utc_time iso_8601_time
-    # We only go as granular as minutes
-    if iso_8601_time =~ /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/
-      year = $1.to_i
-      month = $2.to_i
-      day = $3.to_i
-      hour = $4.to_i
-      min = $5.to_i
 
-      time = Time.utc year, month, day, hour, min
-      return time
-    end
-
-    nil
-  end
 
 end

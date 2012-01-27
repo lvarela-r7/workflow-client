@@ -48,6 +48,8 @@ class WorkFlowEngine
     TicketManager.instance
     @logger.add_log_message "[*] Loading ticket module"
 
+    ScanSummariesManager.load
+
 =begin
     poll_time = @config.get_value 'poll_time'
     @scan_manager = ScanManager.new  @client_api, false, poll_time
