@@ -108,6 +108,7 @@ class ScanManager
   def initialize
     @logger = LogManager.instance
     @period = IntegerProperty.find_by_property_key('nsc_polling').property_value
+    @semaphore = Mutex.new
     @scans_observed = {}
     start_poller
 
@@ -144,4 +145,8 @@ class ScanManager
     add_scan_observed scan_info[:scan_id], scan_info[:host]
   end
 
+  def update_poller_frequency new_period
+    @period = new_period
+    @logger.add_log_message "[*] Scan Manager poller period is updated to #{@period.to_s} seconds"
+  end
 end

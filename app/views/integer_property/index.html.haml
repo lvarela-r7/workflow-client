@@ -16,7 +16,8 @@
                 %td{:width => "1"}
                   %b NSC Polling Time
                 %td{:width => "1"}
-                  = @nsc_polling.to_s
+                  = @nsc_polling.to_s + ' seconds'
             .btnRow
               .btn
-            = link_to 'Edit',  :controller => "integer_property", :action => "edit"
+
+            = link_to 'Edit', :action => :edit, :controller => :integer_property

@@ -1,5 +1,21 @@
 %h1 Edit Engine Configuration
 
+- form_tag 'update' do
+    .one_col_with_sidebar
+        %fieldset
+            %dl
+                %dt
+                    =label_tag 'History lookup timeframe'
+                %dd
+                    =number_field_tag :scan_history_polling, @scan_history_polling, {:autocomplete => :off, :size => '5'}
+                    =collection_select :scan_history_time_frame, :id, ScanHistoryTimeFrame.all, :id, :time_type, {:size => '5'}
+            %dl
+                %dt
+                    =label_tag 'NSC polling time (seconds)'
+                %dd
+                    =number_field_tag :nsc_polling, @nsc_polling, {:autocomplete => :off, :size => '5'}
+            .buttons
+                .btn
+                    = submit_tag 'Update'
 
-
-= link_to 'Cancel', integer_property_path
+= link_to 'Cancel', :controller => 'integer_property'

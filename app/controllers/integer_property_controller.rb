@@ -4,6 +4,7 @@ class IntegerPropertyController < ApplicationController
   # GET /integer_property
   # GET /integer_property.xml
   def index
+    @integer_properties = IntegerProperty.all
     @scan_history_polling = IntegerProperty.find_by_property_key('scan_history_polling').property_value
     @nsc_polling = IntegerProperty.find_by_property_key('nsc_polling').property_value
     polling_time_frame = IntegerProperty.find_by_property_key('scan_history_polling_time_frame').property_value
@@ -11,18 +12,10 @@ class IntegerPropertyController < ApplicationController
     @time_frame = scan_history_time_frame.time_type
   end
 
-  # GET /integer_property/1
-  # GET /integer_property/1.xml
-  def show
-    @general_configuration = IntegerProperty.all
-    polling_time_frame = IntegerProperty.find_by_property_key('scan_history_polling_time_frame').property_value
-    scan_history_time_frame = ScanHistoryTimeFrame.find_by_id polling_time_frame
-    @time_frame = scan_history_time_frame.time_type
-  end
-
   # GET /integer_property/1/edit
   def edit
-    @integer_properties = IntegerProperty.all
+    @scan_history_polling = IntegerProperty.find_by_property_key('scan_history_polling').property_value
+    @nsc_polling = IntegerProperty.find_by_property_key('nsc_polling').property_value
     polling_time_frame = IntegerProperty.find_by_property_key('scan_history_polling_time_frame').property_value
     @scan_history_time_frame = ScanHistoryTimeFrame.find_by_id polling_time_frame
   end
@@ -30,18 +23,24 @@ class IntegerPropertyController < ApplicationController
   # PUT /integer_property/1
   # PUT /integer_property/1.xml
   def update
-    @general_configuration = IntegerProperty.find(params[:id])
+    # Just update everything
+    scan_history_polling = IntegerProperty.find_by_property_key('scan_history_polling')
+    scan_history_polling.property_value = params[:scan_history_polling]
+    scan_history_polling.save
 
-    params[:general_configuration][:scan_history_polling_time_frame] = params[:scan_history_time_frame][:id]
-    respond_to do |format|
-      if @general_configuration.update_attributes(params[:general_configuration])
-        format.html { redirect_to '/integer_property' }
-        format.xml { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml { render :xml => @general_configuration.errors, :status => :unprocessable_entity }
-      end
+    nsc_polling = IntegerProperty.find_by_property_key('nsc_polling')
+    updated_nsc_polling = params[:nsc_polling].to_i
+    if (updated_nsc_polling != nsc_polling.property_value)
+      nsc_polling.property_value = updated_nsc_polling
+      nsc_polling.save
+      ScanManager.instance.update_poller_frequency updated_nsc_polling
     end
+
+    polling_time_frame = IntegerProperty.find_by_property_key('scan_history_polling_time_frame')
+    polling_time_frame.property_value = params[:scan_history_time_frame][:id]
+    polling_time_frame.save
+
+    redirect_to :integer_property
   end
 
 end

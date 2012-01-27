@@ -2,12 +2,6 @@ require 'nexpose'
 require 'rex/parser/nexpose_xml'
 require 'rubygems'
 require 'eventmachine'
-require File.expand_path(File.join(File.dirname(__FILE__), '../../scan/scan_start_notification_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../scan/scan_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../net/nsc_conn_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../logging/log_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'rules/rule_manager'))
-
 
 #TODO: Separate out parsing into its own module
 #TODO: Look into a proper listener model to start the thread
