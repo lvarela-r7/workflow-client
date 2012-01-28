@@ -14,7 +14,15 @@ class ScanSummariesManager
   def ScanSummariesManager.load
     logger = LogManager.instance
     NSCConnectionManager.instance.get_nsc_connections.each do |host, wrapped_connection|
-      scan_id = 1
+      this.load_by_host(host, wrapped_connection)
+    end
+  end
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # Used to update added nexpose hosts
+  #---------------------------------------------------------------------------------------------------------------------
+  def ScanSummariesManager.load_by_host host, wrapped_connection
+           scan_id = 1
       loop do
         # Does this value exist in the database
         if ScanSummary.find_by_host_and_scan_id(host.to_s._chomp, scan_id)
@@ -51,7 +59,6 @@ class ScanSummariesManager
         #Increment scan_id
         scan_id+=1
       end
-    end
   end
 
 end
