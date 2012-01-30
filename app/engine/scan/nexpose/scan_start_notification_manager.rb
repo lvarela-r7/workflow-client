@@ -1,30 +1,18 @@
-require 'eventmachine'
-require 'rubygems'
-require 'thread'
-require 'observer'
-require 'nexpose'
-require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_manager'))
-
 #------------------------------------------------------------------------------------------------------
 # Used to  update listeners when scans are started
 # The update method for observers returns: scan_id and scan_info(:site_id, engine_id, :status
 # and :start_time)
 # TODO: Handle Idempotency
 #------------------------------------------------------------------------------------------------------
+
+require 'observer'
+require 'singleton'
+
 class ScanStartNotificationManager
   include Observable
+  include Singleton
 
-  private_class_method :new
-
-  @@instance = nil
-
-  def self.instance
-    @@instance = new unless @@instance
-    @@instance
-  end
-
-  def start_poller poller_frequency
+  def start_poller(poller_frequency)
     operation = proc {
 
       @logger.add_log_message "[*] Scan Notification poller thread executing ..."
@@ -95,13 +83,13 @@ class ScanStartNotificationManager
     @listeners = []
     @semaphore = Mutex.new
     nsc_poll_rate_in_seconds = IntegerProperty.find_by_property_key('nsc_polling').property_value
-    start_poller nsc_poll_rate_in_seconds
+    start_poller(nsc_poll_rate_in_seconds)
   end
 
   #
   # The scan key is a combination of host + scan_id
   #
-  def get_site_id_from_scan_key scan_key
+  def get_site_id_from_scan_key(scan_key)
     scan_data = @running_scans[scan_key]
     unless scan_data
       raise "No matching site found for #{scan_id}"

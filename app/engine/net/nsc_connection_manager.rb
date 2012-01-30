@@ -6,19 +6,31 @@
 # Christopher Lee, christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
 
-require 'rubygems'
-require 'nexpose'
-require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
+require 'singleton'
 
 class NSCConnectionManager
-
-  private_class_method :new
-
-  @@instance = nil
+  include Singleton
 
   def initialize
     @nsc_connections = {}
     @logger = LogManager.instance
+
+    # Now load all the connections
+    nsc_configs = NscConfig.all
+
+    added_connection = false
+    nsc_configs.each do |nsc_config|
+      if nsc_config.is_active?
+        add_connection nsc_config
+        added_connection = true
+      end
+    end
+
+    if not nsc_configs or nsc_configs.empty?
+      @logger.add_log_message "[!] There are no configured NSC connections"
+    elsif not added_connection
+      @logger.add_log_message "[!] There are no active NSC connections"
+    end
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -42,7 +54,7 @@ class NSCConnectionManager
   end
 
   #
-  #
+  # @param conn - An NSCConfig record object
   #
   def update_connection conn
     if conn[:is_active]
@@ -68,6 +80,7 @@ class NSCConnectionManager
   end
 
 
+  # TODO: Do this better with proper resolution, store IP only if possible.
   def get_nsc_connection host
     @nsc_connections[host]
   end
@@ -80,14 +93,6 @@ class NSCConnectionManager
   #---------------------------------------------------------------------------------------------------------------------
   def get_nsc_connections
     @nsc_connections
-  end
-
-  #
-  #
-  #
-  def self.instance
-    @@instance = new unless @@instance
-    @@instance
   end
 
   #

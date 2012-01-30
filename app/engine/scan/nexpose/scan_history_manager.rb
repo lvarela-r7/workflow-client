@@ -1,10 +1,3 @@
-require 'rubygems'
-require 'nexpose'
-require 'observer'
-require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_manager'))
-
-
 #-----------------------------------------------------------------------------------------------------------------------
 # == Synopsis
 # This class is used to find the latest scans per site that falls within the user configured
@@ -20,6 +13,8 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_mana
 # == Author
 # Christopher Lee christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
+
+require "observer"
 
 # TODO: Add to the DB Manager scan-id's processed, and associated site-ids
 # TODO: Ensure site is not currently being scanned before generating the report

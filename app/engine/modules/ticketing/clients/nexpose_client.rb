@@ -1,5 +1,5 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../../net/nsc_conn_manager'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../../../net/nsc_connection_manager'))
 require 'nexpose'
 
 

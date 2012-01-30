@@ -5,6 +5,11 @@
 #
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Daley', :city => cities.first)
+
+IntegerProperty.create(:property_key => 'scan_history_polling', :property_value => 1)
+IntegerProperty.create(:property_key => 'scan_history_polling_time_frame', :property_value => 2)
+IntegerProperty.create(:property_key => 'nsc_polling', :property_value => 10)
+
 TicketClients.delete_all
 TicketClients.create(:id => 1, :client => 'Jira3x', :client_connector => 'Jira3Client', :formatter => 'JiraFormatter')
 TicketClients.create(:id => 2, :client => 'Jira4x', :client_connector => 'Jira4Client', :formatter => 'JiraFormatter')
@@ -25,6 +30,3 @@ TicketingStyles.create(:id=>3, :name => 'Vulnerability per NSC', :description =>
 ModuleType.delete_all
 ModuleType.create(:id => 1, :view => 'ticket_configs', :title => "Ticketing", :description=>"Allows integration of Nexpose scan result data and supported ticketing tools.")
 
-IntegerProperty.create(:property_key => 'scan_history_polling', :property_value => 1)
-IntegerProperty.create(:property_key => 'scan_history_polling_time_frame', :property_value => 2)
-IntegerProperty.create(:property_key => 'nsc_polling', :property_value => 10)
