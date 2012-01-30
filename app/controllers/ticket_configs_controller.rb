@@ -1,17 +1,9 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../engine/modules/ticketing/clients/jira4_client'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parser'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parse_error'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/util'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/cache'))
-
 #-----------------------------------------------------------------------------------------------------------------------
 # Handles ticket configuration
 #
 # @author: Christopher Lee
 #-----------------------------------------------------------------------------------------------------------------------
 class TicketConfigsController < ApplicationController
-  include Util
   respond_to :html
 
   #-------------------------------------------------------------------------------------------------------------------
