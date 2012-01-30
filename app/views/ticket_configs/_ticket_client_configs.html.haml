@@ -111,7 +111,7 @@
 								- unless @uses_header_auth
 									= render "header_authentication_info"
 									= label_tag "Use Basic Authentication"
-									= check_box_tag :use_basic_auth_checkbox
+									= check_box_tag :use_basic_auth_checkbox, "1", false, {:using_header_auth => @uses_header_auth}
 
 								%div{:id => "soap_headers"}
 									- if inputs['headers'] && !inputs['headers'].empty?

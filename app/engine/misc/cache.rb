@@ -46,7 +46,13 @@ class Cache
   def add_to_cache key, value
     if not has_in_cache?(key)
       # Don't store reference objects
-      @cache_map[key] = value.dup
+      begin
+        @cache_map[key] = value.dup
+      rescue TypeError
+        # In which case you can't duplicate so store
+        # the original value
+        @cache_map[key] = value
+      end
     end
   end
 

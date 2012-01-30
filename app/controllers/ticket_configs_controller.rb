@@ -229,6 +229,7 @@ class TicketConfigsController < ApplicationController
     cache = Cache.instance
     if cache.has_in_cache?(wsdl_file_name)
       @wsdl_operations = cache.get(wsdl_file_name)
+      @uses_header_auth = cache.get("uses_auth#{wsdl_file_name}")
     else
       wsdl_doc = Util.get_public_uploaded_file wsdl_file_name
       parsed_wsdl = WSDLParser.parse wsdl_doc
@@ -236,6 +237,7 @@ class TicketConfigsController < ApplicationController
       @wsdl_operations = wsdl_util.get_soap_input_operations true
       @uses_header_auth = wsdl_util.uses_header_auth
       cache.add_to_cache(wsdl_file_name, @wsdl_operations)
+      cache.add_to_cache("uses_auth#{wsdl_file_name}", @uses_header_auth)
     end
 
      @wsdl_id_op_map = convert_array_to_value_map @wsdl_operations

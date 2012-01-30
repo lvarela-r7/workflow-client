@@ -17,7 +17,7 @@ jQuery(document).ready(function() {
 // Whether or not to show the basic authentication dialog
 jQuery(document).ready(function() {
     basic_auth_checkbox = jQuery("#use_basic_auth_checkbox");
-   if (basic_auth_checkbox)
+   if (basic_auth_checkbox.is(":visible"))
    {
        // Load the div
        basic_auth_div = jQuery("#soap_headers");
