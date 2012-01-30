@@ -16,6 +16,9 @@ class WorkFlowEngine
     # thus making singletons useless.
     load_singletons
 
+    # Load unconventionally named libs
+    load_libs
+
     @logger = LogManager.instance
     @logger.add_log_message "[!] Initializing the WorkFlow Engine"
 
@@ -55,6 +58,13 @@ class WorkFlowEngine
     @@SINGLETONS.each do |singleton|
       require File.expand_path(File.join(File.dirname(__FILE__), singleton))
     end
+  end
+
+  @@LIBS = ['eventmachine']
+  def load_libs
+     @@LIBS.each do |lib|
+       require lib
+     end
   end
 
 end

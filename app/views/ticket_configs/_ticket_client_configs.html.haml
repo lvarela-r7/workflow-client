@@ -105,25 +105,31 @@
 						- index = index + 1
 						- proper_op_name = port_type.to_s + "|" + operation.to_s
 						%div{:id => "wsdl_op_#{index}"}
-							- if inputs['headers'] && !inputs['headers'].empty?
-								- headers = get_headers(inputs['headers'], @wsdl_operations[port_type]['headers'])
-								%fieldset
-									%legend{:align => "center"}
-										%b Header Input
-									- headers.each do |key, value|
-										- value.each do |header_name, header_inputs|
-											%fieldset
-												%legend{:align => "center"}
-													%b #{header_name}
-												- header_inputs.each do |input|
-													%dl
-														%dt
-															- if is_required_input?(input)
-																= label_tag(input['name'] + '*' + "  #{get_input_type(input)}", nil, {:style => "color:red"})
-															- else
-																= label_tag(input['name']) + "  #{get_input_type(input)}"
-														%dd
-															= ((input['type'].instance_of? Hash) ? (select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, true)}) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true)) : (text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true))))
+							%fieldset
+								%legend{:align => "center"}
+									%b Header Input
+								- unless @uses_header_auth
+									= render "header_authentication_info"
+									= label_tag "Use Basic Authentication"
+									= check_box_tag :use_basic_auth_checkbox
+
+								%div{:id => "soap_headers"}
+									- if inputs['headers'] && !inputs['headers'].empty?
+										- headers = get_headers(inputs['headers'], @wsdl_operations[port_type]['headers'])
+										- headers.each do |key, value|
+											- value.each do |header_name, header_inputs|
+												%fieldset
+													%legend{:align => "center"}
+														%b #{header_name}
+													- header_inputs.each do |input|
+														%dl
+															%dt
+																- if is_required_input?(input)
+																	= label_tag(input['name'] + '*' + "  #{get_input_type(input)}", nil, {:style => "color:red"})
+																- else
+																	= label_tag(input['name']) + "  #{get_input_type(input)}"
+															%dd
+																= ((input['type'].instance_of? Hash) ? (select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, true)}) : (is_sensitive_field?(input['name']) ? (password_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true)) : (text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true))))
 
 							- if has_operations?(inputs)
 								%fieldset

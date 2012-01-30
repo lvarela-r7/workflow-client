@@ -14,6 +14,36 @@ jQuery(document).ready(function() {
     load_wsdl_div();
 });
 
+// Whether or not to show the basic authentication dialog
+jQuery(document).ready(function() {
+    basic_auth_checkbox = jQuery("#use_basic_auth_checkbox");
+   if (basic_auth_checkbox)
+   {
+       // Load the div
+       basic_auth_div = jQuery("#soap_headers");
+       if (basic_auth_checkbox.attr("checked"))
+       {
+           basic_auth_div.show();
+       }
+       else
+       {
+           basic_auth_div.hide();
+       }
+
+       // Setup the function on the checkbox
+       basic_auth_checkbox.click(function() {
+        if (basic_auth_checkbox.attr("checked"))
+        {
+            basic_auth_div.show();
+        }
+        else
+        {
+           basic_auth_div.hide();
+        }
+    });
+   }
+});
+
 function load_selected_client() {
     var val = jQuery("#id_selected").val();
     jQuery('.nexpose_no_test_ticket').hide();

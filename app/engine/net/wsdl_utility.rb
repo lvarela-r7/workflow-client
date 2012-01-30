@@ -10,6 +10,8 @@ class WSDLUtil
 
   FILE_TYPES = ['base64Binary']
 
+  attr_reader :uses_header_auth
+
   #-------------------------------------------------------------------------------------------------------------------
   # This utility uses an underlying parsed WSDL object to perform operations.
   #
@@ -18,6 +20,7 @@ class WSDLUtil
   def initialize parsed_wsdl
     @parsed_wsdl = parsed_wsdl
     @exclude_file_ops = false
+    @uses_header_auth = false
   end
 
   #-------------------------------------------------------------------------------------------------------------------
@@ -55,6 +58,7 @@ class WSDLUtil
             header_elements = get_message_parts(header)
             ops_and_params[port_type]['headers'][header] = header_elements
           end
+          @uses_header_auth = true
         else
           # Load basic auth headers
           ops_and_params[port_type]['headers']['Basic Authentication'] = load_basic_auth
