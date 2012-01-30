@@ -1,12 +1,3 @@
-require 'rubygems'
-require 'eventmachine'
-require 'thread'
-require 'observer'
-require 'nexpose'
-require File.expand_path(File.join(File.dirname(__FILE__), '../logging/log_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../net/nsc_conn_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'scan_start_notification_manager'))
-
 #-----------------------------------------------------------------------------------------------------------------------
 # == Synopsis
 # Used to start site device scans where a user is able to specify the maximum amount of scans that
@@ -18,16 +9,12 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'scan_start_notificat
 # Christopher Lee christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
 
+require 'observer'
+require 'singleton'
+
 class ScanManager
+  include Singleton
   include Observable
-
-  private_class_method :new
-  @@instance = nil
-
-  def self.instance
-    @@instance = new unless @@instance
-    @@instance
-  end
 
   # Determines how often the poller thread is executed
   attr_reader :period

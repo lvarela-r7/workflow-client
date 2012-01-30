@@ -1,26 +1,17 @@
-require 'nexpose'
 require 'rex/parser/nexpose_xml'
-require 'rubygems'
-require 'eventmachine'
+require 'singleton'
 
 #TODO: Separate out parsing into its own module
 #TODO: Look into a proper listener model to start the thread
 class TicketManager
+  include Singleton
 
   attr_accessor :vuln_map
-
-  private_class_method :new
-  @@instance = nil
 
   public
   ##################
   # PUBLIC METHODS #
   ##################
-
-  def self.instance
-    @@instance = new unless @@instance
-    @@instance
-  end
 
   #
   # Observed scan manager and scan history manager calls into this

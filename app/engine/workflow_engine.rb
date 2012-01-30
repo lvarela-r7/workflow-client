@@ -1,11 +1,3 @@
-require 'rubygems'
-require 'active_record'
-require File.expand_path(File.join(File.dirname(__FILE__), 'scan/scan_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'scan/scan_start_notification_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'net/nsc_conn_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'logging/log_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'modules/ticketing/ticket_manager'))
-
 class WorkFlowEngine
 
   @@initialized = false
@@ -19,24 +11,16 @@ class WorkFlowEngine
       @@initialized = true
     end
 
+    # LOAD SINGLETONS
+    # This is important because RAILS will drop all references after used
+    # thus making singletons useless.
+    load_singletons
+
     @logger = LogManager.instance
     @logger.add_log_message "[!] Initializing the WorkFlow Engine"
-    @nsc_conn_manager = NSCConnectionManager.instance
-    nsc_configs = NscConfig.all
 
-    added_connection = false
-    nsc_configs.each do |nsc_config|
-      if nsc_config.is_active?
-        @nsc_conn_manager.add_connection nsc_config
-        added_connection = true
-      end
-    end
-
-    if not nsc_configs or nsc_configs.empty?
-      @logger.add_log_message "[!] There are no configured NSC connections"
-    elsif not added_connection
-      @logger.add_log_message "[!] There are no active NSC connections"
-    end
+    #init all the nexpose instances
+    NSCConnectionManager.instance
 
     #Starts notification manager
     ScanStartNotificationManager.instance
@@ -64,7 +48,17 @@ class WorkFlowEngine
 
   end
 
+  @@SINGLETONS = ['logging/log_manager', 'misc/cache', 'modules/ticketing/ticket_manager',
+                  'scan/nexpose/scan_manager', 'scan/nexpose/scan_start_notification_manager',
+                  'scan/nexpose/scan_history_manager', 'net/nsc_connection_manager']
+  def load_singletons
+    @@SINGLETONS.each do |singleton|
+      require File.expand_path(File.join(File.dirname(__FILE__), singleton))
+    end
+  end
+
 end
+
 
 # Simply used to pass started scan id's to the scan manager
 class ScanStartProxy
