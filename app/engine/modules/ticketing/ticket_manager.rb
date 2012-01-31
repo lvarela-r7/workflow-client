@@ -13,9 +13,9 @@ class TicketManager
   # PUBLIC METHODS #
   ##################
 
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   # Observed scan manager and scan history manager calls into this
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def update scan_info
     status = scan_info[:status].to_s
     if (status =~ /finished/i || status =~/stopped/i)
@@ -47,16 +47,6 @@ class TicketManager
   ##################
 
   def initialize
-
-    # Load the client connectors
-    # TODO: Once we figure out auto-loading we can get rid of this
-    client_dir = File.expand_path(File.join(File.dirname(__FILE__), 'clients'))
-    Dir.open(client_dir).each { |file|
-      if /client/ =~ file
-        require client_dir + '/' + file
-      end
-    }
-
     # An array of scan-id to create tickets from
     @ticket_processing_queue = []
 

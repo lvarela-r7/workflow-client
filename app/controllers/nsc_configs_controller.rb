@@ -50,7 +50,7 @@ class NscConfigsController < ApplicationController
           host = @nsc_config[:host]
           conn_manager = NSCConnectionManager.instance
           conn_manager.add_connection @nsc_config
-          ScanSummariesManager.load_by_host(host, conn_manager.get_nsc_connection(host))
+          ScanSummariesManager.instance.load_by_host(host, conn_manager.get_nsc_connection(host))
           format.html { redirect_to '/nsc_configs' }
           format.xml { render :xml => @nsc_config, :status => :created, :location => @nsc_config }
         else

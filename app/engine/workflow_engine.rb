@@ -31,11 +31,12 @@ class WorkFlowEngine
     #Start scan manager
     ScanManager.instance
 
+    ScanSummariesManager.instance
+
     # TODO: Need to develop a way to auto load modules
+    # All modules should be loaded last
     TicketManager.instance
     @logger.add_log_message "[*] Loading ticket module"
-
-    ScanSummariesManager.load
 
 =begin
     poll_time = @config.get_value 'poll_time'

@@ -1,8 +1,33 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# Updates the scan summaries table for completed (stopped/finished) scans.
 #
-# Only ran once on startup
-# TODO: Maybe add thread to run every hour
-#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
+require 'singleton'
+
 class ScanSummariesManager
+  include Singleton
+
+  def initialize
+    @logger = LogManager.instance
+    ScanManager.instance.add_observer self
+  end
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # Observed objects call into this method.
+  #---------------------------------------------------------------------------------------------------------------------
+  def update scan_info
+    status = scan_info[:status].to_s
+    if (status =~ /finished/i || status =~/stopped/i)
+       host = scan_info[:host]
+       nsc_conn = NSCConnectionManager.instance.get_nsc_connection(host)
+       scan_id = scan_info[:scan_id]
+       load_by_host_and_scan_id(host, nsc_conn, scan_id)
+    end
+  end
 
   #---------------------------------------------------------------------------------------------------------------------
   # Updates the scan summary table on startup.
@@ -11,7 +36,7 @@ class ScanSummariesManager
   # If not get all the data for that host
   # Stops upon exception - The only way to know when we have reached out last ID
   #---------------------------------------------------------------------------------------------------------------------
-  def ScanSummariesManager.load
+  def load
     NSCConnectionManager.instance.get_nsc_connections.each do |host, wrapped_connection|
       load_by_host(host, wrapped_connection)
     end
@@ -20,45 +45,56 @@ class ScanSummariesManager
   #---------------------------------------------------------------------------------------------------------------------
   # Used to update added nexpose hosts
   #---------------------------------------------------------------------------------------------------------------------
-  def ScanSummariesManager.load_by_host host, wrapped_connection
-    logger = LogManager.instance
+  def load_by_host host, wrapped_connection
     scan_id = 0
     loop do
       scan_id+=1
-
-      # Does this value exist in the database
-      if ScanSummary.find_by_host_and_scan_id(host.to_s.chomp, scan_id)
-        next
-      end
-
-      begin
-        scan_stats = wrapped_connection.scan_statistics(scan_id)
-        # A null value can also signal the last know scan
-        # this might be bad as scan IDs are determined by
-        # the database and might not be serial.
-        unless scan_stats
-          break
-        end
-      rescue Exception
-        # Only way to signal last scan ID
+      if (load_by_host_and_scan_id(host, wrapped_connection, scan_id))
         break
       end
-
-      summaries = scan_stats[:summary]
-      status = summaries['status']
-      if status =~ /finished|stopped/
-        start_time = Util.parse_utc_time(summaries["startTime"])
-        end_time = Util.parse_utc_time(summaries["endTime"])
-
-        unless (start_time || end_time)
-          logger..add_log_message("[-] There was a problem parsing scan times: start: #{summaries['startTime']}" +
-                                      " end:  #{summaries['endTime']}")
-          next
-        end
-        ScanSummary.create(:host => host, :scan_id => scan_id, :site_id => summaries["site-id"],
-                           :start_time => start_time, :end_time => end_time, :status => status)
-      end
     end
+  end
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # Used to update added nexpose hosts
+  #
+  # @returns true if the control should break out.
+  #---------------------------------------------------------------------------------------------------------------------
+  def load_by_host_and_scan_id host, wrapped_connection, scan_id
+    # Does this value exist in the database
+    if ScanSummary.find_by_host_and_scan_id(host.to_s.chomp, scan_id)
+      return false
+    end
+
+    begin
+      scan_stats = wrapped_connection.scan_statistics(scan_id)
+      # A null value can also signal the last know scan
+      # this might be bad as scan IDs are determined by
+      # the database and might not be serial.
+      unless scan_stats
+        return true
+      end
+    rescue Exception
+      # Only way to signal last scan ID
+      return true
+    end
+
+    summaries = scan_stats[:summary]
+    status = summaries['status']
+    if status =~ /finished|stopped/
+      start_time = Util.parse_utc_time(summaries["startTime"])
+      end_time = Util.parse_utc_time(summaries["endTime"])
+
+      unless (start_time || end_time)
+        @logger..add_log_message("[-] There was a problem parsing scan times: start: #{summaries['startTime']}" +
+                                    " end:  #{summaries['endTime']}")
+        return false
+      end
+      ScanSummary.create(:host => host, :scan_id => scan_id, :site_id => summaries["site-id"],
+                         :start_time => start_time, :end_time => end_time, :status => status)
+    end
+
+    false
   end
 
 end
