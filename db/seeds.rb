@@ -8,7 +8,7 @@
 
 IntegerProperty.create(:property_key => 'scan_history_polling', :property_value => 1)
 IntegerProperty.create(:property_key => 'scan_history_polling_time_frame', :property_value => 2)
-IntegerProperty.create(:property_key => 'nsc_polling', :property_value => 10)
+IntegerProperty.create(:property_key => 'nsc_polling', :property_value => 20)
 
 TicketClients.delete_all
 TicketClients.create(:id => 1, :client => 'Jira3x', :client_connector => 'Jira3Client', :formatter => 'JiraFormatter')
