@@ -14,20 +14,15 @@
 # Christopher Lee christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
 
-require "observer"
+require 'observer'
+require 'singleton'
 
 # TODO: Add to the DB Manager scan-id's processed, and associated site-ids
 # TODO: Ensure site is not currently being scanned before generating the report
 # TODO: Possibly check site devices as well - phase 2
 class ScanHistoryManager
   include Observable
-
-  private_class_method :new
-
-  def self.instance
-    @@instance = new unless @@instance
-    @@instance
-  end
+  include Singleton
 
   #---------------------------------------------------------------------------------------------------------------------
   #
@@ -36,16 +31,23 @@ class ScanHistoryManager
     # A map of
     @site_last_scanned = {}
     @nsc_conn_manager = NSCConnectionManager.instance
-    general_config = GeneralConfiguration.find 1
-    time_frame_id = general_config.scan_history_polling_time_frame
-    @time_range = Time.now - (ScanHistoryTimeFrame.find_by_id time_frame_id).multiplicate
+    @logger = LogManager.instance
+  end
+
+  #---------------------------------------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------------------------------------
+  def set_time_range
+    time_frame_id = IntegerProperty.find_by_property_key('scan_history_polling_time_frame').property_value
+    polling_value = IntegerProperty.find_by_property_key('scan_history_polling').property_value
+    @time_range = Time.now - (ScanHistoryTimeFrame.find_by_id(time_frame_id).multiplicate * polling_value)
+    @logger.add_log_message "[*] Scans will be processed from #{@time_range.to_s}"
   end
 
   #---------------------------------------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------------------------------------
   def do_scan_history_check
-
 
     # Load all the sites
     sites = @client_api.site_listing
