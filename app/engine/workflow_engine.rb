@@ -31,7 +31,9 @@ class WorkFlowEngine
     #Start scan manager
     ScanManager.instance
 
-    ScanSummariesManager.instance
+    # Always load the summaries table on startup.
+    scan_summaries = ScanSummariesManager.instance
+    scan_summaries.load
 
     # TODO: Need to develop a way to auto load modules
     # All modules should be loaded last

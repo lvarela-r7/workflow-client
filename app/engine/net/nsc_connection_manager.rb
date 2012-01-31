@@ -162,7 +162,7 @@ end
 #-----------------------------------------------------------------------------------------------------------------------
 class NexposeConnectionWrapper
 
-  attr_accessor :log_error
+  attr_accessor :log_errors
 
   def initialize nexpose_connection
     if not nexpose_connection
@@ -173,7 +173,7 @@ class NexposeConnectionWrapper
     @logged_in = false
     @logger = LogManager.instance
     @failed_login_host_array = []
-    @log_error = true
+    @log_errors = true
   end
 
   #
@@ -218,7 +218,7 @@ class NexposeConnectionWrapper
         login_tries = 1
         retry
       else
-        if @log_error
+        if @log_errors
           @logger.add_log_message "[-] API call to #{method_name} has failed!"
         end
       end
