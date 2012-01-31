@@ -36,6 +36,7 @@ class ScanManager
       @logger.add_log_message "[*] Scan Manager poller thread executing ..."
       begin
         while true do
+          update_poller_frequency
           sleep @period
           # Check if there are modules
           # If not then do not execute this block
@@ -132,8 +133,11 @@ class ScanManager
     add_scan_observed scan_info[:scan_id], scan_info[:host]
   end
 
-  def update_poller_frequency new_period
-    @period = new_period
-    @logger.add_log_message "[*] Scan Manager poller period is updated to #{@period.to_s} seconds"
+  def update_poller_frequency
+    changed_period = IntegerProperty.find_by_property_key('nsc_polling').property_value
+    if (@period != changed_period)
+       @period = changed_period
+       @logger.add_log_message "[*] Scan Manager poller period is updated to #{@period.to_s} seconds"
+    end
   end
 end

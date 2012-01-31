@@ -33,7 +33,6 @@ class IntegerPropertyController < ApplicationController
     if (updated_nsc_polling != nsc_polling.property_value)
       nsc_polling.property_value = updated_nsc_polling
       nsc_polling.save
-      ScanManager.instance.update_poller_frequency updated_nsc_polling
     end
 
     polling_time_frame = IntegerProperty.find_by_property_key('scan_history_polling_time_frame')
