@@ -1,5 +1,7 @@
 require_relative '../app/engine/modules/ticketing/rules/ipv4_address_rule'
 
+#some randome ip's and ranges
+#
 ip_list = "192.168.1.0/24,192.168.0.0-192.168.0.255,192.168.1.123"
 
 ips = []
