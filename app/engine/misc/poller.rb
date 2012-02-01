@@ -1,7 +1,18 @@
+#---------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# All classses that requires separate threads to perform some sort of monitoring operation should use this class.
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#---------------------------------------------------------------------------------------------------------------------
 class Poller
 
   #---------------------------------------------------------------------------------------------------------------------
+  # Starts the polling process
   #
+  # @param method_name - The symbolized method name to be called periodically
+  # @param period_key - The name of the key to lookup in the DB to find the period
+  # @param poller_thread_name - The name of the thread
   #---------------------------------------------------------------------------------------------------------------------
   def start_poller method_name, period_key, poller_thread_name
     @logger = LogManager.instance
@@ -22,6 +33,11 @@ class Poller
 
     EM.defer operation
   end
+
+  private
+  ###################
+  # PRIVATE METHODS #
+  ###################
 
   #---------------------------------------------------------------------------------------------------------------------
   #
