@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------------------------------------------------
 # == Synopsis
-# All classses that requires separate threads to perform some sort of monitoring operation should use this class.
+# All classes that requires separate threads to perform some sort of monitoring operation should use this class.
 #
 # == Author
 # Christopher Lee christopher_lee@rapid7.com
