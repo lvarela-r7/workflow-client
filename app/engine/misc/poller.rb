@@ -15,7 +15,7 @@ class Poller
         end
       rescue Exception => e
         @logger.add_log_message "[!] Error in #{poller_thread_name}: #{e.message}"
-        raise e
+
       end
       @logger.add_log_message "[-] #{poller_thread_name} poller thread exiting ..."
     }
