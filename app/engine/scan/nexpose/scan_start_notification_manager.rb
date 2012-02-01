@@ -8,30 +8,9 @@
 require 'observer'
 require 'singleton'
 
-class ScanStartNotificationManager
+class ScanStartNotificationManager < Poller
   include Observable
   include Singleton
-
-  def start_poller
-    operation = proc {
-
-      @logger.add_log_message "[*] Scan Notification poller thread executing ..."
-      while true do
-        update_poller_frequency
-        sleep @period
-        begin
-          check_and_update_listeners
-        rescue Exception => e
-          @logger.add_log_message "[-] Error in Scan Start Notifier: #{e.message}"
-        end
-      end
-
-      @logger.add_log_message "[-] Scan Notification Manager exiting ..."
-
-    }
-
-    EM.defer operation
-  end
 
   def check_and_update_listeners
     @semaphore.synchronize {
@@ -83,8 +62,7 @@ class ScanStartNotificationManager
     @running_scans = {}
     @listeners = []
     @semaphore = Mutex.new
-    @period = IntegerProperty.find_by_property_key('nsc_polling').property_value
-    start_poller
+    start_poller(:check_and_update_listeners, 'nsc_polling', 'Scan Start Manager')
   end
 
   #
@@ -97,14 +75,6 @@ class ScanStartNotificationManager
     end
 
     scan_data[:site_id]
-  end
-
-  def update_poller_frequency
-    changed_period = IntegerProperty.find_by_property_key('nsc_polling').property_value
-    if (@period != changed_period)
-       @period = changed_period
-       @logger.add_log_message "[*] Scan Start Manager poller period is updated to #{@period.to_s} seconds"
-    end
   end
 
 end

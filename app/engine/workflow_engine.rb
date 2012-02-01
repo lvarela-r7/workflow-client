@@ -37,8 +37,8 @@ class WorkFlowEngine
 
     # TODO: Need to develop a way to auto load modules
     # All modules should be loaded last
-    TicketManager.instance
     @logger.add_log_message "[*] Loading ticket module"
+    TicketManager.instance
 
 =begin
     poll_time = @config.get_value 'poll_time'

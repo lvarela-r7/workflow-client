@@ -4,11 +4,9 @@
 # time period.  These scans are then passed into the main ticketing system.
 #
 # == ALORITHM DEFINITION:
-# Scans in nexpose are incremental, starting from 1 to current scan ID.
-# In a constantly running thread:
-# 1. Start from scan_id = 1
-# 2. For the host, scan ID, and module-key we check to see if this exists in the scans_processed table
-# 3. Next we call scan_statistics(scan_id) to determine if the date matches the range
+# Gather from the scan summaries table all the scans that fall within the defined time frame.
+# Check to see which ones do not exist in the scans processed table then forward to the the
+# obeservers
 #
 # == Author
 # Christopher Lee christopher_lee@rapid7.com
@@ -20,7 +18,7 @@ require 'singleton'
 # TODO: Add to the DB Manager scan-id's processed, and associated site-ids
 # TODO: Ensure site is not currently being scanned before generating the report
 # TODO: Possibly check site devices as well - phase 2
-class ScanHistoryManager
+class ScanHistoryManager < Poller
   include Observable
   include Singleton
 

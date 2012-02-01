@@ -3,7 +3,7 @@ require 'singleton'
 
 #TODO: Separate out parsing into its own module
 #TODO: Look into a proper listener model to start the thread
-class TicketManager
+class TicketManager < Poller
   include Singleton
 
   attr_accessor :vuln_map
@@ -78,7 +78,7 @@ class TicketManager
     @logger = LogManager.instance
 
     # This poller is fired every 10 seconds, we hard-code this
-    start_poller 10
+    start_poller(:do_ticket_processing, 'nsc_polling', 'Ticket Manager')
 
     # Now add self to the scan manager observer list
     ScanManager.instance.add_observer self
@@ -98,36 +98,17 @@ class TicketManager
     end
   end
 
-  #
-  # This thread sleeps until the queue is empty
-  #
-  def start_poller sleep_time
-    operation = proc {
-      @logger.add_log_message '[*] Starting ticket processing thread ...'
-      while true do
-        begin
-          if @ticket_processing_queue.empty?
-            sleep sleep_time.to_i
-          else
-            processing_ticket = @ticket_processing_queue.first
+  def do_ticket_processing
+    unless @ticket_processing_queue.empty?
+      processing_ticket = @ticket_processing_queue.first
 
-            # Builds the tickets and stores them in the DB
-            build_and_store_tickets processing_ticket
-          end
+      # Builds the tickets and stores them in the DB
+      build_and_store_tickets processing_ticket
+    end
 
-          # Call this method regardless to ensure we re-attempt to create failed tickets
-          # Actually writes out the tickets to the ticketing client
-          handle_tickets
-        rescue Exception => e
-          @logger.add_log_message "[!] Error in Ticket Manager: #{e.backtrace}"
-        end
-      end
-
-      @is_poller_thread_running = false
-      puts "Poller exiting ..."
-    }
-
-    EM.defer operation
+    # Call this method regardless to ensure we re-attempt to create failed tickets
+    # Actually writes out the tickets to the ticketing client
+    handle_tickets
   end
 
   #
