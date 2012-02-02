@@ -17,6 +17,10 @@ class IPv4ListRule < Rule
 
     ip = IPAddr.new(ticket_data[:ip])
 
+    if ip.nil? or ip.empty?
+      raise "IP nil or empty in ticket data: #{ticket_data.inspect}"
+    end
+
     #split ip rule list
     ip_list = @ip_list_csv.split ","
     
