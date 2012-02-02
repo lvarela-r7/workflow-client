@@ -28,7 +28,7 @@ class ScanManager < Poller
   #
   #
   #
-  def check_and_execute_op
+  def process
     @semaphore.synchronize do
 
       @scans_observed.keys.each do |host|
@@ -71,7 +71,7 @@ class ScanManager < Poller
     @logger = LogManager.instance
     @semaphore = Mutex.new
     @scans_observed = {}
-    start_poller(:check_and_execute_op, 'nsc_polling', 'Scan Manager')
+    start_poller('nsc_polling', 'Scan Manager')
 
     # Add self as observer to scan start manager
     ScanStartNotificationManager.instance.add_observer self

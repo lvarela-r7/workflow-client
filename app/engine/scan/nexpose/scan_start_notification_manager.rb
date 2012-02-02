@@ -12,7 +12,7 @@ class ScanStartNotificationManager < Poller
   include Observable
   include Singleton
 
-  def check_and_update_listeners
+  def process
     @semaphore.synchronize {
 
       if count_observers < 1
@@ -62,7 +62,7 @@ class ScanStartNotificationManager < Poller
     @running_scans = {}
     @listeners = []
     @semaphore = Mutex.new
-    start_poller(:check_and_update_listeners, 'nsc_polling', 'Scan Start Manager')
+    start_poller('nsc_polling', 'Scan Start Manager')
   end
 
   #

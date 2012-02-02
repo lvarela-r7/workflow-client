@@ -14,9 +14,11 @@ class TicketManager < Poller
   ##################
 
   #---------------------------------------------------------------------------------------------------------------------
-  # Observed scan manager and scan history manager calls into this
+  # Observed scan manager
+  #
+  # @param scan_info - Hash that contains: (:scan_id, :status, :message, :host)
   #---------------------------------------------------------------------------------------------------------------------
-  def update scan_info
+  def update_from_scan_manager scan_info
     status = scan_info[:status].to_s
     if (status =~ /finished/i || status =~/stopped/i)
       has_ticket = false
@@ -78,10 +80,10 @@ class TicketManager < Poller
     @logger = LogManager.instance
 
     # This poller is fired every 10 seconds, we hard-code this
-    start_poller(:do_ticket_processing, 'nsc_polling', 'Ticket Manager')
+    start_poller('nsc_polling', 'Ticket Manager')
 
     # Now add self to the scan manager observer list
-    ScanManager.instance.add_observer self
+    ScanManager.instance.add_observer(self)
   end
 
   #
@@ -98,7 +100,7 @@ class TicketManager < Poller
     end
   end
 
-  def do_ticket_processing
+  def process
     unless @ticket_processing_queue.empty?
       processing_ticket = @ticket_processing_queue.first
 
@@ -314,7 +316,7 @@ class TicketManager < Poller
           ticket_id = ticket_data[:ticket_id]
 
           # If ticket already created or rules don't match skip
-          if created_already?(host, module_name, ticket_id) or not rule_manager.matches_rules? ticket_data
+          if (created_already?(host, module_name, ticket_id) || (!rule_manager.matches_rules?(ticket_data)))
             next
           end
 

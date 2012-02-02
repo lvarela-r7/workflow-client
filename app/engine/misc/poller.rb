@@ -14,7 +14,7 @@ class Poller
   # @param period_key - The name of the key to lookup in the DB to find the period
   # @param poller_thread_name - The name of the thread
   #---------------------------------------------------------------------------------------------------------------------
-  def start_poller method_name, period_key, poller_thread_name
+  def start_poller period_key, poller_thread_name, method_name=:process
     @logger = LogManager.instance
     operation = proc {
       @logger.add_log_message "[*] #{poller_thread_name} poller thread executing ..."
