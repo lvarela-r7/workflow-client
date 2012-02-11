@@ -18,7 +18,7 @@ class TicketManager < Poller
   #
   # @param scan_info - Hash that contains: (:scan_id, :status, :message, :host)
   #---------------------------------------------------------------------------------------------------------------------
-  def update_from_scan_manager scan_info
+  def update scan_info
     status = scan_info[:status].to_s
     if (status =~ /finished/i || status =~/stopped/i)
       has_ticket = false
@@ -87,7 +87,7 @@ class TicketManager < Poller
   end
 
   #
-  # Bad idea! TODO: Fix
+  # Bad idea! TODO: Fix (just key off the DB)
   #
   def load_vuln_map
     vuln_infos = VulnInfo.all
