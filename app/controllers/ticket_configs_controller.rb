@@ -46,8 +46,6 @@ class TicketConfigsController < ApplicationController
     @ticket_mappings = @ticket_config.ticket_mapping
     @ticket_rules = @ticket_config.ticket_rule
 
-    p @ticket_rules.inspect
-
     load_defaults
   end
 
