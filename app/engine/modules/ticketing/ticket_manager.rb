@@ -87,7 +87,7 @@ class TicketManager < Poller
   end
 
   #
-  # Bad idea! TODO: Fix (just key off the DB)
+  # Bad idea! TODO: Fix
   #
   def load_vuln_map
     vuln_infos = VulnInfo.all

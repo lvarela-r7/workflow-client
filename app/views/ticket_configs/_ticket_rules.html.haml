@@ -1,23 +1,69 @@
 = f.fields_for :ticket_rule do |rule_data|
-	%fieldset
-		%fieldset
-			%legend
-				%b CVSS Score
-			%dl
-				= rule_data.label 'CVSS Score (>=)'
-				= rule_data.select :cvss_min, (1..10), {:selected => (@ticket_rules ? @ticket_rules.cvss_min : 1)}, {:id => 'cvss_score_greater_than_and_equal'}
-				= rule_data.label 'CVSS Score (<=)'
-				= rule_data.select :cvss_max, (1..10), {:selected => (@ticket_rules ? @ticket_rules.cvss_max : 10)}, {:id => 'cvss_score_less_than_and_equal'}
-			%dl
-		%fieldset
-			%legend
-				%b Vulnerabillity type
-			%dl
-				= rule_data.check_box :use_ve, {:checked => (@ticket_rules ? @ticket_rules.use_ve : true)}
-				= rule_data.label "Vulnerable exploit"
-			%dl
-				= rule_data.check_box :use_vv, {:checked => (@ticket_rules ? @ticket_rules.use_vv : true)}
-				= rule_data.label "Vulnerable version"
-			%dl
-				= rule_data.check_box :use_vp, {:checked => (@ticket_rules ? @ticket_rules.use_vp : true)}
-				= rule_data.label "Potential vulnerablity"
+  %fieldset
+    %fieldset
+      %legend
+        %b CVSS Score
+      %dl
+        = rule_data.label 'CVSS Score (>=)'
+        = rule_data.select :cvss_min, (1..10), {:selected => (@ticket_rules ? @ticket_rules.cvss_min : 1)}, {:id => 'cvss_score_greater_than_and_equal'}
+        = rule_data.label 'CVSS Score (<=)'
+        = rule_data.select :cvss_max, (1..10), {:selected => (@ticket_rules ? @ticket_rules.cvss_max : 10)}, {:id => 'cvss_score_less_than_and_equal'}
+      %dl
+    %fieldset
+      %legend
+        %b Vulnerabillity type
+      %dl
+        = rule_data.check_box :use_ve, {:checked => (@ticket_rules ? @ticket_rules.use_ve : true)}
+        = rule_data.label "Vulnerable exploit"
+      %dl
+        = rule_data.check_box :use_vv, {:checked => (@ticket_rules ? @ticket_rules.use_vv : true)}
+        = rule_data.label "Vulnerable version"
+      %dl
+        = rule_data.check_box :use_vp, {:checked => (@ticket_rules ? @ticket_rules.use_vp : true)}
+        = rule_data.label "Potential vulnerablity"
+
+    %fieldset
+      %legend
+        %b IP Whitelist/Blacklist
+      %dl
+        = rule_data.check_box :ip_list_is_whitelist, {:checked => false}
+        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+      %dl
+        = rule_data.label :ip, "IP List separated by newline. Values accepted are CIDR ranges and specific IP addresses.", :class => :blocked_label
+        = rule_data.text_area :ip_list, {:size => "40x10"}
+    %fieldset
+      %legend
+        %b DNS Resolved Hostname Whitelist/Blacklist
+      %dl
+        = rule_data.check_box :dns_hostname_list_is_whitelist, {:checked => false}
+        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+      %dl
+        = rule_data.label :dns, "DNS Hostname list separated by newline.", :class => :blocked_label
+        = rule_data.text_area :dns_hostname_list, {:size => "40x10"}
+    %fieldset
+      %legend
+        %b DNS Resolved Hostname PCRE Whitelist/Blacklist
+      %dl
+        = rule_data.check_box :dns_hostname_pcre_list_is_whitelist, {:checked => false}
+        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+      %dl
+        = rule_data.label :dns, "DNS Hostname Perl Compatible Regular Expressions separated by newline.", :class => :blocked_label
+        = rule_data.text_area :dns_hostname_pcre_list, {:size => "40x10"}
+    %fieldset
+      %legend
+        %b NeXpose Site Whitelist/Blacklist
+      %dl
+        = rule_data.check_box :site_list_is_whitelist, {:checked => false}
+        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not check is equivalent to blacklist."
+      %dl
+        = rule_data.label :sites, "Site list separated by a newline.", :class => :blocked_label
+        = rule_data.text_area :site_list, {:size => "40x10"}
+    %fieldset
+      %legend
+        %b NeXpose Site PCRE Whitelist/Blacklist
+      %dl
+        = rule_data.check_box :site_pcre_list_is_whitelist, {:checked => false}
+        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+      %dl
+        = rule_data.label :site_pcre_list, "Site Perl Compatible Regular Expression list separated by newline.", :class => :blocked_label
+        = rule_data.text_area :site_pcre_list, {:size => "40x10"}

@@ -7,6 +7,16 @@ class CreateTicketRules < ActiveRecord::Migration
       t.integer :cvss_min
       t.integer :cvss_max
       t.integer :ticket_config_id
+      t.string  :ip_list
+      t.boolean :ip_list_is_whitelist
+      t.string  :dns_hostname_list
+      t.boolean :dns_hostname_list_is_whitelist
+      t.string  :dns_hostname_pcre_list
+      t.boolean :dns_hostname_pcre_list_is_whitelist
+      t.string  :site_list
+      t.boolean :site_list_is_whitelist
+      t.string  :site_pcre_list
+      t.boolean :site_pcre_list_is_whitelist
     end
   end
 
