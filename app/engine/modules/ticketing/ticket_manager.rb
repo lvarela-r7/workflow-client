@@ -284,6 +284,7 @@ class TicketManager < Poller
 
     begin
       tickets_created_without_error = true
+
       ticket_configs = TicketConfig.all
       tickets_to_be_created = load_tickets_to_be_created
       if tickets_to_be_created.empty?
@@ -303,7 +304,9 @@ class TicketManager < Poller
         # The module name is an integral part of knowing when to ticket
         module_name = ticket_config.module_name
 
-        ticket_client_info = TicketClients.find_by_client(Object.const_get(ticket_config.ticket_client_type.to_s).client_name)
+        c = Object.const_get(ticket_config.ticket_client_type.to_s)
+
+        ticket_client_info = TicketClients.find_by_client(c.client_name)
         client_connector = ticket_client_info.client_connector.to_s
 
         # Initialize the ticket client

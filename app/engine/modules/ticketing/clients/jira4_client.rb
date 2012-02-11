@@ -120,6 +120,8 @@ class Jira4Client < TicketClient
       return ticket_data
     end
 
+    ticket_data[:name] = '' if !ticket_data[:name]
+
     formatter = get_formatter ticket_data[:formatter].to_s
     vuln_info = TicketManager.instance.vuln_map[ticket_data[:vuln_id]]
     ticket_info = {
