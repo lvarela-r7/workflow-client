@@ -219,7 +219,6 @@ class NexposeConnectionWrapper
         retry
       else
         if @log_errors
-          p @log_errors.inspect
           @logger.add_log_message "[-] API call to #{method_name} has failed!"
         end
       end

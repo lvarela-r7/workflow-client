@@ -281,12 +281,12 @@ class TicketManager < Poller
   #
   #
   def handle_tickets
-
     begin
       tickets_created_without_error = true
 
       ticket_configs = TicketConfig.all
       tickets_to_be_created = load_tickets_to_be_created
+
       if tickets_to_be_created.empty?
         return
       end
@@ -331,11 +331,12 @@ class TicketManager < Poller
           ticket_data[:formatter] = ticket_client_info.formatter
 
           msg = ticket_client.insert_ticket ticket_data
-          if msg
-            @logger.add_log_message "[!] Ticketing error: #{msg}"
+
+          if !msg.nil? and !msg[0]
+            @logger.add_log_message "[!] Ticketing error: #{msg[1]}"
             tickets_created_without_error = false
             break
-          else
+          elsif !msg.nil? and msg[0]
             # Add ticket as already created
             TicketsCreated.create(:host => host, :module_name => module_name, :ticket_id => ticket_id)
             tickets_created = tickets_created + 1
@@ -378,6 +379,7 @@ class TicketManager < Poller
   #
   def load_tickets_to_be_created
     begin
+
       tickets_to_be_created = TicketsToBeCreated.all
       tickets = []
 
