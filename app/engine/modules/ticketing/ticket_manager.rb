@@ -246,9 +246,8 @@ class TicketManager < Poller
 
       nsc_connection = NSCConnectionManager.instance.get_nsc_connection host
 
-      adhoc_report_generator = Nexpose::ReportAdHoc.new nsc_connection
-      adhoc_report_generator.addFilter 'scan', scan_id
-      data = adhoc_report_generator.generate
+      report_manager = ReportDataManager.new(nsc_connection)
+      data = report_manager.get_raw_xml_for_scan(scan_id)
 
       # The only way to get the corresponding device-id is though mappings
       site_device_listing = nsc_connection.site_device_listing site_id
@@ -273,6 +272,7 @@ class TicketManager < Poller
       @vuln_data = []
       @ticket_processing_queue.delete ticket_params
     rescue Exception => e
+      # TODO: Tie in logging
       @logger.add_log_message "[!] Error in build and storage of tickets: #{e.backtrace}"
     end
   end
