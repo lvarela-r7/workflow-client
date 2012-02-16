@@ -18,16 +18,18 @@ class Poller
     @logger = LogManager.instance
     operation = proc {
       @logger.add_log_message "[*] #{poller_thread_name} poller thread executing ..."
-      begin
-        while true do
+      while true do
+        begin
           update_poller_frequency period_key, poller_thread_name
           sleep @period
           self.send method_name
-        end
-      rescue Exception => e
-        @logger.add_log_message "[!] Error in #{poller_thread_name}: #{e.message}"
 
+        # Don't allow poller to die
+        rescue Exception => e
+          @logger.add_log_message "[!] Error in #{poller_thread_name}: #{e.message}"
+        end
       end
+
       @logger.add_log_message "[-] #{poller_thread_name} poller thread exiting ..."
     }
 
