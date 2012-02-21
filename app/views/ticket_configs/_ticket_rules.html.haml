@@ -11,6 +11,15 @@
       %dl
     %fieldset
       %legend
+        %b PCI Score
+      %dl
+        = rule_data.label 'PCI Score (>=)'
+        = rule_data.select :pci_min, (1..5), {:selected => (@ticket_rules ? @ticket_rules.pci_min : 1)}, {:id => 'pci_score_greater_than_and_equal'}
+        = rule_data.label 'PCI Score (<=)'
+        = rule_data.select :pci_max, (1..5), {:selected => (@ticket_rules ? @ticket_rules.pci_max : 5)}, {:id => 'pci_score_less_than_and_equal'}
+      %dl
+    %fieldset
+      %legend
         %b Vulnerabillity type
       %dl
         = rule_data.check_box :use_ve, {:checked => (@ticket_rules ? @ticket_rules.use_ve : true)}

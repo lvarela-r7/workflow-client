@@ -6,6 +6,8 @@ class CreateTicketRules < ActiveRecord::Migration
       t.boolean :use_vp
       t.integer :cvss_min
       t.integer :cvss_max
+      t.integer :pci_min
+      t.integer :pci_max
       t.integer :ticket_config_id
       t.string  :ip_list
       t.boolean :ip_list_is_whitelist

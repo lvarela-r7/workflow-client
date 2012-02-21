@@ -33,7 +33,6 @@ class TicketConfigsController < ApplicationController
       @show_ticket_client_div = true
     end
 
-
     load_defaults
   end
 
