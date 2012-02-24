@@ -63,20 +63,6 @@ class TicketManager < Poller
     #TODO: Move to DB (low-low priority)
     @vulnerable_markers = ['vulnerable-exploited', 'vulnerable-version', 'potential']
 
-    # Setup parser
-    @host_data = []
-    @vuln_data = []
-
-    @parser = Rex::Parser::NexposeXMLStreamParser.new
-    @parser.callback = proc { |type, value|
-      case type
-        when :host
-          @host_data << value
-        when :vuln
-          @vuln_data << value
-      end
-    }
-
     @logger = LogManager.instance
 
     # This poller is fired every 10 seconds, we hard-code this
@@ -128,10 +114,10 @@ class TicketManager < Poller
   # proof
   # ticket_key
   #
-  def build_ticket_data site_device_listing
+  def build_ticket_data(site_device_listing, host_data)
     begin
       res = []
-      @host_data.each do |host_data|
+      host_data.each do |host_data|
         ip = host_data["addr"]
         device_id = get_device_id ip, site_device_listing
 
@@ -189,9 +175,9 @@ class TicketManager < Poller
     res
   end
 
-  def populate_vuln_map
+  def populate_vuln_map(vuln_data_array)
     begin
-      @vuln_data.each do |vuln_data|
+      vuln_data_array.each do |vuln_data|
         id = vuln_data["id"].to_s.downcase.chomp
         unless @vuln_map.has_key? id
           begin
@@ -222,8 +208,11 @@ class TicketManager < Poller
     end
   end
 
-  def is_vulnerable? id
-    @vulnerable_markers.include? id.to_s.chomp
+  #---------------------------------------------------------------------------------------------------------------------
+  # Ensure the vulnerability status defines a vulnerable threat.
+  #---------------------------------------------------------------------------------------------------------------------
+  def is_vulnerable? vuln_status
+    @vulnerable_markers.include?(vuln_status.to_s.chomp)
   end
 
   # TODO: research :address is always an ip
@@ -249,13 +238,15 @@ class TicketManager < Poller
       report_manager = ReportDataManager.new(nsc_connection)
       data = report_manager.get_raw_xml_for_scan(scan_id)
 
+      # Parse the XML
+      raw_xml_report_processor = RawXMLReportProcessor.new
+      raw_xml_report_processor.parse(data)
+
       # The only way to get the corresponding device-id is though mappings
       site_device_listing = nsc_connection.site_device_listing site_id
 
-      REXML::Document.parse_stream(data.to_s, @parser)
-
-      ticket_data = build_ticket_data site_device_listing
-      populate_vuln_map
+      ticket_data = build_ticket_data(site_device_listing, raw_xml_report_processor.host_data)
+      populate_vuln_map(raw_xml_report_processor.vuln_data)
 
       # Now create each ticket
       ticket_data.each do |ticket|
@@ -267,9 +258,6 @@ class TicketManager < Poller
         end
       end
 
-      # Clear data after processing
-      @host_data = []
-      @vuln_data = []
       @ticket_processing_queue.delete ticket_params
     rescue Exception => e
       # TODO: Tie in logging
@@ -422,6 +410,8 @@ class TicketManager < Poller
       end
     rescue Exception => e
       @logger.add_log_message "[!] Error in processing DB input array: #{e.backtrace}"
+      # Error situation return null
+      return nil
     end
   end
 

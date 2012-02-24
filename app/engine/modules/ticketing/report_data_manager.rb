@@ -1,5 +1,9 @@
 #-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
 # Provides a more robust mechanism to retrieve Nexpose raw xml report.
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
 # TODO: refactor to be more generic
 #-----------------------------------------------------------------------------------------------------------------------
 class ReportDataManager
