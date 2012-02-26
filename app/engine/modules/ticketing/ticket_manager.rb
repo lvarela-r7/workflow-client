@@ -1,12 +1,17 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# Manages the influx of scan monitoring data to determine if tickets for vulnerabilities should be created, if so,
+# fires off actual ticket creation.
+#
+# == Author
+# Christopher Lee chrsitopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
 require 'rex/parser/nexpose_xml'
 require 'singleton'
 
-#TODO: Separate out parsing into its own module
-#TODO: Look into a proper listener model to start the thread
 class TicketManager < Poller
   include Singleton
-
-  attr_accessor :vuln_map
 
   public
   ##################
@@ -14,7 +19,7 @@ class TicketManager < Poller
   ##################
 
   #---------------------------------------------------------------------------------------------------------------------
-  # Observed scan manager c
+  # Observed scan managers update this class with scan details here.
   #
   # @param scan_info - Hash that contains: (:scan_id, :status, :message, :host)
   #---------------------------------------------------------------------------------------------------------------------
@@ -24,7 +29,7 @@ class TicketManager < Poller
       has_ticket = false
       @ticket_processing_queue.each do |ticket|
         # If this ticket is already in the process queue then don't add.
-        if ticket[:scan_id].to_i == scan_info[:scan_id].to_i and ticket[:host].to_s.eql?(scan_info[:host].to_s)
+        if (ticket[:scan_id].to_i == scan_info[:scan_id].to_i && ticket[:host].to_s.eql?(scan_info[:host].to_s))
           has_ticket = true
           break
         end
@@ -32,13 +37,16 @@ class TicketManager < Poller
 
       unless has_ticket
         # TODO: Error checking
-        scan_key = scan_info[:host].to_s + scan_info[:scan_id].to_s
-        site_id = ScanStartNotificationManager.instance.get_site_id_from_scan_key scan_key
-        @ticket_processing_queue << {
-            :scan_id => scan_info[:scan_id],
-            :site_id => site_id,
-            :host => scan_info[:host]
-        }
+        scan_id = scan_info[:scan_id]
+        scan_summary = ScanSummary.find_by_scan_id(scan_id)
+        if scan_summary
+          site_id = scan_summary[:site_id]
+          @ticket_processing_queue << {
+              :scan_id => scan_id,
+              :site_id => site_id,
+              :host    => scan_info[:host]
+          }
+        end
       end
     end
   end
@@ -48,15 +56,12 @@ class TicketManager < Poller
   # PRIVATE METHODS#
   ##################
 
+  #---------------------------------------------------------------------------------------------------------------------
+  # Private initializer.
+  #---------------------------------------------------------------------------------------------------------------------
   def initialize
     # An array of scan-id to create tickets from
     @ticket_processing_queue = []
-
-    #
-    # TODO: Store this data in the DB 'vuln_data'
-    # * vuln_id * vuln_data (serialized data)
-    #
-    # Maps vuln_id to vuln data
 
     load_vuln_map
 
@@ -65,31 +70,19 @@ class TicketManager < Poller
 
     @logger = LogManager.instance
 
-    # This poller is fired every 10 seconds, we hard-code this
     start_poller('nsc_polling', 'Ticket Manager')
 
     # Now add self to the scan manager observer list
     ScanManager.instance.add_observer(self)
   end
 
-  #
-  # Bad idea! TODO: Fix
-  #
-  def load_vuln_map
-    vuln_infos = VulnInfo.all
-    @vuln_map = {}
-    vuln_infos.each do |vuln_info|
-      vuln_info.vuln_data[:description] = process_db_input_array vuln_info.vuln_data[:description]
-      vuln_info.vuln_data[:solution] = process_db_input_array vuln_info.vuln_data[:solution]
-
-      @vuln_map[vuln_info.vuln_id] = vuln_info.vuln_data
-    end
-  end
-
+  #---------------------------------------------------------------------------------------------------------------------
+  # The default poller method fired.
+  #---------------------------------------------------------------------------------------------------------------------
   def process
-    unless @ticket_processing_queue.empty?
-      processing_ticket = @ticket_processing_queue.first
+    processing_ticket = @ticket_processing_queue.first
 
+    if processing_ticket
       # Builds the tickets and stores them in the DB
       build_and_store_tickets processing_ticket
     end
@@ -99,32 +92,36 @@ class TicketManager < Poller
     handle_tickets
   end
 
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   # Returns an array of ticket data:
   #
-  # ip - The device IP address
-  # device_id
-  # name
-  # fingerprint - The fingerprint is built from highest certainty
-  # vuln_id
-  # vuln_status - Vulnerability identifiers: vuln version, potential, etc ...
-  # port
-  # protocol
-  # vkey
-  # proof
-  # ticket_key
+  #   ip - The device IP address
+  #   device_id
+  #   name
+  #   fingerprint - The fingerprint is built from highest certainty
+  #   vuln_id
+  #   vuln_status - Vulnerability identifiers: vuln version, potential, etc ...
+  #   port
+  #   protocol
+  #   vkey
+  #   proof
+  #   ticket_key
   #
-  def build_ticket_data(site_device_listing, host_data)
+  # site_device_listing -
+  # host_data_array -
+  #
+  #---------------------------------------------------------------------------------------------------------------------
+  def build_ticket_data(site_device_listing, host_data_array)
     begin
       res = []
-      host_data.each do |host_data|
-        ip = host_data["addr"]
-        device_id = get_device_id ip, site_device_listing
+      host_data_array.each do |host_data|
+        ip          = host_data["addr"]
+        names       = host_data["names"]
+        device_id   = get_device_id(ip, site_device_listing)
 
         # Just take the first name
-        names = host_data["names"]
         name = ''
-        if not names.nil? or not names.empty?
+        if (!names.nil? || !names.empty?)
           name = names[0]
         end
 
@@ -134,25 +131,27 @@ class TicketManager < Poller
         fingerprint << (host_data["os_family"] || '')
 
         host_data["vulns"].each { |vuln_id, vuln_info|
+          vuln_status = vuln_info["status"]
+
           # Currently only 've' and 'vv' are parsed
           # we will do the status check regardless to
           # ensure we never break
-          unless is_vulnerable? vuln_info["status"]
+          unless (is_vulnerable?(vuln_status))
             next
           end
 
-          vkey = vuln_info["key"] || ''
+          vkey = (vuln_info["key"] || '')
           vuln_endpoint_data = vuln_info["endpoint_data"]
 
           port = ''
           protocol = ''
-          if vuln_endpoint_data
-            port = vuln_endpoint_data["port"] || ''
-            protocol = vuln_endpoint_data["protocol"] || ''
+          if (vuln_endpoint_data)
+            port = (vuln_endpoint_data["port"] || '')
+            protocol = (vuln_endpoint_data["protocol"] || '')
           end
 
-          # format to avoid weird DB issues
-          proof = process_db_input_array vuln_info['proof'], true
+          # Format to avoid weird DB issues
+          proof = process_db_input_array(vuln_info['proof'], true)
 
           res << {
               :ip => ip,
@@ -160,11 +159,11 @@ class TicketManager < Poller
               :name => name,
               :fingerprint => fingerprint,
               :vuln_id => vuln_id,
-              :vuln_status => vuln_info["status"],
+              :vuln_status => vuln_status,
               :port => port,
               :protocol => protocol,
               :vkey => vkey,
-              :proof => proof,
+              :proof => proof
           }
         }
       end
@@ -175,39 +174,6 @@ class TicketManager < Poller
     res
   end
 
-  def populate_vuln_map(vuln_data_array)
-    begin
-      vuln_data_array.each do |vuln_data|
-        id = vuln_data["id"].to_s.downcase.chomp
-        unless @vuln_map.has_key? id
-          begin
-            vuln_input_data = {
-                :severity => vuln_data["severity"],
-                :title => vuln_data["title"],
-                :description => vuln_data["description"],
-                :solution => vuln_data["solution"],
-                :cvss => vuln_data["cvssScore"]
-            }
-            @vuln_map[id] = vuln_input_data
-
-            # Add to the DB
-            # This is needed in
-            # Saving this data might be a bad idea
-            # Only encode values going into the DB
-            description = process_db_input_array vuln_data["description"], true
-            solution = process_db_input_array vuln_data["solution"], true
-            vuln_input_data[:description] = description
-            vuln_input_data[:solution] = solution
-            VulnInfo.create(:vuln_id => id, :vuln_data => vuln_input_data)
-          rescue Exception => e
-            @logger.add_log_message "[!] vulnid: #{id}, vuln data: #{vuln_input_data.inspect}"
-            @logger.add_log_message "[!] Error in populating vuln map: #{e.backtrace}"
-          end
-        end
-      end
-    end
-  end
-
   #---------------------------------------------------------------------------------------------------------------------
   # Ensure the vulnerability status defines a vulnerable threat.
   #---------------------------------------------------------------------------------------------------------------------
@@ -215,8 +181,10 @@ class TicketManager < Poller
     @vulnerable_markers.include?(vuln_status.to_s.chomp)
   end
 
-  # TODO: research :address is always an ip
-  def get_device_id ip, site_device_listing
+  #---------------------------------------------------------------------------------------------------------------------
+  # device_info[:address] is always an ip
+  #---------------------------------------------------------------------------------------------------------------------
+  def get_device_id(ip, site_device_listing)
     site_device_listing.each do |device_info|
       if  device_info[:address] =~ /#{ip}/
         return device_info[:device_id]
@@ -224,16 +192,18 @@ class TicketManager < Poller
     end
   end
 
+  #---------------------------------------------------------------------------------------------------------------------
+  # Parse the scan data from Nexpose and load tickets to be created into the DB.
   #
-  #
-  #
-  def build_and_store_tickets ticket_params
+  # ticket_params - The parameters that define a ticket.
+  #---------------------------------------------------------------------------------------------------------------------
+  def build_and_store_tickets(ticket_params)
     begin
       host = ticket_params[:host]
       scan_id = ticket_params[:scan_id]
       site_id = ticket_params[:site_id]
 
-      nsc_connection = NSCConnectionManager.instance.get_nsc_connection host
+      nsc_connection = NSCConnectionManager.instance.get_nsc_connection(host)
 
       report_manager = ReportDataManager.new(nsc_connection)
       data = report_manager.get_raw_xml_for_scan(scan_id)
@@ -243,31 +213,36 @@ class TicketManager < Poller
       raw_xml_report_processor.parse(data)
 
       # The only way to get the corresponding device-id is though mappings
-      site_device_listing = nsc_connection.site_device_listing site_id
+      site_device_listing = nsc_connection.site_device_listing(site_id)
 
       ticket_data = build_ticket_data(site_device_listing, raw_xml_report_processor.host_data)
-      populate_vuln_map(raw_xml_report_processor.vuln_data)
+      populate_vuln_database(raw_xml_report_processor.vuln_data)
 
       # Now create each ticket
       ticket_data.each do |ticket|
-        ticket_id = build_key ticket
-        unless ticket_in_creation_queue? ticket_id
+        ticket_id = build_key(ticket)
+        unless (ticket_in_creation_queue?(ticket_id))
           # Add the NSC host address
           ticket[:nsc_host] = host
           TicketsToBeCreated.create(:ticket_id => ticket_id, :ticket_data => ticket)
         end
       end
 
+      # This needs to be the last thing done as it marks successful completion of ticket processing.
       @ticket_processing_queue.delete ticket_params
     rescue Exception => e
       # TODO: Tie in logging
       @logger.add_log_message "[!] Error in build and storage of tickets: #{e.backtrace}"
+
+      # In case of an exception move this ticket to the back of the queue.
+      @ticket_processing_queue.delete ticket_params
+      @ticket_processing_queue << ticket_params
     end
   end
 
-  #
-  #
-  #
+  #---------------------------------------------------------------------------------------------------------------------
+  # Performs ticket creation.
+  #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
     begin
       tickets_created_without_error = true
@@ -350,7 +325,7 @@ class TicketManager < Poller
   #
   # Creates a ticket key
   #
-  def build_key ticket
+  def build_key(ticket)
     key = ''
     key << ticket[:device].to_s
     key << '|'
@@ -362,9 +337,9 @@ class TicketManager < Poller
     key
   end
 
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   # Reads in tickets to be created and converts to array of hash
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def load_tickets_to_be_created
     begin
 
@@ -381,37 +356,6 @@ class TicketManager < Poller
       tickets
     rescue Exception => e
       @logger.add_log_message "[!] Error in loading tickets: #{e.backtrace}"
-    end
-  end
-
-  #
-  #
-  #
-  def process_db_input_array proof, encode=false
-    begin
-      if encode
-        encoded_string = ""
-        proof.each do |p|
-          output = p.to_s
-          output.squeeze!
-          output.gsub!(/[\r\n\t]/, '\r' => '', '\n' => '', '\t' => '')
-          output.chomp!
-          unless output.empty?
-            if encoded_string.length > 0
-              encoded_string << "||"
-            end
-            encoded_string << output
-          end
-        end
-        encoded_string
-      else
-        decoded_string = proof.split("||")
-        decoded_string
-      end
-    rescue Exception => e
-      @logger.add_log_message "[!] Error in processing DB input array: #{e.backtrace}"
-      # Error situation return null
-      return nil
     end
   end
 

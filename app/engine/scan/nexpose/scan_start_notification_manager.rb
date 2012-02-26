@@ -65,9 +65,10 @@ class ScanStartNotificationManager < Poller
     start_poller('nsc_polling', 'Scan Start Manager')
   end
 
-  #
+  #------------------------------------------------
+  # DEPRECATED
   # The scan key is a combination of host + scan_id
-  #
+  #------------------------------------------------
   def get_site_id_from_scan_key(scan_key)
     scan_data = @running_scans[scan_key]
     unless scan_data

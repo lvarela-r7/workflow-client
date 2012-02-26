@@ -20,7 +20,7 @@ class Poller
       @logger.add_log_message "[*] #{poller_thread_name} poller thread executing ..."
       while true do
         begin
-          update_poller_frequency period_key, poller_thread_name
+          update_poller_frequency(period_key, poller_thread_name)
           sleep @period
           self.send method_name
 

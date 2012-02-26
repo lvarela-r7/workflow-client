@@ -33,6 +33,9 @@ class RuleManager
     cvss_rule = CVSSRule.new rules.cvss_min, rules.cvss_max
     @rules << cvss_rule
 
+    pci_rule = PCIRule.new rules.pci_min, rules.pci_max
+    @rules << pci_rule
+
     vuln_status_rule = VulnStatusRule.new rules.use_ve, rules.use_vv, rules.use_vp
     @rules << vuln_status_rule
   end

@@ -22,4 +22,42 @@ module Util
 
     nil
   end
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # For serialized data that contains arrays, use this to flatten to a string or convert to array.
+  #
+  # input  - The array or encoded string.
+  # encode - true if the input is an array.
+  #
+  # returns An array or string dependent on input params, null on error.
+  #---------------------------------------------------------------------------------------------------------------------
+  def Util.process_db_input_array input, encode=false
+    begin
+      if encode
+        encoded_string = ""
+        input.each do |p|
+          output = p.to_s
+          output.squeeze!
+          output.gsub!(/[\r\n\t]/, '\r' => '', '\n' => '', '\t' => '')
+          output.chomp!
+          unless output.empty?
+            if encoded_string.length > 0
+              encoded_string << "||"
+            end
+            encoded_string << output
+          end
+        end
+        encoded_string
+      else
+        decoded_string = input.split("||")
+        decoded_string
+      end
+    rescue Exception => e
+      logger = LogManager.instance
+      logger.add_log_message "[!] Error in processing DB input array: #{e.backtrace}"
+      # Error situation return null
+      return nil
+    end
+  end
+
 end
