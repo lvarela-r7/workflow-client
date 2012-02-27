@@ -21,15 +21,15 @@ class TicketManager < Poller
   #---------------------------------------------------------------------------------------------------------------------
   # Observed scan managers update this class with scan details here.
   #
-  # @param scan_info - Hash that contains: (:scan_id, :status, :message, :host)
+  # scan_info - Hash that contains: (:scan_id, :status, :message, :host)
   #---------------------------------------------------------------------------------------------------------------------
-  def update scan_info
+  def update(scan_info)
     status = scan_info[:status].to_s
-    if (status =~ /finished/i || status =~/stopped/i)
+    if status =~ /finished/i || status =~/stopped/i
       has_ticket = false
       @ticket_processing_queue.each do |ticket|
         # If this ticket is already in the process queue then don't add.
-        if (ticket[:scan_id].to_i == scan_info[:scan_id].to_i && ticket[:host].to_s.eql?(scan_info[:host].to_s))
+        if ticket[:scan_id].to_i == scan_info[:scan_id].to_i && ticket[:host].to_s.eql?(scan_info[:host].to_s)
           has_ticket = true
           break
         end
@@ -63,10 +63,7 @@ class TicketManager < Poller
     # An array of scan-id to create tickets from
     @ticket_processing_queue = []
 
-    load_vuln_map
-
-    #TODO: Move to DB (low-low priority)
-    @vulnerable_markers = ['vulnerable-exploited', 'vulnerable-version', 'potential']
+    @vulnerable_markers = %w(vulnerable-exploited vulnerable-version potential)
 
     @logger = LogManager.instance
 
@@ -82,10 +79,8 @@ class TicketManager < Poller
   def process
     processing_ticket = @ticket_processing_queue.first
 
-    if processing_ticket
-      # Builds the tickets and stores them in the DB
-      build_and_store_tickets processing_ticket
-    end
+    # Builds the tickets and stores them in the DB
+    build_and_store_tickets(processing_ticket) if processing_ticket
 
     # Call this method regardless to ensure we re-attempt to create failed tickets
     # Actually writes out the tickets to the ticketing client
@@ -121,9 +116,7 @@ class TicketManager < Poller
 
         # Just take the first name
         name = ''
-        if (!names.nil? || !names.empty?)
-          name = names[0]
-        end
+        name = names[0] if !names.nil? || !names.empty?
 
         fingerprint = ''
         fingerprint << (host_data["os_vendor"] || '')
@@ -136,16 +129,14 @@ class TicketManager < Poller
           # Currently only 've' and 'vv' are parsed
           # we will do the status check regardless to
           # ensure we never break
-          unless (is_vulnerable?(vuln_status))
-            next
-          end
+          next unless is_vulnerable?(vuln_status)
 
           vkey = (vuln_info["key"] || '')
           vuln_endpoint_data = vuln_info["endpoint_data"]
 
           port = ''
           protocol = ''
-          if (vuln_endpoint_data)
+          if vuln_endpoint_data
             port = (vuln_endpoint_data["port"] || '')
             protocol = (vuln_endpoint_data["protocol"] || '')
           end
@@ -177,18 +168,21 @@ class TicketManager < Poller
   #---------------------------------------------------------------------------------------------------------------------
   # Ensure the vulnerability status defines a vulnerable threat.
   #---------------------------------------------------------------------------------------------------------------------
-  def is_vulnerable? vuln_status
+  def is_vulnerable?(vuln_status)
     @vulnerable_markers.include?(vuln_status.to_s.chomp)
   end
 
   #---------------------------------------------------------------------------------------------------------------------
+  # Gets the nexpose device ID  for a certain IP.
+  #
+  # ip -
+  # site_device_listing -
+  #
   # device_info[:address] is always an ip
   #---------------------------------------------------------------------------------------------------------------------
   def get_device_id(ip, site_device_listing)
     site_device_listing.each do |device_info|
-      if  device_info[:address] =~ /#{ip}/
-        return device_info[:device_id]
-      end
+      device_info[:device_id] if  device_info[:address] =~ /#{ip}/
     end
   end
 
@@ -216,12 +210,11 @@ class TicketManager < Poller
       site_device_listing = nsc_connection.site_device_listing(site_id)
 
       ticket_data = build_ticket_data(site_device_listing, raw_xml_report_processor.host_data)
-      populate_vuln_database(raw_xml_report_processor.vuln_data)
 
       # Now create each ticket
       ticket_data.each do |ticket|
         ticket_id = build_key(ticket)
-        unless (ticket_in_creation_queue?(ticket_id))
+        unless ticket_in_creation_queue?(ticket_id)
           # Add the NSC host address
           ticket[:nsc_host] = host
           TicketsToBeCreated.create(:ticket_id => ticket_id, :ticket_data => ticket)
@@ -250,16 +243,12 @@ class TicketManager < Poller
       ticket_configs = TicketConfig.all
       tickets_to_be_created = load_tickets_to_be_created
 
-      if tickets_to_be_created.empty?
-        return
-      end
+      return if tickets_to_be_created.empty?
 
       # We need to first get a list of all the current ticketing modules (ACTIVE OFFCOURSE)
       ticket_configs.each do |ticket_config|
         # Don't process inactive modules
-        unless ticket_config.is_active
-          next
-        end
+        next unless ticket_config.is_active
 
         # Load rule manager for each config
         rule_manager = RuleManager.new ticket_config.ticket_rule
@@ -282,9 +271,7 @@ class TicketManager < Poller
           ticket_id = ticket_data[:ticket_id]
 
           # If ticket already created or rules don't match skip
-          if (created_already?(host, module_name, ticket_id) || (!rule_manager.matches_rules?(ticket_data)))
-            next
-          end
+          next if created_already?(host, module_name, ticket_id) || (!rule_manager.matches_rules?(ticket_data))
 
           # Decode the proof.
           ticket_data[:proof] = process_db_input_array ticket_data[:proof]
@@ -359,7 +346,7 @@ class TicketManager < Poller
     end
   end
 
-  def ticket_in_creation_queue? ticket_id
+  def ticket_in_creation_queue?(ticket_id)
     ticket_to_be_created = TicketsToBeCreated.find_by_ticket_id(ticket_id)
     (not ticket_to_be_created.nil?)
   end
@@ -368,7 +355,7 @@ class TicketManager < Poller
   # TODO: This changes when ticket scopes are added
   # @retuns true iff the ticket has already been created for this host, model and ticket_id
   #
-  def created_already? host, module_name, ticket_id
+  def created_already?(host, module_name, ticket_id)
     tickets_created = TicketsCreated.find_by_host_and_module_name_and_ticket_id(host, module_name, ticket_id)
     (not tickets_created.nil?)
   end
