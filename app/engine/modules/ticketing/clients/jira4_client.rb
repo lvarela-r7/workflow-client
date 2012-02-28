@@ -1,19 +1,17 @@
-require "httpclient"
-require "uri"
-require 'jiraSOAP'
-require 'jiraSOAP/entities/entity'
-require File.expand_path(File.join(File.dirname(__FILE__), '../../../logging/log_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../ticket_manager'))
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# Determines if the user added mapping
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
 
-#
-#
-#
 class Jira4Client < TicketClient
-  #
-  #
-  #
-  def initialize *args
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # Determines if the user added mapping
+  #---------------------------------------------------------------------------------------------------------------------
+  def initialize(*args)
     super()
 
     count = args.length
@@ -42,6 +40,9 @@ class Jira4Client < TicketClient
     @jira = JIRA::JIRAService.new uri
   end
 
+  #---------------------------------------------------------------------------------------------------------------------
+  # Determines if the user added mapping
+  #---------------------------------------------------------------------------------------------------------------------
   def overlay_mappings data
     custom_field_values = []
 
@@ -68,9 +69,9 @@ class Jira4Client < TicketClient
     data
   end
 
-  #
-  #
-  #
+  #---------------------------------------------------------------------------------------------------------------------
+  # Determines if the user added mapping
+  #---------------------------------------------------------------------------------------------------------------------
   def insert_ticket ticket_data
     msg = nil
 
@@ -109,46 +110,47 @@ class Jira4Client < TicketClient
     msg
   end
 
-  #
-  #
-  #
+  #---------------------------------------------------------------------------------------------------------------------
+  # Determines if the user added mapping
+  #---------------------------------------------------------------------------------------------------------------------
   def build_default_data_fields ticket_data
     data = {}
 
-    # In this case this ticket is already formatted properly
-    if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
-      return ticket_data
-    end
+    # If this is a test ticket
+    ticket_data if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
 
-    ticket_data[:name] = '' if !ticket_data[:name]
+    ticket_data[:name] = (ticket_data[:name] || '')
 
     formatter = get_formatter ticket_data[:formatter].to_s
-    vuln_info = TicketManager.instance.vuln_map[ticket_data[:vuln_id]]
+    vuln_id = ticket_data[:vuln_id]
+    vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
+    raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
+
     ticket_info = {
-        :description => vuln_info[:description],
-        :proof => ticket_data[:proof],
-        :solution => vuln_info[:solution]
+        :description => Util.process_db_input_array(vuln_info[:description]),
+        :proof       => ticket_data[:proof],
+        :solution    => Util.process_db_input_array(vuln_info[:solution])
     }
 
     description = formatter.do_ticket_description_format ticket_info
-    summary = vuln_info[:title] + ' on ' + ticket_data[:name] + " (#{ticket_data[:ip]})"
+    summary     = "#{vuln_info[:title]} on #{ticket_data[:name]} (#{ticket_data[:ip]})"
     environment = ticket_data[:fingerprint].to_s
 
-    data[:summary] = summary.to_s
-    data[:environment] = environment
-    data[:description] = description.to_s
-    data[:priority_id] = @ticket_client_config.priority_id
-    data[:project_name] = @ticket_client_config.project_name
-    data[:issue_type_id] = @ticket_client_config.issue_id
+    data[:summary]           = summary.to_s
+    data[:environment]       = environment
+    data[:description]       = description.to_s
+    data[:priority_id]       = @ticket_client_config.priority_id
+    data[:project_name]      = @ticket_client_config.project_name
+    data[:issue_type_id]     = @ticket_client_config.issue_id
     data[:reporter_username] = @ticket_client_config.reporter
     data[:assignee_username] = @ticket_client_config.assignee
-    data[:cvss_score] = vuln_info[:cvss]
+    data[:cvss_score]        = vuln_info[:cvss]
     data
   end
 
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   # Determines if the user added mapping
-  #
+  #---------------------------------------------------------------------------------------------------------------------
   def is_mapping_defined?
     if @ticket_mappings
       @ticket_mappings.attributes.values.each do |value|
@@ -203,6 +205,8 @@ class Jira4Client < TicketClient
         when :custom_field_values
           JIRA::Issue.add_attribute :custom_field_values, 'customFieldValues', [:children_as_objects, JIRA::CustomFieldValue]
           jira_issue.custom_field_values = value
+        else
+          raise 'Unknown key when parsing jira fields.'
       end
     end
 

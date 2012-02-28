@@ -14,6 +14,7 @@ class RawXMLReportProcessor
   # Sets up the callback for the parser.
   #---------------------------------------------------------------------------------------------------------------------
   def initialize
+    @logger = LogManager.instance
     @parser = Rex::Parser::NexposeXMLStreamParser.new
     @parser.callback = proc { |type, value|
       case type
@@ -23,6 +24,8 @@ class RawXMLReportProcessor
           # Doing this allows us to flush data to the database and avoids
           # using up more memory than needed.
           add_to_vuln_db value
+        else
+          raise 'Invalid type when parsing raw XML report'
       end
     }
   end
@@ -30,10 +33,9 @@ class RawXMLReportProcessor
   #---------------------------------------------------------------------------------------------------------------------
   #  Parses the raw XML document.
   #---------------------------------------------------------------------------------------------------------------------
-  def parse raw_xml
+  def parse(raw_xml)
     @host_data = []
-
-    REXML::Document.parse_stream(data.to_s, @parser)
+    REXML::Document.parse_stream(raw_xml.to_s, @parser)
   end
 
   private
@@ -47,20 +49,20 @@ class RawXMLReportProcessor
   def add_to_vuln_db(vuln_data)
     begin
       id = vuln_data["id"].to_s.downcase.chomp
-      unless (VulnInfo.find_by_vuln_id(id))
+      unless VulnInfo.find_by_vuln_id(id)
         begin
           vuln_input_data = {
-              :severity => vuln_data["severity"],
-              :title => vuln_data["title"],
+              :severity    => vuln_data["severity"],
+              :title       => vuln_data["title"],
               :description => vuln_data["description"],
-              :solution => vuln_data["solution"],
-              :cvss => vuln_data["cvssScore"]
+              :solution    => vuln_data["solution"],
+              :cvss        => vuln_data["cvssScore"]
           }
 
-          description = Util.process_db_input_array(vuln_data["description"], true)
-          solution = Util.process_db_input_array(vuln_data["solution"], true)
+          description                   = Util.process_db_input_array(vuln_data["description"], true)
+          solution                      = Util.process_db_input_array(vuln_data["solution"], true)
           vuln_input_data[:description] = description
-          vuln_input_data[:solution] = solution
+          vuln_input_data[:solution]    = solution
 
           VulnInfo.create(:vuln_id => id, :vuln_data => vuln_input_data)
         rescue Exception => e

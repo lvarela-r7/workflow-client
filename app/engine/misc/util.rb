@@ -5,11 +5,13 @@ module Util
   end
 
   #---------------------------------------------------------------------------------------------------------------------
-  # Parses nexpose ISO 8601 formated time
+  # Parses nexpose ISO 8601 formated time.
+  # Can return null.
+  #
   #---------------------------------------------------------------------------------------------------------------------
-  def Util.parse_utc_time nexpose_iso_8601_time
+  def Util.parse_utc_time(iso_8601_time)
     # We only go as granular as minutes
-    if nexpose_iso_8601_time =~ /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/
+    if iso_8601_time =~ /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/
       year = $1.to_i
       month = $2.to_i
       day = $3.to_i
@@ -31,7 +33,7 @@ module Util
   #
   # returns An array or string dependent on input params, null on error.
   #---------------------------------------------------------------------------------------------------------------------
-  def Util.process_db_input_array input, encode=false
+  def Util.process_db_input_array(input, encode=false)
     begin
       if encode
         encoded_string = ""
