@@ -2045,3 +2045,8 @@ a.icon_pdf {
     font-size: 12px;
     list-style: square;
 }
+
+.blocked_label
+{
+  display: block;
+}

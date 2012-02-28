@@ -17,5 +17,9 @@ class NexposeTicketConfig < ActiveRecord::Base
 		model_params[:nexpose_client_id] = params[:nexpose_client_id]
 		model_params
 	end
+  
+  def self.client_name
+    'Nexpose'
+  end
 
 end

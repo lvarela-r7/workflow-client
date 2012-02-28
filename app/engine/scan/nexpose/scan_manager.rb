@@ -12,12 +12,9 @@
 require 'observer'
 require 'singleton'
 
-class ScanManager
+class ScanManager < Poller
   include Singleton
   include Observable
-
-  # Determines how often the poller thread is executed
-  attr_reader :period
 
   # Synchronize calls that modify open data structs
   @semaphore = nil
@@ -31,29 +28,7 @@ class ScanManager
   #
   #
   #
-  def start_poller
-    operation = proc {
-      @logger.add_log_message "[*] Scan Manager poller thread executing ..."
-      begin
-        while true do
-          sleep @period
-          # Check if there are modules
-          # If not then do not execute this block
-          check_and_execute_op
-        end
-      rescue Exception => e
-        @logger.add_log_message "[!] Error in Scan Manager: #{e.message}"
-      end
-      @logger.add_log_message "[-] Scan Manager poller thread exiting ..."
-    }
-
-    EM.defer operation
-  end
-
-  #
-  #
-  #
-  def check_and_execute_op
+  def process
     @semaphore.synchronize do
 
       @scans_observed.keys.each do |host|
@@ -94,10 +69,9 @@ class ScanManager
   #
   def initialize
     @logger = LogManager.instance
-    @period = IntegerProperty.find_by_property_key('nsc_polling').property_value
     @semaphore = Mutex.new
     @scans_observed = {}
-    start_poller
+    start_poller('nsc_polling', 'Scan Manager')
 
     # Add self as observer to scan start manager
     ScanStartNotificationManager.instance.add_observer self
@@ -132,8 +106,5 @@ class ScanManager
     add_scan_observed scan_info[:scan_id], scan_info[:host]
   end
 
-  def update_poller_frequency new_period
-    @period = new_period
-    @logger.add_log_message "[*] Scan Manager poller period is updated to #{@period.to_s} seconds"
-  end
+
 end

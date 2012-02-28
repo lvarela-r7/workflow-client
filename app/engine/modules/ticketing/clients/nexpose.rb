@@ -210,6 +210,7 @@ module Nexpose
     end
 
     def self.execute(url, req, api_version)
+      url.gsub!('API_VERSION', api_version)
       obj = self.new(req, url, api_version)
       obj.execute
       if (not obj.success)
@@ -424,13 +425,18 @@ module Nexpose
 
       base_xml.add_element create_request_xml
       r = execute base_xml, '1.2'
+      response_info = []
       if r.success
+        response_info << r.success
         r.res.elements.each('TicketCreateResponse') do |group|
-          return group.attributes['id'].to_i
+          response_info << group.attributes['id'].to_i
         end
       else
-        false
+        response_info << false
+        response_info << r.res
       end
+
+      return response_info
     end
 
     #
@@ -786,7 +792,9 @@ module Nexpose
     # Execute an API request
     def execute(xml, version = '1.1')
       @api_version = version
-      APIRequest.execute(@url.sub('VERSION_STRING', @api_version), xml.to_s, @api_version)
+      @url.gsub!('VERSION_STRING', @api_version)
+      p @url
+      APIRequest.execute(@url, xml.to_s, @api_version)
     end
 
     # Download a specific URL

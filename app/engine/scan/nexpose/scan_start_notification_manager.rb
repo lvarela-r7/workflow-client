@@ -8,31 +8,11 @@
 require 'observer'
 require 'singleton'
 
-class ScanStartNotificationManager
+class ScanStartNotificationManager < Poller
   include Observable
   include Singleton
 
-  def start_poller(poller_frequency)
-    operation = proc {
-
-      @logger.add_log_message "[*] Scan Notification poller thread executing ..."
-      while true do
-        sleep poller_frequency
-        begin
-          check_and_update_listeners
-        rescue Exception => e
-          @logger.add_log_message "[-] Error in Scan Start Notifier: #{e.message}"
-        end
-      end
-
-      @logger.add_log_message "[-] Scan Notification Manager exiting ..."
-
-    }
-
-    EM.defer operation
-  end
-
-  def check_and_update_listeners
+  def process
     @semaphore.synchronize {
 
       if count_observers < 1
@@ -82,13 +62,13 @@ class ScanStartNotificationManager
     @running_scans = {}
     @listeners = []
     @semaphore = Mutex.new
-    nsc_poll_rate_in_seconds = IntegerProperty.find_by_property_key('nsc_polling').property_value
-    start_poller(nsc_poll_rate_in_seconds)
+    start_poller('nsc_polling', 'Scan Start Manager')
   end
 
-  #
+  #------------------------------------------------
+  # DEPRECATED
   # The scan key is a combination of host + scan_id
-  #
+  #------------------------------------------------
   def get_site_id_from_scan_key(scan_key)
     scan_data = @running_scans[scan_key]
     unless scan_data

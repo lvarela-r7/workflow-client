@@ -162,6 +162,8 @@ end
 #-----------------------------------------------------------------------------------------------------------------------
 class NexposeConnectionWrapper
 
+  attr_accessor :log_errors
+
   def initialize nexpose_connection
     if not nexpose_connection
       raise ArgumentError.new 'The nexpose connection cannot be null'
@@ -171,6 +173,7 @@ class NexposeConnectionWrapper
     @logged_in = false
     @logger = LogManager.instance
     @failed_login_host_array = []
+    @log_errors = true
   end
 
   #
@@ -215,7 +218,9 @@ class NexposeConnectionWrapper
         login_tries = 1
         retry
       else
-        @logger.add_log_message "[-] API call to #{method_name} has failed!"
+        if @log_errors
+          @logger.add_log_message "[-] API call to #{method_name} has failed!"
+        end
       end
     end
 
