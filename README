@@ -15,7 +15,5 @@ such as: JIRA, Nexpose (Nexpose ticketing) and SOAP supported endpoints.
 #############################
 STARTING THE WORKFLOW ENGINE:
 #############################
-1. Download the latest version of postgres and setup a database with a password.
-2. Configure config/database.yml 'production' attributes to use the database attributes setup in 1
-3. Run 'bundle install' to get all the dependencies
-4. From the script directory run: >rails server webrick -b 127.0.0.1 -p <port> -e production
+1. Download and run the install.sh file
+2. From the script directory run: >rails server webrick -b 127.0.0.1 -p <port> -e production
