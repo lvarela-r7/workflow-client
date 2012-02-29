@@ -15,5 +15,5 @@ such as: JIRA, Nexpose (Nexpose ticketing) and SOAP supported endpoints.
 #############################
 STARTING THE WORKFLOW ENGINE:
 #############################
-1. Download and run the install.sh file
+1. Download and run the install.sh file (NOTE: Supported on Ubuntu 10.04 only)
 2. From the script directory run: >rails server webrick -b 127.0.0.1 -p <port> -e production
