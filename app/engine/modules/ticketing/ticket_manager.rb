@@ -18,6 +18,13 @@ class TicketManager < Poller
   # PUBLIC METHODS                                                                                                     #
   ######################################################################################################################
 
+  #--------------------------------------------------------------------------------------------------------------------
+  # Returns the ticket processing queue.
+  #--------------------------------------------------------------------------------------------------------------------
+  def get_ticket_proccessing_queue
+    @ticket_processing_queue
+  end
+
   #---------------------------------------------------------------------------------------------------------------------
   # Observed scan managers update this class with scan details here.
   #
@@ -126,7 +133,7 @@ class TicketManager < Poller
       tickets_created_without_error = true
 
       ticket_configs = TicketConfig.all
-      ticket_to_be_created_ids = TicketsToBeCreated.find_by_sql('select id from tickets_to_be_createds')
+      ticket_to_be_created_ids = TicketsToBeProcessed.find_by_sql('select id from tickets_to_be_createds')
 
       return if ticket_to_be_created_ids.empty?
 
@@ -152,7 +159,7 @@ class TicketManager < Poller
         tickets_created = 0
         ticket_to_be_created_ids.each do |ticket_to_be_created_id|
 
-          ticket_to_be_created = TicketsToBeCreated.find(ticket_to_be_created_id)
+          ticket_to_be_created = TicketsToBeProcessed.find(ticket_to_be_created_id)
           ticket_data          = ticket_to_be_created.ticket_data
           ticket_id            = ticket_to_be_created.ticket_id
 
@@ -189,7 +196,7 @@ class TicketManager < Poller
       # We don't remove tickets unless all were created successfully
       # TODO: Make this more granular - low-priority
       if tickets_created_without_error
-        TicketsToBeCreated.destroy_all
+        TicketsToBeProcessed.destroy_all
       end
 
     rescue Exception => e
@@ -218,7 +225,7 @@ class TicketManager < Poller
   def load_tickets_to_be_created
     begin
 
-      tickets_to_be_created = TicketsToBeCreated.all
+      tickets_to_be_created = TicketsToBeProcessed.all
       tickets = []
 
       tickets_to_be_created.each do |ticket_to_be_created|
@@ -238,7 +245,7 @@ class TicketManager < Poller
   # Gets whether or not this ticket is already in the creation queue
   #---------------------------------------------------------------------------------------------------------------------
   def ticket_in_creation_queue?(ticket_id)
-    ticket_to_be_created = TicketsToBeCreated.find_by_ticket_id(ticket_id)
+    ticket_to_be_created = TicketsToBeProcessed.find_by_ticket_id(ticket_id)
     (not ticket_to_be_created.nil?)
   end
 

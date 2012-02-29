@@ -99,27 +99,21 @@ class NSCConnectionManager
   #
   #
   def self.is_alive? conn_details
-    can_connect = true
-    begin
-      client_connection = Nexpose::Connection.new conn_details[:host], conn_details[:username], conn_details[:password], conn_details[:port]
-      client_connection.login
-    rescue Exception
-      can_connect = false
-    end
-    can_connect
+    client_connection = Nexpose::Connection.new conn_details[:host], conn_details[:username], conn_details[:password], conn_details[:port]
+    client_connection.login
+    true
+  rescue Exception
+    false
   end
 
   #
   #
   #
   def get_nexpose_connection conn_details
-    begin
-      client_connection = Nexpose::Connection.new conn_details[:host], conn_details[:username], conn_details[:password], conn_details[:port]
-      wrapped_connection = NexposeConnectionWrapper.new client_connection
-      wrapped_connection
-    rescue Exception
-      return nil
-    end
+    client_connection = Nexpose::Connection.new conn_details[:host], conn_details[:username], conn_details[:password], conn_details[:port]
+    NexposeConnectionWrapper.new client_connection
+  rescue Exception
+    return nil
   end
 
   #
@@ -165,9 +159,7 @@ class NexposeConnectionWrapper
   attr_accessor :log_errors
 
   def initialize nexpose_connection
-    if not nexpose_connection
-      raise ArgumentError.new 'The nexpose connection cannot be null'
-    end
+    raise ArgumentError.new 'The nexpose connection cannot be null' unless nexpose_connection
 
     @nexpose_connection = nexpose_connection
     @logged_in = false

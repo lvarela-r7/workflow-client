@@ -1,4 +1,4 @@
-class CreateTicketsToBeCreateds < ActiveRecord::Migration
+class CreateTicketsToBeProcessed < ActiveRecord::Migration
   def self.up
     create_table :tickets_to_be_createds do |t|
       t.string :ticket_id

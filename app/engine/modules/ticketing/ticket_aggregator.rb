@@ -1,6 +1,26 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# == Synopsis
+# Build up all the data needed to process a ticket.
+#
+# == Author
+# Christopher Lee christopher_lee@rapid7.com
+#-----------------------------------------------------------------------------------------------------------------------
+
 class TicketAggregator
+
   public
-    #---------------------------------------------------------------------------------------------------------------------
+  ######################################################################################################################
+  # PUBLIC METHODS                                                                                                     #
+  ######################################################################################################################
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # Initializes the log manager.
+  #---------------------------------------------------------------------------------------------------------------------
+  def initialize
+    @logger = LogManager.instance
+  end
+
+  #---------------------------------------------------------------------------------------------------------------------
   # Parse the scan data from Nexpose and load tickets to be created into the DB.
   #
   # ticket_params - The parameters that define a ticket.
@@ -29,38 +49,52 @@ class TicketAggregator
       unless ticket_in_creation_queue?(ticket_id)
         # Add the NSC host address
         ticket[:nsc_host] = host
-        TicketsToBeCreated.create(:ticket_id => ticket_id, :ticket_data => ticket)
+        TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
       end
     end
 
     # This needs to be the last thing done as it marks successful completion of ticket processing.
-    @ticket_processing_queue.delete ticket_params
+    TicketManager.instance.get_ticket_processing_queue.delete ticket_params
   rescue Exception => e
     # TODO: Tie in actually logging and move this to that
     @logger.add_log_message "[!] Error in build and storage of tickets: #{e.backtrace}"
 
     # In case of an exception move this ticket to the back of the queue.
-    @ticket_processing_queue.delete ticket_params
-    @ticket_processing_queue << ticket_params
+    TicketManager.instance.get_ticket_processing_queue.delete ticket_params
+    TicketManager.instance.get_ticket_processing_queue << ticket_params
   end
+
+  private
+  ######################################################################################################################
+  # PRIVATE METHODS                                                                                                    #
+  ######################################################################################################################
 
   #---------------------------------------------------------------------------------------------------------------------
   # Returns an array of ticket data:
   #
-  #   ip - The device IP address
-  #   device_id
-  #   name
-  #   fingerprint - The fingerprint is built from highest certainty
-  #   vuln_id
-  #   vuln_status - Vulnerability identifiers: vuln version, potential, etc ...
-  #   port
-  #   protocol
-  #   vkey
-  #   proof
-  #   ticket_key
+  #   db_op - The database operation to perform: (INSERT, UPDATE, DELETE)
   #
-  # site_device_listing -
-  # host_data_array -
+  #   CREATE:
+  #     ip - The device IP address
+  #     device_id
+  #     name
+  #     fingerprint - The fingerprint is built from highest certainty
+  #     vuln_id
+  #     vuln_status - Vulnerability identifiers: vuln version, potential, etc ...
+  #     port
+  #     protocol
+  #     vkey
+  #     proof
+  #     ticket_key
+  #
+  #    UPDATE:
+  #      update_data is provided (ie: {:update_data => {:data => (), :update_obj => ())}})
+  #
+  #    DELETE:
+  #      delete_key is returned (ie: :delete_key => key)
+  #
+  # site_device_listing - Used to do device ID lookup
+  # host_data_array - Parsed host data
   #
   #---------------------------------------------------------------------------------------------------------------------
   def build_ticket_data(site_device_listing, host_data_array)

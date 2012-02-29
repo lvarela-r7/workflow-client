@@ -42,8 +42,7 @@ class ReportDataManager
   def get_adhoc_for_scan(scan_id)
     adhoc_report_generator = Nexpose::ReportAdHoc.new(@nsc_connection)
     adhoc_report_generator.addFilter('scan', scan_id)
-    data = adhoc_report_generator.generate
-    data
+    adhoc_report_generator.generate
   end
 
   #---------------------------------------------------------------------------------------------------------------------
