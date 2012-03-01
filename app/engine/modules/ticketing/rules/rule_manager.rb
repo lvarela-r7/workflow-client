@@ -11,8 +11,11 @@ class RuleManager
   # See TicketManager#build_ticket_data for all the attributes
   # on a ticket object.
   #
-  def matches_rules? ticket
-    vuln_info = TicketManager.instance.vuln_map[ticket[:vuln_id]]
+  def passes_rules? ticket
+    vuln_id = ticket[:vuln_id]
+    vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
+    raise "Unable to find vuln data with id: #{vuln_id}" unless vuln_info
+
     ticket.merge! vuln_info
 
     @rules.each do |rule|

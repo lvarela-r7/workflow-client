@@ -94,7 +94,7 @@ class TicketManager < Poller
     ticket_to_be_processed = @ticket_processing_queue.first
 
     # Builds the tickets and stores them in the DB
-    build_and_store_tickets(ticket_to_be_processed) if ticket_to_be_processed
+    @ticket_aggregator.build_and_store_tickets(ticket_to_be_processed) if ticket_to_be_processed
 
     # Call this method regardless to ensure we re-attempt to create failed tickets
     # Actually writes out the tickets to the ticketing client
@@ -129,94 +129,54 @@ class TicketManager < Poller
   # Performs ticket creation.
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
-    begin
-      tickets_created_without_error = true
+    ticket_to_be_created_ids = TicketsToBeProcessed.find_by_sql('select id from tickets_to_be_createds')
 
-      ticket_configs = TicketConfig.all
-      ticket_to_be_created_ids = TicketsToBeProcessed.find_by_sql('select id from tickets_to_be_createds')
+    return if ticket_to_be_created_ids.empty?
 
-      return if ticket_to_be_created_ids.empty?
+    ticket_to_be_created_ids.each do |ticket_to_be_created_id|
+      begin
+        ticket_to_be_created = TicketsToBeProcessed.find(ticket_to_be_created_id)
 
-      # We need to first get a list of all the current ticketing modules (ACTIVE OFFCOURSE)
-      ticket_configs.each do |ticket_config|
-        # Don't process inactive modules
-        next unless ticket_config.is_active
+        # There have been too many failed attempts to create this ticket.
+        next if ticket_to_be_created.pending_requeue
 
-        # Load rule manager for each config
-        rule_manager = RuleManager.new(ticket_config.ticket_rule)
-
-        # The module name is an integral part of knowing when to ticket
-        module_name = ticket_config.module_name
-
-        c = Object.const_get(ticket_config.ticket_client_type.to_s)
-
-        ticket_client_info = TicketClients.find_by_client(c.client_name)
-        client_connector = ticket_client_info.client_connector.to_s
+        ticket_data = ticket_to_be_created.ticket_data
+        ticket_id = ticket_to_be_created.ticket_id
 
         # Initialize the ticket client
+        client_connector = ticket_data[:client_connector].to_s
         ticket_client = Object.const_get(client_connector).new ticket_config
 
-        tickets_created = 0
-        ticket_to_be_created_ids.each do |ticket_to_be_created_id|
+        host = ticket_data[:nsc_host]
 
-          ticket_to_be_created = TicketsToBeProcessed.find(ticket_to_be_created_id)
-          ticket_data          = ticket_to_be_created.ticket_data
-          ticket_id            = ticket_to_be_created.ticket_id
+        # Skip if ticket already created or rules don't match.
+        next if created_already?(host, module_name, ticket_id)
 
-          host = ticket_data[:nsc_host]
+        # Decode the proof.
+        ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
 
-          # Skip if ticket already created or rules don't match.
-          next if created_already?(host, module_name, ticket_id) || !rule_manager.matches_rules?(ticket_data)
+        msg = ticket_client.insert_ticket(ticket_data)
 
-          # Decode the proof.
-          ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
-
-          # Append the ticket configurations
-          ticket_data[:ticketing_data] = ticket_config
-          ticket_data[:formatter]      = ticket_client_info.formatter
-
-          msg = ticket_client.insert_ticket(ticket_data)
-
-          if !msg.nil? and !msg[0]
-            @logger.add_log_message "[!] Ticketing error: #{msg[1]}"
-            tickets_created_without_error = false
-            break
-          elsif !msg.nil? and msg[0]
-            # Add ticket as already created
-            TicketsCreated.create(:host => host, :module_name => module_name, :ticket_id => ticket_id)
-            tickets_created = tickets_created + 1
-          end
-
+        # TODO: I think the msg paradigm is broken
+        if !msg.nil? and !msg[0]
+          raise msg[1]
+        elsif !msg.nil? and msg[0]
+          # Add ticket as already created
+          TicketsCreated.create(:host => host, :module_name => module_name, :ticket_id => ticket_id)
+          ticket_to_be_created.destroy
         end
-        # TODO: Fix later
-        #@logger.add_log_message "[*} Created #{tickets_created} tickets for host: #{host} and module: #{module_name}"
 
+      rescue Exception => e
+        failed_attempts = ticket_to_be_created.failed_attempt_count
+        if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
+          ticket_to_be_created.failed_message = e.message
+          ticket_to_be_created.pending_requeue = true
+        else
+          ticket_to_be_created.failed_attempt_count = (failed_attempts + 1)
+        end
+        ticket_to_be_created.save
       end
-
-      # We don't remove tickets unless all were created successfully
-      # TODO: Make this more granular - low-priority
-      if tickets_created_without_error
-        TicketsToBeProcessed.destroy_all
-      end
-
-    rescue Exception => e
-      @logger.add_log_message "[!] Error in ticket handling: #{e.backtrace}"
     end
-  end
-
-  #---------------------------------------------------------------------------------------------------------------------
-  # Creates a ticket key
-  #---------------------------------------------------------------------------------------------------------------------
-  def build_key(ticket)
-    key = ''
-    key << ticket[:device].to_s
-    key << '|'
-    key << ticket[:port].to_s
-    key << '|'
-    key << ticket[:vuln_id].to_s
-    key << '|'
-    key << ticket[:vkey].to_s
-    key
   end
 
   #---------------------------------------------------------------------------------------------------------------------
@@ -239,14 +199,6 @@ class TicketManager < Poller
     rescue Exception => e
       @logger.add_log_message "[!] Error in loading tickets: #{e.backtrace}"
     end
-  end
-
-  #---------------------------------------------------------------------------------------------------------------------
-  # Gets whether or not this ticket is already in the creation queue
-  #---------------------------------------------------------------------------------------------------------------------
-  def ticket_in_creation_queue?(ticket_id)
-    ticket_to_be_created = TicketsToBeProcessed.find_by_ticket_id(ticket_id)
-    (not ticket_to_be_created.nil?)
   end
 
   #---------------------------------------------------------------------------------------------------------------------

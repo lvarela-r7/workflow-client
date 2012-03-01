@@ -49,7 +49,7 @@ class RawXMLReportProcessor
   def add_to_vuln_db(vuln_data)
     begin
       id = vuln_data["id"].to_s.downcase.chomp
-      unless VulnInfo.find_by_vuln_id(id)
+      unless VulnInfo.where(:vuln_id => id).exists?
         begin
           vuln_input_data = {
               :severity    => vuln_data["severity"],
