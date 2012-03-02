@@ -1,3 +1,4 @@
+=begin
 #
 # Loads all the rulebooks and handles fact assertion.
 #
@@ -57,4 +58,4 @@ class RuleManager
       @engine = e
     end
   end
-end
+end=end

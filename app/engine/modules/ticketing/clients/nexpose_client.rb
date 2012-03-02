@@ -1,8 +1,3 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../../net/nsc_connection_manager'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'nexpose'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../ticket_manager'))
-
 class NexposeClient < TicketClient
 
   def initialize ticket_config

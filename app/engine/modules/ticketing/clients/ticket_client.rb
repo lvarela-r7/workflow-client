@@ -25,7 +25,7 @@ class TicketClient
   #---------------------------------------------------------------------------------------------------------------------
   # Loads the ticket formatter for a ticket client if one is defined, else load the default formatter.
   #---------------------------------------------------------------------------------------------------------------------
-  def get_formatter formatter_name
+  def get_formatter(formatter_name)
     # Load the default if none specified
     if formatter_name.nil? or formatter_name.to_s.empty?
       return DefaultFormatter.new

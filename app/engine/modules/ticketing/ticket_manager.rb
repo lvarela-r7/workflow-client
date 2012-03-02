@@ -102,13 +102,6 @@ class TicketManager < Poller
   end
 
   #---------------------------------------------------------------------------------------------------------------------
-  # Ensure the vulnerability status defines a vulnerable threat.
-  #---------------------------------------------------------------------------------------------------------------------
-  def is_vulnerable?(vuln_status)
-    @vulnerable_markers.include?(vuln_status.to_s.chomp)
-  end
-
-  #---------------------------------------------------------------------------------------------------------------------
   # Gets the nexpose device ID  for a certain IP.
   #
   # ip -

@@ -3,7 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'vuln_status_rule'))
 
 class RuleManager
 
-  def initialize rules
+  def initialize(rules)
     build_rules rules
   end
 
@@ -11,7 +11,7 @@ class RuleManager
   # See TicketManager#build_ticket_data for all the attributes
   # on a ticket object.
   #
-  def passes_rules? ticket
+  def passes_rules?(ticket)
     vuln_id = ticket[:vuln_id]
     vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
     raise "Unable to find vuln data with id: #{vuln_id}" unless vuln_info

@@ -75,7 +75,7 @@
 							%div{:class => 'ticket-format invisible'}
 								%fieldset{:style => 'width: auto;'}
 									- first = true
-									- TicketingStyles.all.each do |ticket_style|
+									- TicketScope.all.each do |ticket_style|
 										=radio_button_tag 'test', 'yes', first,  {}
 										%b
 											= ticket_style.name

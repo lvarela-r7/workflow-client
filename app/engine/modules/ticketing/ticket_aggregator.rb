@@ -41,17 +41,35 @@ class TicketAggregator
     # The only way to get the corresponding device-id is though mappings
     site_device_listing = nsc_connection.site_device_listing(site_id)
 
-    ticket_data = build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_params)
+    # Tickets are built on a per module basis
+    ticket_configs = TicketConfig.all
+    ticket_configs.each do |ticket_config|
+      # Don't process inactive modules
+      next unless ticket_config.is_active
 
-    # Now create each ticket
-    ticket_data.each do |ticket|
-      ticket_id = build_key(ticket)
-      unless ticket_in_creation_queue?(ticket_id)
-        # Add the NSC host address
-        ticket[:nsc_host] = host
-        TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
-        ScansProcessed.create(:scan_id => scan_id, :host => host, :module => ticket[:module])
+      # The module name is an integral part of knowing when to ticket
+      module_name = ticket_config.module_name
+
+      # Check if this scan has already been processed for this module.
+      # And if the module does not support updates
+      next if ScansProcessed.where(:host => ticket_params[:host],
+                                   :scan_id => ticket_params[:scan_id],
+                                   :module => module_name).exists? and !ticket_config.supports_updates
+
+      ticket_data =
+          build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+
+      # Now create each ticket
+      ticket_data.each do |ticket|
+        ticket_id = build_key(ticket)
+        unless ticket_in_creation_queue?(ticket_id)
+          # Add the NSC host address
+          ticket[:nsc_host] = host
+          TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
+        end
       end
+
+      ScansProcessed.create(:scan_id => scan_id, :host => host, :module => module_name)
     end
 
     # This needs to be the last thing done as it marks successful completion of ticket processing.
@@ -96,92 +114,76 @@ class TicketAggregator
   #
   # site_device_listing - Used to do device ID lookup
   # host_data_array - Parsed host data
-  # ticket_params -
+  # ticket_config -
   #
   #---------------------------------------------------------------------------------------------------------------------
-  def build_ticket_data(site_device_listing, host_data_array, ticket_params)
+  def build_ticket_data(site_device_listing, host_data_array, ticket_config)
     res = []
 
-    # Tickets are built on a per module basis
-    ticket_configs = TicketConfig.all
-    ticket_configs.each do |ticket_config|
-      # Don't process inactive modules
-      next unless ticket_config.is_active
+    # Load rule manager for each config
+    rule_manager = RuleManager.new(ticket_config.ticket_rule)
 
-      # The module name is an integral part of knowing when to ticket
-      module_name = ticket_config.module_name
+    # Need to set the client_connector as part of the data returned
+    c = Object.const_get(ticket_config.ticket_client_type.to_s)
+    ticket_client_info = TicketClients.find_by_client(c.client_name)
+    client_connector = ticket_client_info.client_connector.to_s
 
-      # Check if this scan has already been processed for this module.
-      next if ScansProcessed.where(:host => ticket_params[:host],
-                                   :scan_id => ticket_params[:scan_id],
-                                   :module => module_name).exists?
+    # Need to set the formatter too
+    formatter = ticket_client_info.formatter
 
-      # Load rule manager for each config
-      rule_manager = RuleManager.new(ticket_config.ticket_rule)
+    host_data_array.each do |host_data|
+      ip = host_data['addr']
+      names = host_data['names']
+      device_id = get_device_id(ip, site_device_listing)
 
-      # Need to set the client_connector as part of the data returned
-      c = Object.const_get(ticket_config.ticket_client_type.to_s)
-      ticket_client_info = TicketClients.find_by_client(c.client_name)
-      client_connector = ticket_client_info.client_connector.to_s
+      # Just take the first name
+      # TODO: Think about this more
+      name = ''
+      name = names[0] if !names.nil? || !names.empty?
 
-      # Need to set the formatter too
-      formatter = ticket_client_info.formatter
+      fingerprint = ''
+      fingerprint << (host_data['os_vendor'] || '')
+      fingerprint << ' '
+      fingerprint << (host_data['os_family'] || '')
 
-      host_data_array.each do |host_data|
-        ip = host_data['addr']
-        names = host_data['names']
-        device_id = get_device_id(ip, site_device_listing)
+      host_data['vulns'].each { |vuln_id, vuln_info|
+        vuln_status = vuln_info['status']
 
-        # Just take the first name
-        # TODO: Think about this more
-        name = ''
-        name = names[0] if !names.nil? || !names.empty?
+        next unless is_vulnerable?(vuln_status)
 
-        fingerprint = ''
-        fingerprint << (host_data['os_vendor'] || '')
-        fingerprint << ' '
-        fingerprint << (host_data['os_family'] || '')
+        vkey = (vuln_info['key'] || '')
+        vuln_endpoint_data = vuln_info['endpoint_data']
 
-        host_data['vulns'].each { |vuln_id, vuln_info|
-          vuln_status = vuln_info['status']
+        port = ''
+        protocol = ''
+        if vuln_endpoint_data
+          port = (vuln_endpoint_data['port'] || '')
+          protocol = (vuln_endpoint_data['protocol'] || '')
+        end
 
-          next unless is_vulnerable?(vuln_status)
+        # Format to avoid weird DB issues
+        proof = Util.process_db_input_array(vuln_info['proof'], true)
 
-          vkey = (vuln_info['key'] || '')
-          vuln_endpoint_data = vuln_info['endpoint_data']
-
-          port = ''
-          protocol = ''
-          if vuln_endpoint_data
-            port = (vuln_endpoint_data['port'] || '')
-            protocol = (vuln_endpoint_data['protocol'] || '')
-          end
-
-          # Format to avoid weird DB issues
-          proof = Util.process_db_input_array(vuln_info['proof'], true)
-
-          ticket_data = {
-              :ip               => ip,
-              :device_id        => device_id,
-              :name             => name,
-              :fingerprint      => fingerprint,
-              :vuln_id          => vuln_id,
-              :vuln_status      => vuln_status,
-              :port             => port,
-              :protocol         => protocol,
-              :vkey             => vkey,
-              :proof            => proof,
-              :formatter        => formatter,
-              :client_connector => client_connector,
-              :module           => module_name
-          }
-
-          if rule_manager.passes_rules?(ticket_data)
-            res << ticket_data
-          end
+        ticket_data = {
+            :ip => ip,
+            :device_id => device_id,
+            :name => name,
+            :fingerprint => fingerprint,
+            :vuln_id => vuln_id,
+            :vuln_status => vuln_status,
+            :port => port,
+            :protocol => protocol,
+            :vkey => vkey,
+            :proof => proof,
+            :formatter => formatter,
+            :client_connector => client_connector,
+            :module => module_name
         }
-      end
 
+        if rule_manager.passes_rules?(ticket_data)
+          res << ticket_data
+        end
+      }
     end
 
     res
@@ -211,6 +213,13 @@ class TicketAggregator
     key << '|'
     key << ticket[:vkey].to_s
     key
+  end
+
+  #---------------------------------------------------------------------------------------------------------------------
+  # Ensure the vulnerability status defines a vulnerable threat.
+  #---------------------------------------------------------------------------------------------------------------------
+  def is_vulnerable?(vuln_status)
+    @vulnerable_markers.include?(vuln_status.to_s.chomp)
   end
 
 end

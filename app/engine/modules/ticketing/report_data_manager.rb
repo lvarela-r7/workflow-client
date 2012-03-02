@@ -29,9 +29,7 @@ class ReportDataManager
     end
 
     # If adhoc fails fall back on disk generation.
-    unless (ad_hoc_retrieved)
-      data = get_on_disk_report_for_scan(scan_id)
-    end
+    data = get_on_disk_report_for_scan(scan_id) unless ad_hoc_retrieved
 
     data
   end
@@ -61,7 +59,7 @@ class ReportDataManager
 
     begin
       url = nil
-      while (!url)
+      while !url
         url = @nsc_connection.report_last(report.config_id)
         sleep(2)
       end
@@ -69,26 +67,26 @@ class ReportDataManager
       last_data_file_size = 0
       max_interval = 30
       count = 0
-      while (true)
+      while true
         data = @nsc_connection.download(url) rescue nil
-        if (data)
+        if data
           current_file_size = data.length
-          if (current_file_size > last_data_file_size)
+          if current_file_size > last_data_file_size
             last_data_file_size = current_file_size
             count = 0
           else
-            if (count > max_interval)
+            if count > max_interval
               break
             end
             count += 1
           end
 
           # Validate report completion
-          if (data.index("<NexposeReport") and data.index("</NexposeReport>"))
+          if data.index("<NexposeReport") and data.index("</NexposeReport>")
             break
           end
         else
-          if (count > max_interval)
+          if count > max_interval
             break
           end
           count += 1
