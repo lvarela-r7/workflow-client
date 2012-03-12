@@ -74,9 +74,6 @@ class TicketManager < Poller
     # tickets to be processed in the database
     @ticket_aggregator = TicketAggregator.new
 
-    # 3 vulnerable states
-    @vulnerable_markers = %w(vulnerable-exploited vulnerable-version potential)
-
     @logger = LogManager.instance
 
     start_poller('nsc_polling', 'Ticket Manager')

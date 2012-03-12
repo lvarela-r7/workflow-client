@@ -18,6 +18,9 @@ class TicketAggregator
   #---------------------------------------------------------------------------------------------------------------------
   def initialize
     @logger = LogManager.instance
+
+    # 3 vulnerable states
+    @vulnerable_markers = %w(vulnerable-exploited vulnerable-version potential)
   end
 
   #---------------------------------------------------------------------------------------------------------------------
@@ -47,6 +50,8 @@ class TicketAggregator
       # Don't process inactive modules
       next unless ticket_config.is_active
 
+      ticket_scope_id = ticket_config.ticket_scope.id
+
       # The module name is an integral part of knowing when to ticket
       module_name = ticket_config.module_name
 
@@ -56,12 +61,20 @@ class TicketAggregator
                                    :scan_id => ticket_params[:scan_id],
                                    :module => module_name).exists? and !ticket_config.supports_updates
 
-      ticket_data =
-          build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+      case ticket_scope_id
+        when 1
+          ticket_data = VulnDeviceScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+        when 2
+          ticket_data = DeviceScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+        when 3
+          ticket_data = VulnScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+        else
+          raise "Invalid ticket scope encountered #{ticket_scope_id}"
+      end
 
       # Now create each ticket
       ticket_data.each do |ticket|
-        ticket_id = build_key(ticket)
+        ticket_id = ticket[:ticket_id]
         unless ticket_in_creation_queue?(ticket_id)
           # Add the NSC host address
           ticket[:nsc_host] = host
@@ -149,7 +162,8 @@ class TicketAggregator
       host_data['vulns'].each { |vuln_id, vuln_info|
         vuln_status = vuln_info['status']
 
-        next unless is_vulnerable?(vuln_status)
+        # To support closed loop ticketing we need all tests
+        # next unless is_vulnerable?(vuln_status)
 
         vkey = (vuln_info['key'] || '')
         vuln_endpoint_data = vuln_info['endpoint_data']
@@ -200,20 +214,7 @@ class TicketAggregator
     (not ticket_to_be_created.nil?)
   end
 
-  #---------------------------------------------------------------------------------------------------------------------
-  # Creates a ticket key
-  #---------------------------------------------------------------------------------------------------------------------
-  def build_key(ticket)
-    key = ''
-    key << ticket[:device].to_s
-    key << '|'
-    key << ticket[:port].to_s
-    key << '|'
-    key << ticket[:vuln_id].to_s
-    key << '|'
-    key << ticket[:vkey].to_s
-    key
-  end
+
 
   #---------------------------------------------------------------------------------------------------------------------
   # Ensure the vulnerability status defines a vulnerable threat.
