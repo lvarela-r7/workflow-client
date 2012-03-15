@@ -24,10 +24,10 @@ ScanHistoryTimeFrame.create(:id=> 2, :time_type => 'Week(s)', :multiplicate => 6
 ScanHistoryTimeFrame.create(:id=> 3, :time_type => 'Month(s)', :multiplicate => 2419200)
 ScanHistoryTimeFrame.create(:id=> 4, :time_type => 'Year(s)', :multiplicate => 29030400)
 
-TicketScope.delete_all
-TicketScope.create(:id=>1, :name => 'Ticket per Vulnerability per Device', :description => 'A ticket is created for each vulnerability found on a certain device')
-TicketScope.create(:id=>2, :name => 'Ticket per Device', :description => 'All vulnerabilities for a site scan are aggregated per device')
-TicketScope.create(:id=>3, :name => 'Ticket per Vulnerability per NSC', :description => 'A ticket is created for each unique vulnerability found anywhere')
+TicketingScope.delete_all
+TicketingScope.create(:id=>1, :name => 'Ticket per Vulnerability per Device', :description => 'A ticket is created for each vulnerability found on a certain device')
+TicketingScope.create(:id=>2, :name => 'Ticket per Device', :description => 'All vulnerabilities for a site scan are aggregated per device')
+TicketingScope.create(:id=>3, :name => 'Ticket per Vulnerability per NSC', :description => 'A ticket is created for each unique vulnerability found anywhere')
 
 ModuleType.delete_all
 ModuleType.create(:id => 1, :view => 'ticket_configs', :title => "Ticketing", :description=>"Allows integration of Nexpose scan result data and supported ticketing tools.")

@@ -5,7 +5,7 @@ class TicketConfig < ActiveRecord::Base
 
 	has_one :ticket_mapping, :foreign_key => "ticket_config_id", :dependent => :delete
 	has_one :ticket_rule, :foreign_key => "ticket_config_id", :dependent => :delete
-  has_one :ticket_scope, :foreign_key => "ticket_config_id", :dependent => :delete
+  has_one :ticketing_scope, :foreign_key => "ticket_config_id", :dependent => :delete
 	belongs_to :ticket_client, :polymorphic => true, :dependent => :destroy
 
 	accepts_nested_attributes_for :ticket_mapping, :ticket_rule, :allow_destroy => true
