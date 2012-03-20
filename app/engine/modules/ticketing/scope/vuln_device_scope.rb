@@ -139,7 +139,7 @@ class VulnDeviceScope
                            :nexpose_host => nexpose_host,
                            :formatter => formatter,
                            :client_connector => client_connector,
-                           :ticket_op => :DELETE,
+                           :ticket_op => :CLOSE,
                            :module_name => module_name
                        }
              res << ticket_data
