@@ -116,36 +116,44 @@ class TicketManager < Poller
 
 
   #---------------------------------------------------------------------------------------------------------------------
-  # Performs ticket creation.
+  # Performs ticket processing.
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
-    ticket_to_be_created_ids = TicketsToBeProcessed.find_by_sql('select id from tickets_to_be_createds')
+    query = 'SELECT id FROM tickets_to_be_processed'
+    ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
 
-    return if ticket_to_be_created_ids.empty?
+    return if not ticket_to_be_processed_ids or ticket_to_be_processed_ids.empty?
 
-    ticket_to_be_created_ids.each do |ticket_to_be_created_id|
+    ticket_to_be_processed_ids.each do |ticket_to_be_processed_id|
       begin
-        ticket_to_be_created = TicketsToBeProcessed.find(ticket_to_be_created_id)
+        ticket_to_be_processed = TicketsToBeProcessed.find(ticket_to_be_processed_id)
 
         # There have been too many failed attempts to create this ticket.
-        next if ticket_to_be_created.pending_requeue
+        next if ticket_to_be_processed.pending_requeue
 
-        ticket_data = ticket_to_be_created.ticket_data
-        ticket_id = ticket_to_be_created.ticket_id
+        ticket_data = ticket_to_be_processed.ticket_data
+        ticket_id = ticket_to_be_processed.ticket_id
 
         # Initialize the ticket client
         client_connector = ticket_data[:client_connector].to_s
-        ticket_client = Object.const_get(client_connector).new ticket_config
+        ticket_client = Object.const_get(client_connector).new(ticket_data)
 
         host = ticket_data[:nsc_host]
-
-        # Skip if ticket already created or rules don't match.
-        next if created_already?(host, module_name, ticket_id)
 
         # Decode the proof.
         ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
 
-        msg = ticket_client.insert_ticket(ticket_data)
+        msg = nil
+        case ticket_data[:ticket_op]
+          when :CREATE
+            msg = ticket_client.create_ticket(ticket_data)
+          when :UPDATE
+            msg = ticket_client.update_ticket(ticket_data)
+          when :CLOSE
+            msg = ticket_client.close_ticket(ticket_data)
+          else
+            raise "Invalid ticket operation: #{ticket_data[:ticket_op]}"
+        end
 
         # TODO: I think the msg paradigm is broken
         if !msg.nil? and !msg[0]
@@ -153,51 +161,22 @@ class TicketManager < Poller
         elsif !msg.nil? and msg[0]
           # Add ticket as already created
           TicketsCreated.create(:host => host, :module_name => module_name, :ticket_id => ticket_id)
-          ticket_to_be_created.destroy
+          ticket_to_be_processed.destroy
         end
 
       rescue Exception => e
-        failed_attempts = ticket_to_be_created.failed_attempt_count
+        failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
-          ticket_to_be_created.failed_message = e.message
-          ticket_to_be_created.pending_requeue = true
+          ticket_to_be_processed.failed_message = e.message
+          ticket_to_be_processed.pending_requeue = true
         else
-          ticket_to_be_created.failed_attempt_count = (failed_attempts + 1)
+          ticket_to_be_processed.failed_attempt_count = (failed_attempts + 1)
         end
-        ticket_to_be_created.save
+        ticket_to_be_processed.save
       end
     end
   end
 
-  #---------------------------------------------------------------------------------------------------------------------
-  # Reads in tickets to be created and converts to array of hash
-  #---------------------------------------------------------------------------------------------------------------------
-  def load_tickets_to_be_created
-    begin
 
-      tickets_to_be_created = TicketsToBeProcessed.all
-      tickets = []
-
-      tickets_to_be_created.each do |ticket_to_be_created|
-        ticket_id = ticket_to_be_created.ticket_id
-        ticket_data = ticket_to_be_created.ticket_data
-        ticket_data[:ticket_id] = ticket_id
-        tickets << ticket_data
-      end
-
-      tickets
-    rescue Exception => e
-      @logger.add_log_message "[!] Error in loading tickets: #{e.backtrace}"
-    end
-  end
-
-  #---------------------------------------------------------------------------------------------------------------------
-  # TODO: This changes when ticket scopes are added
-  # @retuns true iff the ticket has already been created for this host, model and ticket_id
-  #---------------------------------------------------------------------------------------------------------------------
-  def created_already?(host, module_name, ticket_id)
-    tickets_created = TicketsCreated.find_by_host_and_module_name_and_ticket_id(host, module_name, ticket_id)
-    (not tickets_created.nil?)
-  end
 
 end

@@ -72,7 +72,7 @@ class Jira4Client < TicketClient
   #---------------------------------------------------------------------------------------------------------------------
   # Determines if the user added mapping
   #---------------------------------------------------------------------------------------------------------------------
-  def insert_ticket ticket_data
+  def create_ticket ticket_data
     msg = nil
 
     data = build_default_data_fields ticket_data

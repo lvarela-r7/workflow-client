@@ -20,7 +20,7 @@ class NexposeClient < TicketClient
 
   #
   # @param ticket_data: @see
-  def insert_ticket ticket_data
+  def create_ticket ticket_data
 
     nexpose_ticket_data = {}
     vuln_info = TicketManager.instance.vuln_map[ticket_data[:vuln_id]]

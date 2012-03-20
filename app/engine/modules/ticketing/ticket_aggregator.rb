@@ -27,11 +27,11 @@ class TicketAggregator
   # ticket_params - The parameters that define a ticket.
   #---------------------------------------------------------------------------------------------------------------------
   def build_and_store_tickets(ticket_params)
-    host = ticket_params[:host]
+    nexpose_host = ticket_params[:host]
     scan_id = ticket_params[:scan_id]
     site_id = ticket_params[:site_id]
 
-    nsc_connection = NSCConnectionManager.instance.get_nsc_connection(host)
+    nsc_connection = NSCConnectionManager.instance.get_nsc_connection(nexpose_host)
 
     # Load and parse the XML report for the particular scan-id
     report_manager = ReportDataManager.new(nsc_connection)
@@ -54,14 +54,13 @@ class TicketAggregator
       module_name = ticket_config.module_name
 
       # Check if this scan has already been processed for this module.
-      # And if the module does not support updates
-      next if ScansProcessed.where(:host => ticket_params[:host],
+      next if ScansProcessed.where(:host => nexpose_host,
                                    :scan_id => ticket_params[:scan_id],
-                                   :module => module_name).exists? and !ticket_config.supports_updates
+                                   :module => module_name).exists?
 
       case ticket_scope_id
         when 1
-          ticket_data = VulnDeviceScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         when 2
           ticket_data = DeviceScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         when 3
@@ -75,12 +74,12 @@ class TicketAggregator
         ticket_id = ticket[:ticket_id]
         unless ticket_in_creation_queue?(ticket_id)
           # Add the NSC host address
-          ticket[:nsc_host] = host
+          ticket[:nsc_host] = nexpose_host
           TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
         end
       end
 
-      ScansProcessed.create(:scan_id => scan_id, :host => host, :module => module_name)
+      ScansProcessed.create(:scan_id => scan_id, :host => nexpose_host, :module => module_name)
     end
 
     # This needs to be the last thing done as it marks successful completion of ticket processing.

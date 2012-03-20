@@ -43,7 +43,7 @@ class Jira3Client < TicketClient
 
   end
 
-  def insert_ticket data
+  def create_ticket data
     #TODO: Needs to be re-written to build data from model data
 =begin
 
