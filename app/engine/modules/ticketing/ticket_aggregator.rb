@@ -83,13 +83,13 @@ class TicketAggregator
     end
 
     # This needs to be the last thing done as it marks successful completion of ticket processing.
-    TicketManager.instance.get_ticket_processing_queue.delete ticket_params
+    TicketManager.instance.get_ticket_processing_queue.delete(ticket_params)
   rescue Exception => e
     # TODO: Tie in actually logging and move this to that
     @logger.add_log_message "[!] Error in build and storage of tickets: #{e.backtrace}"
 
     # In case of an exception move this ticket to the back of the queue.
-    TicketManager.instance.get_ticket_processing_queue.delete ticket_params
+    TicketManager.instance.get_ticket_processing_queue.delete(ticket_params)
     TicketManager.instance.get_ticket_processing_queue << ticket_params
   end
 
@@ -127,10 +127,7 @@ class TicketAggregator
   # ticket_config -
   #
   #---------------------------------------------------------------------------------------------------------------------
-  def build_ticket_data(site_device_listing, host_data_array, ticket_config)
 
-
-  end
 
   #---------------------------------------------------------------------------------------------------------------------
   # Gets whether or not this ticket is already in the creation queue
