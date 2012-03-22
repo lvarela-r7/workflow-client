@@ -325,3 +325,153 @@ begin
 
 	end
 =end
+
+
+=begin
+Excerpt from working SOAP exec
+
+require_relative 'wsdl_parser'
+require_relative 'wsdl_utility'
+
+require 'rubygems'
+require 'nokogiri'
+require 'savon'
+require 'rexml/document'
+
+doc = './Childens_Hospital_WSDL.xml'
+
+client = Savon::Client.new do
+  wsdl.document = doc
+end
+
+parser = WSDLParser.parse client.wsdl.xml
+
+wutil = WSDLUtil.new parser
+
+actions = wutil.get_soap_input_operations true
+
+p "Using SOAP API: " + actions.first[0]
+
+args =  actions.first[1]
+
+ticket_data = {}
+ticket_data[:headers] = {}
+ticket_data[:headers]["Basic Authentication"] = {}
+
+p "Do you want to use basic authentication when posting your information? (Y/N)"
+use_basic_auth = gets
+
+if use_basic_auth =~ /^y$/i
+  args["headers"]["Basic Authentication"].each do |val|
+    val[1].each do |v|
+      p "I need your #{v["name"]}"
+      tmp = gets
+      ticket_data[:headers]["Basic Authentication"][v["name"]] = tmp.chomp
+    end
+  end
+end
+
+ticket_data["operations"] = {}
+
+p ""
+p ""
+p "Current available methods:"
+args["operations"].each do |op|
+  p op[0]
+end
+
+p ""
+p "Which method do you want to instantiate?"
+op = gets
+
+op.chomp!
+soap_action = ""
+
+parser.bindings.each do |parser_child|
+  parser_child["children"].each do |child|
+    next if child["name"] != op
+
+    child["children"].each do |cc|
+      next if cc["element_name"] != "soap:operation"
+      soap_action = cc["soapAction"]
+    end
+  end
+end
+
+raise "No soap action found" if soap_action.empty?
+
+ticket_data["operations"][op] = {}
+
+
+args["operations"].each do |o|
+  next if o[0] != op
+
+  o[1].each do |as|
+    as[1].each do |arg|
+      next if arg["name"] == nil
+
+      optional = (arg["minOccurs"] == "0" ? true : false)
+
+      p "I need some info regarding the #{arg["name"]}" + (optional ? " (Optional)" : "")
+
+      if arg["type"]["name"] == nil
+        val = gets
+        val.chomp!
+      else
+        i = 1
+        arg["type"]["values"].each do |value|
+          p "#{i}. #{value}"
+          i = i + 1
+        end
+
+        p "Which number above describes your #{arg["name"]}?"
+        num = gets
+        num.chomp!
+
+        while num.empty? or num.to_i == 0
+          p "I need a number to correspond to your #{arg["name"]}."
+          num = gets
+          num.chomp?
+        end
+
+        val = arg["type"]["values"][num.to_i - 1]
+
+        while val.nil?
+          p "I need a number that corresponds to an above option."
+          num = gets
+          num.chomp!
+
+          while num.empty? or num.to_i == 0
+            p "I need a number that corresponds to your #{arg["name"]}."
+            num = gets
+            num.chomp!
+          end
+
+          val = arg["type"]["values"][num.to_i - 1]
+        end
+
+      end
+
+      while !optional and (val.nil? or val.empty?)
+        p "Value not optional. I need some info regarding the #{arg["name"]}"
+        val = gets
+        val.chomp!
+      end
+
+      ticket_data["operations"][op][arg["name"]] = val if !val.empty?
+    end
+  end
+end
+
+#$stdout.reopen("stdout.txt", "a")
+#$stderr.reopen("stderr.txt", "a")
+
+puts ticket_data.inspect
+response = client.request op do
+  soap.body = ticket_data["operations"][op]
+  soap.header = ticket_data["headers"]
+  http.headers["SOAPAction"] = soap_action
+end
+
+
+=end
