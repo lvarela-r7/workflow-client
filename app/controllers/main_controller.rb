@@ -33,6 +33,7 @@ class MainController < ApplicationController
   #
   #
   def prettify(line)
+    p line.inspect
     ltype = case line[0, 3]
               when '[-]'
                 'error'

@@ -82,8 +82,12 @@ class ScanSummariesManager
         return true
       end
 
+      #TODO research if best fix
+      return true if not scan_stats
+
       summaries = scan_stats[:summary]
       status = summaries['status']
+
       if status =~ /finished|stopped/
         start_time = Util.parse_utc_time(summaries["startTime"])
         end_time = Util.parse_utc_time(summaries["endTime"])

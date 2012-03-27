@@ -21,7 +21,7 @@ class TicketManager < Poller
   #--------------------------------------------------------------------------------------------------------------------
   # Returns the ticket processing queue.
   #--------------------------------------------------------------------------------------------------------------------
-  def get_ticket_proccessing_queue
+  def get_ticket_processing_queue
     @ticket_processing_queue
   end
 
@@ -31,6 +31,10 @@ class TicketManager < Poller
   # scan_info - Hash that contains: (:scan_id, :status, :message, :host)
   #---------------------------------------------------------------------------------------------------------------------
   def update(scan_info)
+    p "In the update call..."
+    p scan_info.inspect
+    p @ticket_processing_queue.inspect
+
     status = scan_info[:status].to_s
     if status =~ /finished/i || status =~/stopped/i
       has_ticket = false
@@ -109,7 +113,13 @@ class TicketManager < Poller
   def get_device_id(ip, site_device_listing)
     raise ArgumentError.new('Site device listing was null @ TicketManager#get_device_id') unless site_device_listing
 
+    p "In get_device_id"
+
+
     site_device_listing.each do |device_info|
+
+      p device_info.inspect
+
       device_info[:device_id] if  device_info[:address] =~ /#{ip}/
     end
   end
@@ -119,7 +129,7 @@ class TicketManager < Poller
   # Performs ticket processing.
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
-    query = 'SELECT id FROM tickets_to_be_processed'
+    query = 'SELECT id FROM tickets_to_be_processeds'
     ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
 
     return if not ticket_to_be_processed_ids or ticket_to_be_processed_ids.empty?
@@ -176,7 +186,4 @@ class TicketManager < Poller
       end
     end
   end
-
-
-
 end

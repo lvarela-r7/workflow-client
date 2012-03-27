@@ -39,24 +39,38 @@ class VulnDeviceScope
     formatter = ticket_client_info.formatter
 
     host_data_array.each do |host_data|
+
       ip = host_data['addr']
       names = host_data['names']
-      device_id = get_device_id(ip, site_device_listing)
 
+      begin
+      device_id = self.get_device_id(ip, site_device_listing)
+      rescue Exception => e
+        p e.inspect
+        raise e
+      end
       # Just take the first name
       # TODO: Think about this more
       name = ''
       name = names[0] if !names.nil? || !names.empty?
 
+      p names.inspect
+
       fingerprint = ''
       fingerprint << (host_data['os_vendor'] || '')
       fingerprint << ' '
       fingerprint << (host_data['os_family'] || '')
+  
+      begin
 
+        #p host_data.inspect
+        #p host_data['vulns'].inspect
+      
       host_data['vulns'].each { |vuln_id, vuln_info|
         vuln_status = vuln_info['status']
-        query_key = module_name + nexpose_host + device_id + vuln_id
 
+        query_key = name << nexpose_host << "#{device_id}" << "#{vuln_id}"
+        
         if Util.is_vulnerable?(vuln_status)
           vkey = (vuln_info['key'] || '')
           vuln_endpoint_data = vuln_info['endpoint_data']
@@ -86,7 +100,7 @@ class VulnDeviceScope
               :formatter => formatter,
               :client_connector => client_connector,
               :ticket_op => :CREATE,
-              :module_name => module_name
+              :module_name => name
           }
 
           ticket_id = self.get_ticket_key(ticket_data)
@@ -100,7 +114,6 @@ class VulnDeviceScope
               res << ticket_data
             end
           end
-
         # Process Non-vulnerable items
         else
           if supports_updates
@@ -113,6 +126,10 @@ class VulnDeviceScope
         end
       }
 
+      rescue Exception => e
+        p e.inspect
+        raise e
+      end
       if supports_updates and not non_vulns.empty?
          # Process the non_vulns
          # 1. For all tickets that are still vulnerable find them in the map
@@ -179,5 +196,17 @@ class VulnDeviceScope
     ticket_id = ticket_data[:ticket_id]
     return (TicketsCreated.where(:ticket_id => ticket_id).exists? or TicketsToBeProcessed.where(:ticket_id => ticket_id).exists?)
   end
-
+ def self.get_device_id(ip, site_device_listing)
+      raise ArgumentError.new('Site device listing was null @ TicketManager#get_device_id') unless site_device_listing
+ 
+      p "In get_device_id"
+  
+  
+      site_device_listing.each do |device_info|
+  
+        p device_info.inspect
+  
+        device_info[:device_id].to_i if  device_info[:address] =~ /#{ip}/
+      end
+  end
 end

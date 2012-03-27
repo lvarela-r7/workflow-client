@@ -2,14 +2,15 @@ class Util
 
   class << self
     private
-    # 3 vulnerable states
-    @vulnerable_markers ||= %w(vulnerable-exploited vulnerable-version potential)
   end
 
   def Util.get_public_uploaded_file(file_name)
     File.read(Rails.root.join('public', 'uploads', file_name))
   end
 
+  def self.set_vulnerable_markers
+    @vulnerable_markers ||= %w[vulnerable-exploited vulnerable-version potential]
+  end
   #---------------------------------------------------------------------------------------------------------------------
   # Parses nexpose ISO 8601 formated time.
   # Can return null.
@@ -72,6 +73,7 @@ class Util
   # Ensure the vulnerability status defines a vulnerable threat.
   #---------------------------------------------------------------------------------------------------------------------
   def self.is_vulnerable?(vuln_status)
+    self.set_vulnerable_markers
     @vulnerable_markers.include?(vuln_status.to_s.chomp)
   end
 

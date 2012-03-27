@@ -16,10 +16,14 @@ class RuleManager
     vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
     raise "Unable to find vuln data with id: #{vuln_id}" unless vuln_info
 
-    ticket.merge! vuln_info
+    vuln_hash = {}
+    vuln_hash['vuln_id'] = vuln_info.vuln_id
+    vuln_hash['vuln_data'] = vuln_info.vuln_data
+    
+    ticket.merge! vuln_hash
 
     @rules.each do |rule|
-      unless rule.passes_rule? ticket
+      unless rule.passes_rule? ticket['vuln_data']
         return false
       end
     end

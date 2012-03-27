@@ -48,14 +48,22 @@ class TicketAggregator
       # Don't process inactive modules
       next unless ticket_config.is_active
 
-      ticket_scope_id = ticket_config.ticket_scope.id
+      #ticket_scope_id = ticket_config.ticketing_scope.id
+      #hardcode ticketing scope for now, since the above line was failing
+      ticket_scope_id = 1
 
       # The module name is an integral part of knowing when to ticket
       module_name = ticket_config.module_name
 
       # Check if this scan has already been processed for this module.
+
+      p nexpose_host
+      p ticket_params.inspect
+      p module_name
+
+      begin
       next if ScansProcessed.where(:host => nexpose_host,
-                                   :scan_id => ticket_params[:scan_id],
+                                   :scan_id => ticket_params[:scan_id].to_s, #stored as a varchar?? /me disappoint
                                    :module => module_name).exists?
 
       case ticket_scope_id
@@ -80,6 +88,11 @@ class TicketAggregator
       end
 
       ScansProcessed.create(:scan_id => scan_id, :host => nexpose_host, :module => module_name)
+
+      rescue Exception => e
+        p e.inspect
+      end
+
     end
 
     # This needs to be the last thing done as it marks successful completion of ticket processing.
