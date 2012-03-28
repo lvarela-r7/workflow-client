@@ -9,11 +9,17 @@ class JiraFormatter < Formatter
 
   def do_ticket_description_format ticket_info
     # Build description section
-    formatted_output = do_add_h3(do_underline 'Description')
-    add_new_line formatted_output
-    vuln_description_paragraph = build_paragraph ticket_info[:description]
-    vuln_description_paragraph.get_paragraph.each do |output|
-      do_formated_paragraph formatted_output, output
+
+    formatted_output = ''
+
+    if ticket_info[:description]
+      formatted_output << do_add_h3(do_underline 'Description')
+      add_new_line formatted_output
+
+      vuln_description_paragraph = build_paragraph ticket_info[:description]
+      vuln_description_paragraph.get_paragraph.each do |output|
+        do_formated_paragraph formatted_output, output
+      end
     end
 
     # Build description section

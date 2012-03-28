@@ -9,24 +9,26 @@ class IPv4ListRule < Rule
   end
 
   def passes_rule? ticket_data
-
+    p "In IPv4 Rule..."
     #no need to test if no rules exist
     if @ip_list_csv.nil? or @ip_list_csv.empty?
+      p "IP List Empty or nil"
       return
     end
 
     ip = IPAddr.new(ticket_data[:ip])
 
-    if ip.nil? or ip.empty?
+    if ip.nil?
       raise "IP nil or empty in ticket data: #{ticket_data.inspect}"
     end
-
+    p "Testing #{ip} if it passes the IPv4 rule..."
     #split ip rule list
-    ip_list = @ip_list_csv.split ","
+    ip_list = @ip_list_csv.split "\n"
     
-    return_val = !@is_whitelist
+    return_val = @is_whitelist
 
     ip_list.each do |ip_rule|
+      next if ip_rule.empty?
 
       #if is_whitelist, return whether the ip is contained in the range
       #if !is_whitelist, return whether the ip is *not* in the range
@@ -42,7 +44,9 @@ class IPv4ListRule < Rule
       #if is_whitelist, return whether the ip address == the ip rule
       #if !is_whitelist, return whether the ip address != the ip rule
       else
+        p "Testing if #{ip_rule} matches #{ip}"
         return return_val if IPAddr.new(ip_rule) == ip
+        p "Don't match!"
       end
 
     end

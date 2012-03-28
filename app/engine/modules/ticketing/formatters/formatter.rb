@@ -15,6 +15,7 @@ class Formatter
   # input: An input array
   #------------------------------------------------------------------------------------------------------
   def build_paragraph input
+
     paragraph = Paragraph.new
     input.each do |line|
       if line.kind_of? Hash

@@ -57,13 +57,8 @@ class TicketAggregator
 
       # Check if this scan has already been processed for this module.
 
-      p nexpose_host
-      p ticket_params.inspect
-      p module_name
-
-      begin
       next if ScansProcessed.where(:host => nexpose_host,
-                                   :scan_id => ticket_params[:scan_id].to_s, #stored as a varchar?? /me disappoint
+                                   :scan_id => ticket_params[:scan_id].to_s, 
                                    :module => module_name).exists?
 
       case ticket_scope_id
@@ -83,16 +78,12 @@ class TicketAggregator
         unless ticket_in_creation_queue?(ticket_id)
           # Add the NSC host address
           ticket[:nsc_host] = nexpose_host
+          ticket[:ticket_config] = ticket_config
           TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
         end
       end
 
       ScansProcessed.create(:scan_id => scan_id, :host => nexpose_host, :module => module_name)
-
-      rescue Exception => e
-        p e.inspect
-      end
-
     end
 
     # This needs to be the last thing done as it marks successful completion of ticket processing.

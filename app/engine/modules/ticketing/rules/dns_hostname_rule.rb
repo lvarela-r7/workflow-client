@@ -8,7 +8,10 @@ class DNSHostnameRule < Rule
 
   def passes_rule? ticket_data
     if @hostname_list.nil? or @hostname_list.empty?
-      return false if @is_whitelist?
+      if @is_whitelist == true
+        return false
+      end
+
       return true
     end
 
@@ -18,14 +21,20 @@ class DNSHostnameRule < Rule
       raise "Host nil or empty in ticket data: #{ticket_data.inspect}"
     end
 
-    @hostname_list.each do |h|
+    @hostname_list.split("\n").each do |h|
+      next if h.empty?
       next if host != h
 
-      return true if @is_whitelist? #host was on white list, OK
-      return false #host was on black list, BAD
+      if @is_whitelist == true
+        return true
+      end
+
+      return false
     end
 
-    return true if !@is_whitelist? #wasn't on blacklist
+    if @is_whitelist == false
+      return true  #wasn't on blacklist
+    end
     return false #wasn't on white list, BAD
   end
 end

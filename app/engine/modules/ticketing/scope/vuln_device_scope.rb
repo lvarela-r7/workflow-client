@@ -43,33 +43,22 @@ class VulnDeviceScope
       ip = host_data['addr']
       names = host_data['names']
 
-      begin
       device_id = self.get_device_id(ip, site_device_listing)
-      rescue Exception => e
-        p e.inspect
-        raise e
-      end
+
       # Just take the first name
       # TODO: Think about this more
       name = ''
       name = names[0] if !names.nil? || !names.empty?
 
-      p names.inspect
-
       fingerprint = ''
       fingerprint << (host_data['os_vendor'] || '')
       fingerprint << ' '
       fingerprint << (host_data['os_family'] || '')
-  
-      begin
-
-        #p host_data.inspect
-        #p host_data['vulns'].inspect
       
       host_data['vulns'].each { |vuln_id, vuln_info|
         vuln_status = vuln_info['status']
 
-        query_key = name << nexpose_host << "#{device_id}" << "#{vuln_id}"
+        query_key = name + nexpose_host + "#{device_id}" + "#{vuln_id}"
         
         if Util.is_vulnerable?(vuln_status)
           vkey = (vuln_info['key'] || '')
@@ -126,10 +115,6 @@ class VulnDeviceScope
         end
       }
 
-      rescue Exception => e
-        p e.inspect
-        raise e
-      end
       if supports_updates and not non_vulns.empty?
          # Process the non_vulns
          # 1. For all tickets that are still vulnerable find them in the map
@@ -167,6 +152,7 @@ class VulnDeviceScope
 
     res
   rescue Exception => e
+    p e.message
     LogManager.instance.add_log_message "[!] Error in Building Ticket Data: #{e.backtrace}"
   end
 
@@ -204,9 +190,7 @@ class VulnDeviceScope
   
       site_device_listing.each do |device_info|
   
-        p device_info.inspect
-  
-        device_info[:device_id].to_i if  device_info[:address] =~ /#{ip}/
+        return device_info[:device_id] if  device_info[:address] =~ /#{ip}/
       end
   end
 end

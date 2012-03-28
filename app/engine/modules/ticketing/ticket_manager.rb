@@ -33,7 +33,6 @@ class TicketManager < Poller
   def update(scan_info)
     p "In the update call..."
     p scan_info.inspect
-    p @ticket_processing_queue.inspect
 
     status = scan_info[:status].to_s
     if status =~ /finished/i || status =~/stopped/i
@@ -118,8 +117,6 @@ class TicketManager < Poller
 
     site_device_listing.each do |device_info|
 
-      p device_info.inspect
-
       device_info[:device_id] if  device_info[:address] =~ /#{ip}/
     end
   end
@@ -129,6 +126,9 @@ class TicketManager < Poller
   # Performs ticket processing.
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
+
+    p "Handling tickets..."
+
     query = 'SELECT id FROM tickets_to_be_processeds'
     ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
 
@@ -137,7 +137,6 @@ class TicketManager < Poller
     ticket_to_be_processed_ids.each do |ticket_to_be_processed_id|
       begin
         ticket_to_be_processed = TicketsToBeProcessed.find(ticket_to_be_processed_id)
-
         # There have been too many failed attempts to create this ticket.
         next if ticket_to_be_processed.pending_requeue
 
@@ -153,28 +152,30 @@ class TicketManager < Poller
         # Decode the proof.
         ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
 
-        msg = nil
+        worked = false
         case ticket_data[:ticket_op]
           when :CREATE
-            msg = ticket_client.create_ticket(ticket_data)
+            worked = ticket_client.create_ticket(ticket_data)
           when :UPDATE
-            msg = ticket_client.update_ticket(ticket_data)
+            worked = ticket_client.update_ticket(ticket_data)
           when :CLOSE
-            msg = ticket_client.close_ticket(ticket_data)
+            worked = ticket_client.close_ticket(ticket_data)
           else
             raise "Invalid ticket operation: #{ticket_data[:ticket_op]}"
         end
 
-        # TODO: I think the msg paradigm is broken
-        if !msg.nil? and !msg[0]
-          raise msg[1]
-        elsif !msg.nil? and msg[0]
+        if !worked
+          raise "Could not create JIRA ticket."
+        else
           # Add ticket as already created
-          TicketsCreated.create(:host => host, :module_name => module_name, :ticket_id => ticket_id)
+          TicketsCreated.create(:ticket_id => ticket_id)
           ticket_to_be_processed.destroy
         end
 
       rescue Exception => e
+        p e.inspect
+        p e.message
+        p e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message

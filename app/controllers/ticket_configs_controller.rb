@@ -210,13 +210,19 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def load_default_models
     if @ticket_config.nil?
-      @ticket_config = TicketConfig.new params[:ticket_config]
-      @ticket_mappings = @ticket_config.ticket_mapping
-      @ticket_rules = @ticket_config.ticket_rule
-      @ticket_config.ticket_mapping = TicketMapping.new
-      @ticket_config.ticket_rule = TicketRule.new
-      @jira4_ticket_config = Jira4TicketConfig.new params[:jira4_config]
-      @jira3_ticket_config = Jira3TicketConfig.new params[:jira3_config]
+
+      begin
+        @ticket_config = TicketConfig.new params[:ticket_config]
+        @ticket_mappings = @ticket_config.ticket_mapping
+        @ticket_rules = @ticket_config.ticket_rule
+        @ticket_config.ticket_mapping = TicketMapping.new
+        @ticket_config.ticket_rule = TicketRule.new
+        @jira4_ticket_config = Jira4TicketConfig.new params[:jira4_config]
+        @jira3_ticket_config = Jira3TicketConfig.new params[:jira3_config]
+      rescue
+        @ticket_config = TicketConfig.new
+        p @ticket_config.inspect
+      end
     end
   end
 

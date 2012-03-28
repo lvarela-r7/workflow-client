@@ -1,20 +1,20 @@
 class CreateTicketMappings < ActiveRecord::Migration
   def self.up
     create_table :ticket_mappings do |t|
-      t.string :node_address
-      t.string :node_name
-      t.string :vendor
-      t.string :product
-      t.string :family
-      t.string :version
-      t.string :vulnerability_status
-      t.string :vulnerability_id
-      t.string :description
-      t.string :proof
-      t.string :solution
-      t.string :scan_start
-      t.string :scan_end
-      t.string :cvss_score
+      t.text :node_address
+      t.text :node_name
+      t.text :vendor
+      t.text :product
+      t.text :family
+      t.text :version
+      t.text :vulnerability_status
+      t.text :vulnerability_id
+      t.text :description
+      t.text :proof
+      t.text :solution
+      t.text :scan_start
+      t.text :scan_end
+      t.text :cvss_score
       t.integer :ticket_config_id
     end
   end

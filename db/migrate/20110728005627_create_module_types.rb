@@ -1,9 +1,9 @@
 class CreateModuleTypes < ActiveRecord::Migration
   def self.up
     create_table :module_types do |t|
-      t.string :view
-      t.string :title
-      t.string :description
+      t.text :view
+      t.text :title
+      t.text :description
     end
   end
 

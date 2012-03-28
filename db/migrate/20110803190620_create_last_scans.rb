@@ -1,7 +1,7 @@
 class CreateLastScans < ActiveRecord::Migration
   def self.up
     create_table :last_scans do |t|
-      t.string :host
+      t.text :host
       t.integer :scan_id
     end
   end

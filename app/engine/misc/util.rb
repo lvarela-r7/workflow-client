@@ -41,9 +41,11 @@ class Util
   # returns An array or string dependent on input params, null on error.
   #---------------------------------------------------------------------------------------------------------------------
     def self.process_db_input_array(input, encode=false)
+      return nil if not input
       begin
         if encode
           encoded_string = ""
+
           input.each do |p|
             output = p.to_s
             output.squeeze!
@@ -58,13 +60,16 @@ class Util
           end
           encoded_string
         else
+          return nil if not input
           decoded_string = input.split("||")
           decoded_string
         end
       rescue Exception => e
         logger = LogManager.instance
+        p e.message
         logger.add_log_message "[!] Error in processing DB input array: #{e.backtrace}"
         # Error situation return null
+        raise e
         return nil
       end
     end

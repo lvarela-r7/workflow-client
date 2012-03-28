@@ -13,17 +13,24 @@ class Jira4Client < TicketClient
   #---------------------------------------------------------------------------------------------------------------------
   def initialize(*args)
     super()
-
+    p "Initializing JIRA4 client..."
     count = args.length
     if count == 1
-      ticket_config = args[0]
-      @ticket_client_config = ticket_config.ticket_client
-      @ticket_mappings = ticket_config.ticket_mapping
-      @mapping_defined = is_mapping_defined?
+      ticket = args[0]
+      #
+      @ticket_client_config = ticket[:ticket_config]
+      @ticket_mappings = ticket[:ticket_mapping] if ticket[:ticket_mapping]
+      @mapping_defined = is_mapping_defined? if @ticket_mappings
 
-      uri = @ticket_client_config.host.to_s + ':' + @ticket_client_config.port.to_s
-      @username = @ticket_client_config.username.to_s
-      @password = @ticket_client_config.password.to_s
+      begin
+        @client_info = Jira4TicketConfig.find(@ticket_client_config.ivars["attributes"]["ticket_client_id"])
+      rescue
+        @client_info = Jira4TicketConfig.find(@ticket_client_config.ticket_client_id)
+      end
+
+      uri = @client_info.host.to_s + ':' + @client_info.port.to_s
+      @username = @client_info.username.to_s
+      @password = @client_info.password.to_s
     elsif count == 4
       @username = args[0].to_s
       @password = args[1].to_s
@@ -65,6 +72,7 @@ class Jira4Client < TicketClient
       data.delete key
     end
 
+    data ||= {}
     data[:custom_field_values] = custom_field_values
     data
   end
@@ -73,8 +81,7 @@ class Jira4Client < TicketClient
   # Determines if the user added mapping
   #---------------------------------------------------------------------------------------------------------------------
   def create_ticket ticket_data
-    msg = nil
-
+    p "Creating Ticket...."
     data = build_default_data_fields ticket_data
 
     if @mapping_defined
@@ -86,28 +93,10 @@ class Jira4Client < TicketClient
       jira_issue = build_jira_issue data
       @jira.create_issue_with_issue jira_issue
       @jira.logout
-    rescue Exception
-
-      begin
-        msg = $!.reason.chomp
-      rescue Exception
-        msg = "Could not contact JIRA"
-      end
-
-      if msg and msg.to_s.include? ':'
-        msg = msg.split(':')[1]
-      end
-
-      if msg and msg[0] == '{'
-        msg = msg[1..msg.length-3]
-        if msg.include? '='
-          msg = msg.split('=')[1]
-        end
-      end
-
-      msg = msg ? msg.chomp : nil
+    rescue Exception => e
+      return false
     end
-    msg
+    return true
   end
 
   #---------------------------------------------------------------------------------------------------------------------
@@ -123,29 +112,52 @@ class Jira4Client < TicketClient
 
     formatter = get_formatter ticket_data[:formatter].to_s
     vuln_id = ticket_data[:vuln_id]
-    vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
-    raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
 
-    ticket_info = {
-        :description => Util.process_db_input_array(vuln_info[:description]),
-        :proof       => ticket_data[:proof],
-        :solution    => Util.process_db_input_array(vuln_info[:solution])
-    }
+    if vuln_id and not vuln_id.empty?
+      vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
+      raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
+    
+      ticket_info = {
+          :description => Util.process_db_input_array(vuln_info[:description]),
+          :proof       => ticket_data[:proof],
+          :solution    => Util.process_db_input_array(vuln_info[:solution])
+      }
 
-    description = formatter.do_ticket_description_format ticket_info
-    summary     = "#{vuln_info[:title]} on #{ticket_data[:name]} (#{ticket_data[:ip]})"
-    environment = ticket_data[:fingerprint].to_s
+      #description = formatter.do_ticket_description_format ticket_info
+      description = (ticket_info[:description] || '')
+      summary     = "#{vuln_info.vuln_data[:title]} on #{ticket_data[:ip]}"
+      environment = ticket_data[:fingerprint].to_s
 
-    data[:summary]           = summary.to_s
-    data[:environment]       = environment
-    data[:description]       = description.to_s
-    data[:priority_id]       = @ticket_client_config.priority_id
-    data[:project_name]      = @ticket_client_config.project_name
-    data[:issue_type_id]     = @ticket_client_config.issue_id
-    data[:reporter_username] = @ticket_client_config.reporter
-    data[:assignee_username] = @ticket_client_config.assignee
-    data[:cvss_score]        = vuln_info[:cvss]
-    data
+      if summary.length < 255
+        data[:summary] = summary.to_s
+      else
+        data[:summary] = summary[0,254]
+      end
+
+      data[:environment]       = environment
+      data[:description]       = description.to_s
+      data[:priority_id]       = @client_info.priority_id
+      data[:project_name]      = @client_info.project_name
+      data[:issue_type_id]     = @client_info.issue_id
+      data[:reporter_username] = @client_info.reporter
+      data[:assignee_username] = @client_info.assignee
+      data[:cvss_score]        = vuln_info[:cvss]
+      data
+    else
+      #test ticket for now...
+      if @client_info
+        data = {}
+        data[:summary] = "Test ticket"
+        data[:environment] = "N/A"
+        data[:priority_id] = @client_info.priority_id
+        data[:project_name] = @client_info.project_name
+        data[:issue_type_id] = @client_info.issue_id
+        data[:reporter_username] = @client_info.reporter
+        data[:assignee_username] = @client_info.assignee
+      else
+
+      end
+    end
   end
 
   #---------------------------------------------------------------------------------------------------------------------
@@ -181,6 +193,8 @@ class Jira4Client < TicketClient
   #
   def build_jira_issue data
 
+    p "Building JIRA issue..."
+
     jira_issue = JIRA::Issue.new
 
     data.each do |key, value|
@@ -202,11 +216,13 @@ class Jira4Client < TicketClient
           jira_issue.reporter_username = value
         when :assignee_username
           jira_issue.assignee_username = value
+        when :cvss_score
+          #do nothing
         when :custom_field_values
           JIRA::Issue.add_attribute :custom_field_values, 'customFieldValues', [:children_as_objects, JIRA::CustomFieldValue]
           jira_issue.custom_field_values = value
         else
-          raise 'Unknown key when parsing jira fields.'
+          raise "Unknown key #{key} when parsing jira fields."
       end
     end
 
@@ -232,7 +248,7 @@ class Jira4Client < TicketClient
         :ticket_type => 'test_ticket',
         :cvss_score => '5.5'
     }
-    insert_ticket data
+    create_ticket data
   end
 
   #

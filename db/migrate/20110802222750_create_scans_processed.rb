@@ -1,9 +1,9 @@
 class CreateScansProcessed < ActiveRecord::Migration
   def self.up
     create_table :scans_processed do |t|
-      t.string :host
-      t.string :scan_id
-      t.string :module
+      t.text :host
+      t.text :scan_id
+      t.text :module
     end
   end
 

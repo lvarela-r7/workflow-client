@@ -1,7 +1,7 @@
 class CreateIntegerProperties < ActiveRecord::Migration
   def self.up
     create_table :integer_properties do |t|
-      t.string :property_key
+      t.text :property_key
       t.integer :property_value
     end
   end
