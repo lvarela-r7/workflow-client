@@ -108,7 +108,7 @@ class Jira4Client < TicketClient
     # If this is a test ticket
     ticket_data if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
 
-    ticket_data[:name] = (ticket_data[:name] || '')
+    ticket_data[:name] ||=  ''
 
     formatter = get_formatter ticket_data[:formatter].to_s
     vuln_id = ticket_data[:vuln_id]
@@ -116,16 +116,19 @@ class Jira4Client < TicketClient
     if vuln_id and not vuln_id.empty?
       vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
       raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
-    
+     p vuln_info.inspect
       ticket_info = {
-          :description => Util.process_db_input_array(vuln_info[:description]),
+          :description => vuln_info[:description],
           :proof       => ticket_data[:proof],
-          :solution    => Util.process_db_input_array(vuln_info[:solution])
+          :solution    => vuln_info[:solution]
       }
 
       #description = formatter.do_ticket_description_format ticket_info
-      description = (ticket_info[:description] || '')
+      description = ticket_info[:description]
       summary     = "#{vuln_info.vuln_data[:title]} on #{ticket_data[:ip]}"
+
+      summary << " (#{ticket_data[:name]})" if ticket_data[:name] and !ticket_data[:name].empty?
+
       environment = ticket_data[:fingerprint].to_s
 
       if summary.length < 255
@@ -135,7 +138,7 @@ class Jira4Client < TicketClient
       end
 
       data[:environment]       = environment
-      data[:description]       = description.to_s
+      data[:description]       = description
       data[:priority_id]       = @client_info.priority_id
       data[:project_name]      = @client_info.project_name
       data[:issue_type_id]     = @client_info.issue_id

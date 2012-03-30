@@ -40,6 +40,7 @@ class Jira4TicketConfigsController < ApplicationController
   # POST /jira4_ticket_configs
   # POST /jira4_ticket_configs.xml
   def create
+    p params[:jira4_ticket_config].inspect
     @jira4_ticket_config = jira4TicketConfig.new(params[:jira4_ticket_config])
 
     respond_to do |format|

@@ -53,8 +53,14 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def create
     if not create_test_ticket? and not wsdl_upload?
+      p params[:ticket_config].inspect
       @ticket_client = load_ticket_client_data
-      @ticket_client.build_ticket_config(params[:ticket_config])
+
+      begin
+        @ticket_client.build_ticket_config(params[:ticket_config])
+      rescue Exception => e
+        p "I failed to build the ticket config." + e.message
+      end
 
       if @ticket_client.save
         redirect_to '/added_modules'

@@ -73,17 +73,7 @@
 								%div{:id => 'ticket-format-expander', :class => 'collapsed'}
 
 							%div{:class => 'ticket-format invisible'}
-								%fieldset{:style => 'width: auto;'}
-									- first = true
-									- TicketingScope.all.each do |ticket_style|
-										=radio_button_tag 'test', 'yes', first,  {}
-										%b
-											= ticket_style.name
-										%p
-											= ticket_style.description
-										%br
-										- if first == true then first = false end
-
+								= render 'ticket_scopes', :f => f
 							%div{:class => 'dashboard-title', :id => 'ticket-rules-bar', :style => 'margin-bottom: 10px;'}
 								Ticketing Rules
 								%div{:id => 'ticket-rules-expander', :class => 'collapsed'}

@@ -53,8 +53,9 @@ class ReportDataManager
     report.set_name(report_config_name)
     report.addFilter("scan", scan_id)
     report.set_storeOnServer(1)
-    report.set_format("raw-xml")
+    report.set_format("raw-xml-v2")
 
+    p "Saving report"
     report.saveReport()
 
     begin
@@ -68,7 +69,9 @@ class ReportDataManager
       max_interval = 30
       count = 0
       while true
+        p "Getting report from Nexpose"
         data = @nsc_connection.download(url) rescue nil
+        p data
         if data
           current_file_size = data.length
           if current_file_size > last_data_file_size
