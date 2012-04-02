@@ -89,7 +89,7 @@ class VulnDeviceScope
               :formatter => formatter,
               :client_connector => client_connector,
               :ticket_op => :CREATE,
-              :module_name => name
+              :module_name => ''
           }
 
           ticket_id = self.get_ticket_key(ticket_data)
@@ -152,8 +152,8 @@ class VulnDeviceScope
 
     res
   rescue Exception => e
-    p e.message
-    LogManager.instance.add_log_message "[!] Error in Building Ticket Data: #{e.backtrace}"
+    LogManager.instance.add_log_message "[!] Error in Building Ticket Data: #{e.message}"
+    LogManager.instance.add_log_message "[!] #{e.backtrace}"
   end
 
   #---------------------------------------------------------------------------------------------------------------------

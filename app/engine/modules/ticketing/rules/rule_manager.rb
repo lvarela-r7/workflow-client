@@ -17,22 +17,22 @@ class RuleManager
     p "Checking rules..."
     vuln_id = ticket[:vuln_id]
     vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
-    raise "Unable to find vuln data with id: #{vuln_id}" unless vuln_info
+    if vuln_info
+      vuln_hash = {}
+      vuln_hash['vuln_id'] = vuln_info.vuln_id
+      vuln_hash['vuln_data'] = vuln_info.vuln_data
+      vuln_hash['vuln_data'][:ip] = ticket[:ip]
+      vuln_hash['vuln_data'][:host] = ticket[:name]
 
-    vuln_hash = {}
-    vuln_hash['vuln_id'] = vuln_info.vuln_id
-    vuln_hash['vuln_data'] = vuln_info.vuln_data
-    vuln_hash['vuln_data'][:ip] = ticket[:ip]
-    vuln_hash['vuln_data'][:host] = ticket[:name]
+      ticket.merge! vuln_hash
 
-    ticket.merge! vuln_hash
-
-    @rules.each do |rule|
-      unless rule.passes_rule? ticket['vuln_data']
-        p "Didn't pass rule #{rule.inspect}"
-        return false
+      @rules.each do |rule|
+        unless rule.passes_rule? ticket['vuln_data']
+          return false
+        end
       end
-      p "Passed rule #{rule.inspect}"
+    else
+      true
     end
 
     true

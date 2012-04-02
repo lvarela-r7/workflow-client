@@ -17,9 +17,12 @@ class Formatter
   def build_paragraph input
 
     paragraph = Paragraph.new
-    input.each do |line|
+
+    input.split("||").each do |line|
       if line.kind_of? Hash
         line.each { |key, value| paragraph.add_link key, value }
+      elsif line.kind_of? Array
+        line.each { |l| paragraph.add_sentence l }
       else
         line.gsub!(/[\r\n\t]/, '\r' => '', '\n' => '', '\t' => '')
         if line.empty?

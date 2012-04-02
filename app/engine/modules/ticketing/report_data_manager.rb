@@ -21,16 +21,21 @@ class ReportDataManager
   def get_raw_xml_for_scan(scan_id)
     data = nil
     ad_hoc_retrieved = false
-    begin
-      data = get_adhoc_for_scan(scan_id)
-      ad_hoc_retrieved = true
-    rescue
-      # do nothing
+
+    while !ad_hoc_retrieved
+      begin
+        data = get_adhoc_for_scan(scan_id)
+        ad_hoc_retrieved = true
+      rescue Exception => e
+        p e.message
+        p e.backtrace
+      end
     end
 
+#    p "trying new method"
     # If adhoc fails fall back on disk generation.
-    data = get_on_disk_report_for_scan(scan_id) unless ad_hoc_retrieved
-
+#    data = get_on_disk_report_for_scan(scan_id) 
+#    p data.inspect
     data
   end
 
@@ -40,13 +45,20 @@ class ReportDataManager
   def get_adhoc_for_scan(scan_id)
     adhoc_report_generator = Nexpose::ReportAdHoc.new(@nsc_connection)
     adhoc_report_generator.addFilter('scan', scan_id)
-    adhoc_report_generator.generate
+
+    data = adhoc_report_generator.generate
+
+    while data.to_s.length < 91
+      data = adhoc_report_generator.generate
+    end
+    data
   end
 
   #---------------------------------------------------------------------------------------------------------------------
   # Gets the raw xml by generating the report on disk then pulling it across
   #---------------------------------------------------------------------------------------------------------------------
   def get_on_disk_report_for_scan(scan_id)
+
     data = nil
     report_config_name = "nexflow_report_config_#{scan_id}"
     report = Nexpose::ReportConfig.new(@nsc_connection)
@@ -55,11 +67,16 @@ class ReportDataManager
     report.set_storeOnServer(1)
     report.set_format("raw-xml-v2")
 
-    p "Saving report"
-    report.saveReport()
+    begin
+      resp = report.saveReport()
+    rescue Exception => e
+      p e.message
+      p e.backtrace
+    end
 
     begin
       url = nil
+
       while !url
         url = @nsc_connection.report_last(report.config_id)
         sleep(2)
@@ -68,10 +85,18 @@ class ReportDataManager
       last_data_file_size = 0
       max_interval = 30
       count = 0
+
       while true
-        p "Getting report from Nexpose"
-        data = @nsc_connection.download(url) rescue nil
-        p data
+        while !data
+          begin
+            data = @nsc_connection.download(url)
+          rescue Exception => e
+            p e.message
+            p e.backtrace
+            data = nil
+          end
+        end
+
         if data
           current_file_size = data.length
           if current_file_size > last_data_file_size
@@ -96,7 +121,9 @@ class ReportDataManager
         end
         sleep(1)
       end
-
+    rescue Exception => e
+      p e.message
+      p e.backtrace
     ensure
       begin
         @nsc_connection.report_config_delete(report.config_id)

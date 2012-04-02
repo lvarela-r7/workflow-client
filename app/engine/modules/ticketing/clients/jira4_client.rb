@@ -81,9 +81,7 @@ class Jira4Client < TicketClient
   # Determines if the user added mapping
   #---------------------------------------------------------------------------------------------------------------------
   def create_ticket ticket_data
-    p "Creating Ticket...."
     data = build_default_data_fields ticket_data
-
     if @mapping_defined
       data = overlay_mappings data
     end
@@ -94,6 +92,8 @@ class Jira4Client < TicketClient
       @jira.create_issue_with_issue jira_issue
       @jira.logout
     rescue Exception => e
+      p e.message
+      p e.backtrace
       return false
     end
     return true
@@ -104,7 +104,6 @@ class Jira4Client < TicketClient
   #---------------------------------------------------------------------------------------------------------------------
   def build_default_data_fields ticket_data
     data = {}
-
     # If this is a test ticket
     ticket_data if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
 
@@ -116,21 +115,22 @@ class Jira4Client < TicketClient
     if vuln_id and not vuln_id.empty?
       vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
       raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
-     p vuln_info.inspect
+      
       ticket_info = {
-          :description => vuln_info[:description],
+          :description => vuln_info.vuln_data[:description],
           :proof       => ticket_data[:proof],
-          :solution    => vuln_info[:solution]
+          :solution    => vuln_info.vuln_data[:solution]
       }
 
-      #description = formatter.do_ticket_description_format ticket_info
-      description = ticket_info[:description]
+      description = formatter.do_ticket_description_format ticket_info
+      #description = ticket_info[:description] + ticket_info[:solution]
       summary     = "#{vuln_info.vuln_data[:title]} on #{ticket_data[:ip]}"
 
       summary << " (#{ticket_data[:name]})" if ticket_data[:name] and !ticket_data[:name].empty?
 
       environment = ticket_data[:fingerprint].to_s
 
+      #JIRA summaries will fail if greater than 255 characters long
       if summary.length < 255
         data[:summary] = summary.to_s
       else
@@ -145,6 +145,25 @@ class Jira4Client < TicketClient
       data[:reporter_username] = @client_info.reporter
       data[:assignee_username] = @client_info.assignee
       data[:cvss_score]        = vuln_info[:cvss]
+      data
+    elsif ticket_data[:host_vulns]
+      data = {}
+
+      data[:summary] = ticket_data[:ip] 
+      data[:summary] << (ticket_data[:name] ? "("+ticket_data[:name]+")" : '')
+      data[:summary] << " has " + ticket_data[:host_vulns].length.to_s + " vulnerabilities"
+      data[:environment] = ticket_data[:fingerprint]
+      data[:priority_id] = @client_info.priority_id
+      data[:project_name] = @client_info.project_name
+      data[:issue_type_id] = @client_info.issue_id
+      data[:reporter_username] = @client_info.reporter
+      data[:assignee_username] = @client_info.assignee
+
+      data[:description] = ''
+      ticket_data[:host_vulns].each do |vuln|
+        vuln_info = VulnInfo.find_by_vuln_id(vuln[0])
+        data[:description] << vuln_info.vuln_data[:description]
+      end
       data
     else
       #test ticket for now...

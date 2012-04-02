@@ -48,8 +48,6 @@ class TicketAggregator
       # Don't process inactive modules
       next unless ticket_config.is_active
 
-      p ticket_params.inspect
-
       ticket_scope_id = ticket_config.scope_id
       #hardcode ticketing scope for now, since the above line was failing
       #ticket_scope_id = 1
@@ -65,13 +63,15 @@ class TicketAggregator
 
       case ticket_scope_id
         when 1
-          p "Using ticket per vuln per device scope."
+          @logger.add_log_message "Using ticket per vuln per device scope."
           ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          p "Done building ticket data for ticket per vuln per device scope"
         when 2
-          p "Using ticket per device scope."
-          ticket_data = DeviceScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          @logger.add_log_message "Using ticket per device scope."
+          ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          p "Done building ticket data for ticket per device"
         when 3
-          p "Using ticket per vuln scope."
+          @logger.add_log_message "Using ticket per vuln scope."
           ticket_data = VulnScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         else
           raise "Invalid ticket scope encountered #{ticket_scope_id}"
@@ -94,10 +94,9 @@ class TicketAggregator
     # This needs to be the last thing done as it marks successful completion of ticket processing.
     TicketManager.instance.get_ticket_processing_queue.delete(ticket_params)
   rescue Exception => e
-    p e.message
-    p e.backtrace
     # TODO: Tie in actually logging and move this to that
-    @logger.add_log_message "[!] Error in build and storage of tickets: #{e.backtrace}"
+    @logger.add_log_message "[!] Error in build and storage of tickets: #{e.message}"
+    @logger.add_log_message "#{e.backtrace}"
 
     # In case of an exception move this ticket to the back of the queue.
     TicketManager.instance.get_ticket_processing_queue.delete(ticket_params)
