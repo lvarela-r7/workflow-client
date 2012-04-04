@@ -101,6 +101,8 @@ class VulnDeviceScope
           unless self.ticket_created_or_to_be_processed?(ticket_data)
             if rule_manager.passes_rules?(ticket_data)
               res << ticket_data
+            else
+              p "Didn't pass ticket rule." + ticket_data[:vuln_id] + " " + vuln_info.inspect
             end
           end
         # Process Non-vulnerable items

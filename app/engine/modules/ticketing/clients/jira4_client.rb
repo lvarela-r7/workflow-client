@@ -111,7 +111,7 @@ class Jira4Client < TicketClient
 
     formatter = get_formatter ticket_data[:formatter].to_s
     vuln_id = ticket_data[:vuln_id]
-
+    
     if vuln_id and not vuln_id.empty?
       vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
       raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
@@ -163,6 +163,25 @@ class Jira4Client < TicketClient
       ticket_data[:host_vulns].each do |vuln|
         vuln_info = VulnInfo.find_by_vuln_id(vuln[0])
         data[:description] << vuln_info.vuln_data[:description]
+      end
+      data
+    elsif ticket_data[:hosts] #PerVuln scope
+      data = {}
+
+      vuln_info = VulnInfo.find_by_vuln_id(ticket_data[:ticket_id])
+      data[:description] = vuln_info.vuln_data[:description]
+
+      data[:summary] = ticket_data[:hosts].length.to_s + " hosts are vulnerable to "
+      data[:summary] << ticket_data[:ticket_id]
+      data[:priority_id] = @client_info.priority_id
+      data[:project_name] = @client_info.project_name
+      data[:issue_type_id] = @client_info.issue_id
+      data[:reporter_username] = @client_info.reporter
+      data[:assignee_username] = @client_info.assignee
+
+      #data[:description] = ''
+      ticket_data[:hosts].each do |host|
+        data[:description] << host[:ip]
       end
       data
     else

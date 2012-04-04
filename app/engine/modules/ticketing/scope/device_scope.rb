@@ -48,10 +48,6 @@ class DeviceScope
       ticket_id = self.get_ticket_key(ticket_data)
       ticket_data[:ticket_id] = ticket_id
 
-      query_key = name + nexpose_host + "#{device_id}" 
-
-      vuln_tickets << {:ticket_id => ticket_id, :query_key => query_key}
-
       if !self.ticket_created_or_to_be_processed?(ticket_data)
         if rule_manager.passes_rules?(ticket_data)
           res << ticket_data

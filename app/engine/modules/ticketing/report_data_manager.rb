@@ -51,6 +51,7 @@ class ReportDataManager
     while data.to_s.length < 91
       data = adhoc_report_generator.generate
     end
+
     data
   end
 

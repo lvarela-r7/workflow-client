@@ -61,24 +61,29 @@ class TicketAggregator
                                    :scan_id => ticket_params[:scan_id].to_s, 
                                    :module => module_name).exists?
 
+      begin
       case ticket_scope_id
         when 1
           @logger.add_log_message "Using ticket per vuln per device scope."
           ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
-          p "Done building ticket data for ticket per vuln per device scope"
         when 2
           @logger.add_log_message "Using ticket per device scope."
           ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
-          p "Done building ticket data for ticket per device"
         when 3
           @logger.add_log_message "Using ticket per vuln scope."
-          ticket_data = VulnScope.build_ticket_data(site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         else
           raise "Invalid ticket scope encountered #{ticket_scope_id}"
       end
+      rescue Exception => e
+        p e.message
+        p e.backtrace
+      end
 
-      # Now create each ticket
+      begin
+      # Now create eac ticket
       ticket_data.each do |ticket|
+        next if ticket.kind_of? String
         ticket_id = ticket[:ticket_id]
         unless ticket_in_creation_queue?(ticket_id)
           # Add the NSC host address
@@ -86,6 +91,10 @@ class TicketAggregator
           ticket[:ticket_config] = ticket_config
           TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
         end
+      end
+      rescue Exception => e
+        p e.message
+        p e.backtrace
       end
 
       ScansProcessed.create(:scan_id => scan_id, :host => nexpose_host, :module => module_name)
