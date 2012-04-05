@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-class WSDLUtil
+class WSDLUtilJira
   # TODO: Array parsing and representation
 
   FILE_TYPES = ['base64Binary']

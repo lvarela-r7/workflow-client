@@ -1,8 +1,8 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/model_helper'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/util'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../engine/misc/model_helper'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../engine/misc/util'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_parser'))
 require File.expand_path(File.join(File.dirname(__FILE__), '../engine/net/wsdl_utility'))
-require File.expand_path(File.join(File.dirname(__FILE__), '../../lib/cache'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../engine/misc/cache'))
 
 #-----------------------------------------------------------------------------------------------------------------------
 # == Synopsis
