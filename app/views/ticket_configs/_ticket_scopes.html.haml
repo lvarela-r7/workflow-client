@@ -1,0 +1,11 @@
+= f.fields_for :ticketing_scope do |scope_data|
+  %fieldset{:style => 'width:auto;'}
+    - first = true
+    - TicketingScope.all.each do |scope|
+      =radio_button_tag 'ticket_config[scope_id]', scope.id, first, {}
+      %b
+        = scope.name
+      %p
+        = scope.description
+      %br
+      - if first == true then first = false end
