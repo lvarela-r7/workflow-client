@@ -142,10 +142,17 @@ class TicketManager < Poller
 
         ticket_data = ticket_to_be_processed.ticket_data
         ticket_id = ticket_to_be_processed.ticket_id
-
+        
+        #p ticket_data.inspect
         # Initialize the ticket client
         client_connector = ticket_data[:client_connector].to_s
         ticket_client = Object.const_get(client_connector).new(ticket_data)
+
+        p ticket_client.class
+        if ticket_client.kind_of? SOAPClient
+          ticket_mappings = SoapClientConfigs.find_by_id(ticket_client.ticket_client_id)
+          p ticket_mappings.inspect
+        end
 
         host = ticket_data[:nsc_host]
 

@@ -32,17 +32,20 @@ class VulnDeviceScope
 
     # Need to set the client_connector as part of the data returned
     c = Object.const_get(ticket_config.ticket_client_type.to_s)
-    ticket_client_info = TicketClients.find_by_client(c.client_name)
-    client_connector = ticket_client_info.client_connector.to_s
+   
+    ticket_client_info = nil
+    if not c.respond_to? :client_name
+      ticket_client_info = TicketClients.find_by_client('SOAP supported') 
+    else
+      ticket_client_info = TicketClients.find_by_client(c.client_name)
+    end
 
-    # Need to set the formatter too
+    client_connector = ticket_client_info.client_connector
     formatter = ticket_client_info.formatter
 
     host_data_array.each do |host_data|
-
       ip = host_data['addr']
       names = host_data['names']
-
       device_id = self.get_device_id(ip, site_device_listing)
 
       # Just take the first name
@@ -102,7 +105,7 @@ class VulnDeviceScope
             if rule_manager.passes_rules?(ticket_data)
               res << ticket_data
             else
-              p "Didn't pass ticket rule." + ticket_data[:vuln_id] + " " + vuln_info.inspect
+              p "Didn't pass ticket rule: " + ticket_data[:vuln_id] + " " + vuln_info.inspect
             end
           end
         # Process Non-vulnerable items

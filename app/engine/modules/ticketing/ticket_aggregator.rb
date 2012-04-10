@@ -46,8 +46,10 @@ class TicketAggregator
     ticket_configs = TicketConfig.all
     ticket_configs.each do |ticket_config|
       # Don't process inactive modules
+      p ticket_config.inspect
       next unless ticket_config.is_active
 
+      begin
       ticket_scope_id = ticket_config.scope_id
       #hardcode ticketing scope for now, since the above line was failing
       #ticket_scope_id = 1
@@ -60,7 +62,10 @@ class TicketAggregator
       next if ScansProcessed.where(:host => nexpose_host,
                                    :scan_id => ticket_params[:scan_id].to_s, 
                                    :module => module_name).exists?
-
+      rescue Exception => e
+        p e.message
+        p e.backtrace
+      end
       begin
       case ticket_scope_id
         when 1

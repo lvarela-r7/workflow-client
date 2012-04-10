@@ -10,7 +10,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'ticket_client'))
 # == Author
 # Brandon Perry Brandon_Perry@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
-class SoapClient < TicketClient
+class SOAPClient < TicketClient
 
   def initialize method, auth_data, endpoint
     @client = Savon::Client.new do
@@ -29,36 +29,6 @@ class SoapClient < TicketClient
     @soap_body_content = {}
     @method = method
     @endpoint = endpoint
-  end
-
-  #-------------------------------------------------------------------------------------------------------------------
-  # Creates a test ticket within a soap endpoint.
-  #-------------------------------------------------------------------------------------------------------------------
-  def create_test_ticket
-    ticket_data = {}
-
-    ticket_data[:submitter] = "Brandon Perry"
-    ticket_data[:assigned_to] = "Chris Lee"
-    ticket_data[:status] = "New"
-    ticket_data[:short_description] = "A short description about the ticket"
-    ticket_data[:license_type] = "Uber Pro Platinum with extra Awesome"
-    ticket_data[:qualifier] = "PhD"
-    ticket_data[:number_of_licenses] = "Sagan"
-    ticket_data[:key] = "m3t4spl01t+n3xp0s3=4w350m3"
-    ticket_data[:expiration_date] = "9/9/9999"
-    ticket_data[:license_key] = "p1r4t3m0nk3y"
-    ticket_data[:host_id] = "192.168.1.111"
-    ticket_data[:overwrite_license] = "1"
-    ticket_data[:exportimportattach_attachment_name] = "Attachment #1"
-    ticket_data[:exportimportattach_attachment_data] = "qwertyuiopasdfghjklzxcbnm"
-    ticket_data[:exportimportattach_attachment_orig_size] = "123"
-    ticket_data[:produseattachment_attachment_name] = "Attachment #2"
-    ticket_data[:produseattachment_attachment_data] = "mnbvcxzlkjhgfdsapoiuytrewq"
-    ticket_data[:produseattachment_attachment_orig_size] = "456"
-    ticket_data[:z_temp_integer] = "1337"
-
-    insert_ticket ticket_data
-    
   end
 
   def insert_ticket ticket_data

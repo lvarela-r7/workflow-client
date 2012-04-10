@@ -54,9 +54,7 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def create
     if not create_test_ticket? and not wsdl_upload?
-      p params[:ticket_config].inspect
       @ticket_client = load_ticket_client_data
-
       begin
         @ticket_client.build_ticket_config(params[:ticket_config])
       rescue Exception => e
@@ -228,7 +226,6 @@ class TicketConfigsController < ApplicationController
         @jira3_ticket_config = Jira3TicketConfig.new params[:jira3_config]
       rescue
         @ticket_config = TicketConfig.new
-        p @ticket_config.inspect
       end
     end
   end

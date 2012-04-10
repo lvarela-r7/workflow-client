@@ -48,7 +48,7 @@ class Util
 
           input.each do |p|
             output = p.to_s
-            output.squeeze!
+            #output.squeeze!
             output.gsub!(/[\r\n\t]/, '\r' => '', '\n' => '', '\t' => '')
             output.chomp!
             unless output.empty?

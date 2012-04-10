@@ -181,7 +181,7 @@ class Jira4Client < TicketClient
 
       #data[:description] = ''
       ticket_data[:hosts].each do |host|
-        data[:description] << host[:ip]
+        data[:description] << "|" + host[:ip]
       end
       data
     else

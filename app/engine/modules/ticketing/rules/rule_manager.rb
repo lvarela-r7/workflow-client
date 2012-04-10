@@ -27,15 +27,25 @@ class RuleManager
       ticket.merge! vuln_hash
 
       @rules.each do |rule|
+        p rule.inspect
         unless rule.passes_rule? ticket['vuln_data']
           return false
         end
       end
-    else
-      true
+    else #ticket per device?
+      device_data = {}
+      device_data[:ip] = ticket[:ip]
+      device_data[:name] = ticket[:name]
+
+      @rules.each do |rule|
+        p rule.inspect
+        unless rule.passes_rule? device_data
+          return false
+        end
+      end
     end
 
-    true
+    return true
   end
 
   #

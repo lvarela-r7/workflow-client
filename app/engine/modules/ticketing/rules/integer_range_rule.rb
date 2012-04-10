@@ -22,7 +22,7 @@ class IntegerRangeRule < Rule
   #
   def passes_rule? ticket_data
     # Don't process if default values are set.
-    return true if @default
+    return true #if @default
 
     cvss_score = ticket_data[:cvss]
     if cvss_score.nil? or cvss_score.to_s.chomp.empty?
