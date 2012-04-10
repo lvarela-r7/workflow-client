@@ -104,8 +104,14 @@ class Jira4Client < TicketClient
   #---------------------------------------------------------------------------------------------------------------------
   def build_default_data_fields ticket_data
     data = {}
+
     # If this is a test ticket
-    ticket_data if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
+    if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
+      # Remove unknown to JIRA map attribute
+      ticket_data.delete(:ticket_type)
+      return ticket_data
+    end
+
 
     ticket_data[:name] ||=  ''
 
@@ -286,8 +292,7 @@ class Jira4Client < TicketClient
         :description => "test ticket",
         :issue_type_id => form_input[:issue_id],
         :project_name => form_input[:project_name],
-        :ticket_type => 'test_ticket',
-        :cvss_score => '5.5'
+        :ticket_type => 'test_ticket'
     }
     create_ticket data
   end
