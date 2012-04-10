@@ -165,7 +165,7 @@ class TicketConfigsController < ApplicationController
           @ticket_type = "SOAP supported"
       end
 
-      if msg
+      if !msg
         flash[:error] = msg
       else
         flash[:notice] = 'Ticket created successfully'
