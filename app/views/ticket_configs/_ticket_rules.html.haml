@@ -35,8 +35,12 @@
       %legend
         %b IP Whitelist/Blacklist
       %dl
-        = rule_data.check_box :ip_list_is_whitelist, {:checked => false}
-        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+        = rule_data.label :whitelist, "Whitelist"
+        = rule_data.radio_button :ip_list_is_whitelist, true, { :checked => true }
+      %dl
+        = rule_data.label :blacklist, "Blacklist"
+        = rule_data.radio_button :ip_list_is_whitelist, false
+
       %dl
         = rule_data.label :ip, "IP List separated by newline. Values accepted are CIDR ranges and specific IP addresses.", :class => :blocked_label
         = rule_data.text_area :ip_list, {:size => "40x10"}
@@ -44,8 +48,11 @@
       %legend
         %b DNS Resolved Hostname Whitelist/Blacklist
       %dl
-        = rule_data.check_box :dns_hostname_list_is_whitelist, {:checked => false}
-        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+        = rule_data.label :whitelist, "Whitelist"
+        = rule_data.radio_button :dns_hostname_list_is_whitelist, true, { :checked => true }
+      %dl
+        = rule_data.label :blacklist, "Blacklist"
+        = rule_data.radio_button :dns_hostname_list_is_whitelist, false
       %dl
         = rule_data.label :dns, "DNS Hostname list separated by newline.", :class => :blocked_label
         = rule_data.text_area :dns_hostname_list, {:size => "40x10"}
@@ -53,8 +60,11 @@
       %legend
         %b DNS Resolved Hostname PCRE Whitelist/Blacklist
       %dl
-        = rule_data.check_box :dns_hostname_pcre_list_is_whitelist, {:checked => false}
-        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+        = rule_data.label :whitelist, "Whitelist"
+        = rule_data.radio_button :dns_hostname_pcre_list_is_whitelist,true, { :checked => true }
+      %dl
+        = rule_data.label :blacklist, "Blacklist"
+        = rule_data.radio_button :dns_hostname_pcre_list_is_whitelist, false
       %dl
         = rule_data.label :dns, "DNS Hostname Perl Compatible Regular Expressions separated by newline.", :class => :blocked_label
         = rule_data.text_area :dns_hostname_pcre_list, {:size => "40x10"}
@@ -62,8 +72,11 @@
       %legend
         %b NeXpose Site Whitelist/Blacklist
       %dl
-        = rule_data.check_box :site_list_is_whitelist, {:checked => false}
-        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not check is equivalent to blacklist."
+        = rule_data.label :whitelist, "Whitelist"
+        = rule_data.radio_button :site_list_is_whitelist, true, { :checked => true } 
+      %dl
+        = rule_data.label :blacklist, "Blacklist"
+        = rule_data.radio_button :site_list_is_whitelist, false
       %dl
         = rule_data.label :sites, "Site list separated by a newline.", :class => :blocked_label
         = rule_data.text_area :site_list, {:size => "40x10"}
@@ -71,8 +84,11 @@
       %legend
         %b NeXpose Site PCRE Whitelist/Blacklist
       %dl
-        = rule_data.check_box :site_pcre_list_is_whitelist, {:checked => false}
-        = rule_data.label :rule_is_whitelist, "Rule is whitelist. Not checked is equivalent to blacklist."
+        = rule_data.label :whitelist, "Whitelist"
+        = rule_data.radio_button :site_pcre_list_is_whitelist, true, { :checked => true }
+      %dl
+        = rule_data.label :blacklist, "Blacklist"
+        = rule_data.radio_button :site_pcre_list_is_whitelist, false
       %dl
         = rule_data.label :site_pcre_list, "Site Perl Compatible Regular Expression list separated by newline.", :class => :blocked_label
         = rule_data.text_area :site_pcre_list, {:size => "40x10"}
