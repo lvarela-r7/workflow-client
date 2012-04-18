@@ -58,4 +58,5 @@ class RuleManager
       @engine = e
     end
   end
-end=end
+end
+=end

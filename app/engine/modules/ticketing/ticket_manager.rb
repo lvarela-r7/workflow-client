@@ -142,16 +142,37 @@ class TicketManager < Poller
 
         ticket_data = ticket_to_be_processed.ticket_data
         ticket_id = ticket_to_be_processed.ticket_id
-        
-        #p ticket_data.inspect
+
         # Initialize the ticket client
         client_connector = ticket_data[:client_connector].to_s
         ticket_client = Object.const_get(client_connector).new(ticket_data)
 
-        p ticket_client.class
-        if ticket_client.kind_of? SOAPClient
-          ticket_mappings = SoapClientConfigs.find_by_id(ticket_client.ticket_client_id)
-          p ticket_mappings.inspect
+        if ticket_client.kind_of? GenericSoapClient
+          ticket_mappings = SOAPTicketConfig.find_by_id(ticket_data[:ticket_config].ticket_client_id)
+
+          ticket_client.configure ticket_mappings
+
+          soap_ticket_data = {}
+          soap_ticket_data[:nsc_host] = ticket_data[:nsc_host]
+          soap_ticket_data[:proof] = ticket_data[:proof]
+          soap_ticket_data[:ticket_op] = ticket_data[:ticket_op]
+          soap_ticket_data[:body] = {}
+          soap_ticket_data[:headers] = {}
+
+          op = ticket_mappings.mappings[:operation].split '|'
+
+          soap_ticket_data[:port] = op[0]
+          soap_ticket_data[:operation] = op[1]
+        
+          ticket_mappings.mappings[:body].each do |key, value|
+            soap_ticket_data[:body][key] = value
+          end
+
+          ticket_mappings.mappings[:headers].each do |key, value|
+            soap_ticket_data[:headers][key] = value
+          end
+
+          ticket_data = soap_ticket_data
         end
 
         host = ticket_data[:nsc_host]

@@ -46,7 +46,6 @@ class TicketAggregator
     ticket_configs = TicketConfig.all
     ticket_configs.each do |ticket_config|
       # Don't process inactive modules
-      p ticket_config.inspect
       next unless ticket_config.is_active
 
       begin

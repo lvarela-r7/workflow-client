@@ -43,7 +43,11 @@ class TicketConfigsController < ApplicationController
   def edit
     @ticket_config = TicketConfig.find(params[:id])
     @ticket_type = get_ticket_type(@ticket_config.ticket_client_type)
+
     @ticket_mappings = @ticket_config.ticket_mapping
+
+    p @ticket_mappings.inspect
+
     @ticket_rules = @ticket_config.ticket_rule
 
     load_defaults
@@ -124,6 +128,8 @@ class TicketConfigsController < ApplicationController
 
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         @input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, @operation)
+
+        p @input_map.inspect
         ticket_client = SOAPTicketConfig.new
         ticket_client.mappings = @input_map
         @ticket_type = "SOAP supported"
@@ -268,9 +274,9 @@ class TicketConfigsController < ApplicationController
         soap_config = @ticket_config.ticket_client
         @input_map = soap_config.mappings
         # Important: de-serialized data is not converted to symbols, even if stored as such
-        wsdl_file_name = @input_map['wsdl_file_name']
+        wsdl_file_name = @input_map[:wsdl_file_name]
         load_wsdl_ops wsdl_file_name
-        @selected_soap_op_id = @input_map['selected_soap_id'].chomp.to_i
+        @selected_soap_op_id = @input_map[:selected_soap_id].chomp.to_i
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         session[:wsdl_file_name] = wsdl_file_name
         return 'SOAP supported'

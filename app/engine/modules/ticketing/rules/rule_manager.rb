@@ -14,7 +14,6 @@ class RuleManager
   # on a ticket object.
   #
   def passes_rules?(ticket)
-    p "Checking rules..."
     vuln_id = ticket[:vuln_id]
     vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
     if vuln_info
@@ -27,7 +26,6 @@ class RuleManager
       ticket.merge! vuln_hash
 
       @rules.each do |rule|
-        p rule.inspect
         unless rule.passes_rule? ticket['vuln_data']
           return false
         end
@@ -38,7 +36,6 @@ class RuleManager
       device_data[:name] = ticket[:name]
 
       @rules.each do |rule|
-        p rule.inspect
         unless rule.passes_rule? device_data
           return false
         end
