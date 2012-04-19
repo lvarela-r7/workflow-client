@@ -1,0 +1,1003 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://remedymsprod.chboston.org/" xmlns:s1="http://remedymsprod.chboston.org/AbstractTypes" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://remedymsprod.chboston.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://remedymsprod.chboston.org/">
+      <s:element name="CreateHelpDeskTicket">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Asset_Tag_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Group" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Individual" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="CaseType" type="tns:Case_Type" />
+            <s:element minOccurs="0" maxOccurs="1" name="Category" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Item" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Department" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Floor" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Jack_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Location" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="Priority" type="tns:Priority_Type" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_Login_Name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_Name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Room_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="RQT_Login_Name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="Source" type="tns:Source_Type" />
+            <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:Status_Type" />
+            <s:element minOccurs="0" maxOccurs="1" name="Summary" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Work_Log" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="AttachmentName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="AttachmentData" type="s:base64Binary" />
+            <s:element minOccurs="1" maxOccurs="1" name="AttachmentSize" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="External_Record_ID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="Case_Type">
+        <s:restriction base="s:string">
+          <s:enumeration value="Incident" />
+          <s:enumeration value="Question" />
+          <s:enumeration value="Request" />
+          <s:enumeration value="Favor" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="Priority_Type">
+        <s:restriction base="s:string">
+          <s:enumeration value="Standard" />
+          <s:enumeration value="Standard_Expedite" />
+          <s:enumeration value="High" />
+          <s:enumeration value="Urgent" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="Source_Type">
+        <s:restriction base="s:string">
+          <s:enumeration value="Phone" />
+          <s:enumeration value="Requester" />
+          <s:enumeration value="Email" />
+          <s:enumeration value="Web" />
+          <s:enumeration value="NMP" />
+          <s:enumeration value="Courion" />
+          <s:enumeration value="IaM" />
+          <s:enumeration value="ISDNotifier" />
+          <s:enumeration value="PrinterMgr" />
+          <s:enumeration value="BESWeb" />
+          <s:enumeration value="AMS" />
+          <s:enumeration value="ADM" />
+          <s:enumeration value="SEM" />
+          <s:enumeration value="ResComp" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="Status_Type">
+        <s:restriction base="s:string">
+          <s:enumeration value="Assigned" />
+          <s:enumeration value="Resolved" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="CreateHelpDeskTicketResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHelpDeskTicketResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHelpDeskTicketBasic">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Asset_Tag_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Group" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Individual" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="CaseType" type="tns:Case_Type" />
+            <s:element minOccurs="0" maxOccurs="1" name="Category" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Item" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Department" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Floor" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Jack_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Location" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="Priority" type="tns:Priority_Type" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_Login_Name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_Name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Room_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="RQT_Login_Name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="Source" type="tns:Source_Type" />
+            <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:Status_Type" />
+            <s:element minOccurs="0" maxOccurs="1" name="Summary" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Work_Log" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="External_Record_ID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHelpDeskTicketBasicResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHelpDeskTicketBasicResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateChangeRequestBasic">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Asset_Tag_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Group" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Individual" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="CaseType" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Category" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Type" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Item" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Department" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Floor" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Jack_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Location" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Priority" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_ID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_Login_Name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Requester_Name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Room_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Source" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Status" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Summary" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Work_Log" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="External_Record_ID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateChangeRequestBasicResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateChangeRequestBasicResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateChangeRequestNeXpose">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Asset_Tag_" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Group" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Assigned_To_Individual" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Department" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Priority" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Source" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateChangeRequestNeXposeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateChangeRequestNeXposeResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HelpDeskTicketIsOpen">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CaseID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="CallingApplicationFriendlyName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HelpDeskTicketIsOpenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="HelpDeskTicketIsOpenResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAMSComputerSystemDataByAssetID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AssetID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="callingApplicationFriendlyName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAMSComputerSystemDataByAssetIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAMSComputerSystemDataByAssetIDResult" type="tns:ArrayOfAnyType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfAnyType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="anyType" nillable="true" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAMSComputerSystemDataByInstanceId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InstanceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="callingApplicationFriendlyName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAMSComputerSystemDataByInstanceIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAMSComputerSystemDataByInstanceIdResult" type="tns:ArrayOfAnyType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetComputerSystemLocationByAssetID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AssetID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="callingApplicationFriendlyName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetComputerSystemLocationByAssetIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetComputerSystemLocationByAssetIDResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="ArrayOfAnyType" nillable="true" type="tns:ArrayOfAnyType" />
+      <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
+    </s:schema>
+    <s:schema targetNamespace="http://remedymsprod.chboston.org/AbstractTypes">
+      <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:complexType name="StringArray">
+        <s:complexContent mixed="false">
+          <s:restriction base="soapenc:Array">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="unbounded" name="String" type="s:string" />
+            </s:sequence>
+          </s:restriction>
+        </s:complexContent>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="CreateHelpDeskTicketSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHelpDeskTicket" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHelpDeskTicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketBasicSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHelpDeskTicketBasic" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketBasicSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHelpDeskTicketBasicResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestBasicSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateChangeRequestBasic" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestBasicSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateChangeRequestBasicResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestNeXposeSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateChangeRequestNeXpose" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestNeXposeSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateChangeRequestNeXposeResponse" />
+  </wsdl:message>
+  <wsdl:message name="HelpDeskTicketIsOpenSoapIn">
+    <wsdl:part name="parameters" element="tns:HelpDeskTicketIsOpen" />
+  </wsdl:message>
+  <wsdl:message name="HelpDeskTicketIsOpenSoapOut">
+    <wsdl:part name="parameters" element="tns:HelpDeskTicketIsOpenResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByAssetIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAMSComputerSystemDataByAssetID" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByAssetIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAMSComputerSystemDataByAssetIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByInstanceIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAMSComputerSystemDataByInstanceId" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByInstanceIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAMSComputerSystemDataByInstanceIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetComputerSystemLocationByAssetIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetComputerSystemLocationByAssetID" />
+  </wsdl:message>
+  <wsdl:message name="GetComputerSystemLocationByAssetIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetComputerSystemLocationByAssetIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketHttpGetIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="CaseType" type="s:string" />
+    <wsdl:part name="Category" type="s:string" />
+    <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="Item" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Floor" type="s:string" />
+    <wsdl:part name="Jack_" type="s:string" />
+    <wsdl:part name="Location" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Requester_ID" type="s:string" />
+    <wsdl:part name="Requester_Login_Name" type="s:string" />
+    <wsdl:part name="Requester_Name" type="s:string" />
+    <wsdl:part name="Room_" type="s:string" />
+    <wsdl:part name="RQT_Login_Name" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+    <wsdl:part name="Status" type="s:string" />
+    <wsdl:part name="Summary" type="s:string" />
+    <wsdl:part name="Work_Log" type="s:string" />
+    <wsdl:part name="AttachmentName" type="s:string" />
+    <wsdl:part name="AttachmentData" type="s1:StringArray" />
+    <wsdl:part name="AttachmentSize" type="s:string" />
+    <wsdl:part name="External_Record_ID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketBasicHttpGetIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="CaseType" type="s:string" />
+    <wsdl:part name="Category" type="s:string" />
+    <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="Item" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Floor" type="s:string" />
+    <wsdl:part name="Jack_" type="s:string" />
+    <wsdl:part name="Location" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Requester_ID" type="s:string" />
+    <wsdl:part name="Requester_Login_Name" type="s:string" />
+    <wsdl:part name="Requester_Name" type="s:string" />
+    <wsdl:part name="Room_" type="s:string" />
+    <wsdl:part name="RQT_Login_Name" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+    <wsdl:part name="Status" type="s:string" />
+    <wsdl:part name="Summary" type="s:string" />
+    <wsdl:part name="Work_Log" type="s:string" />
+    <wsdl:part name="External_Record_ID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketBasicHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestBasicHttpGetIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="CaseType" type="s:string" />
+    <wsdl:part name="Category" type="s:string" />
+    <wsdl:part name="Type" type="s:string" />
+    <wsdl:part name="Item" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Floor" type="s:string" />
+    <wsdl:part name="Jack_" type="s:string" />
+    <wsdl:part name="Location" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Requester_ID" type="s:string" />
+    <wsdl:part name="Requester_Login_Name" type="s:string" />
+    <wsdl:part name="Requester_Name" type="s:string" />
+    <wsdl:part name="Room_" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+    <wsdl:part name="Status" type="s:string" />
+    <wsdl:part name="Summary" type="s:string" />
+    <wsdl:part name="Work_Log" type="s:string" />
+    <wsdl:part name="External_Record_ID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestBasicHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestNeXposeHttpGetIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestNeXposeHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="HelpDeskTicketIsOpenHttpGetIn">
+    <wsdl:part name="CaseID" type="s:string" />
+    <wsdl:part name="CallingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HelpDeskTicketIsOpenHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByAssetIDHttpGetIn">
+    <wsdl:part name="AssetID" type="s:string" />
+    <wsdl:part name="callingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByAssetIDHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfAnyType" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByInstanceIdHttpGetIn">
+    <wsdl:part name="InstanceId" type="s:string" />
+    <wsdl:part name="callingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByInstanceIdHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfAnyType" />
+  </wsdl:message>
+  <wsdl:message name="GetComputerSystemLocationByAssetIDHttpGetIn">
+    <wsdl:part name="AssetID" type="s:string" />
+    <wsdl:part name="callingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetComputerSystemLocationByAssetIDHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketHttpPostIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="CaseType" type="s:string" />
+    <wsdl:part name="Category" type="s:string" />
+    <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="Item" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Floor" type="s:string" />
+    <wsdl:part name="Jack_" type="s:string" />
+    <wsdl:part name="Location" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Requester_ID" type="s:string" />
+    <wsdl:part name="Requester_Login_Name" type="s:string" />
+    <wsdl:part name="Requester_Name" type="s:string" />
+    <wsdl:part name="Room_" type="s:string" />
+    <wsdl:part name="RQT_Login_Name" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+    <wsdl:part name="Status" type="s:string" />
+    <wsdl:part name="Summary" type="s:string" />
+    <wsdl:part name="Work_Log" type="s:string" />
+    <wsdl:part name="AttachmentName" type="s:string" />
+    <wsdl:part name="AttachmentData" type="s1:StringArray" />
+    <wsdl:part name="AttachmentSize" type="s:string" />
+    <wsdl:part name="External_Record_ID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketBasicHttpPostIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="CaseType" type="s:string" />
+    <wsdl:part name="Category" type="s:string" />
+    <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="Item" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Floor" type="s:string" />
+    <wsdl:part name="Jack_" type="s:string" />
+    <wsdl:part name="Location" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Requester_ID" type="s:string" />
+    <wsdl:part name="Requester_Login_Name" type="s:string" />
+    <wsdl:part name="Requester_Name" type="s:string" />
+    <wsdl:part name="Room_" type="s:string" />
+    <wsdl:part name="RQT_Login_Name" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+    <wsdl:part name="Status" type="s:string" />
+    <wsdl:part name="Summary" type="s:string" />
+    <wsdl:part name="Work_Log" type="s:string" />
+    <wsdl:part name="External_Record_ID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateHelpDeskTicketBasicHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestBasicHttpPostIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="CaseType" type="s:string" />
+    <wsdl:part name="Category" type="s:string" />
+    <wsdl:part name="Type" type="s:string" />
+    <wsdl:part name="Item" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Floor" type="s:string" />
+    <wsdl:part name="Jack_" type="s:string" />
+    <wsdl:part name="Location" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Requester_ID" type="s:string" />
+    <wsdl:part name="Requester_Login_Name" type="s:string" />
+    <wsdl:part name="Requester_Name" type="s:string" />
+    <wsdl:part name="Room_" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+    <wsdl:part name="Status" type="s:string" />
+    <wsdl:part name="Summary" type="s:string" />
+    <wsdl:part name="Work_Log" type="s:string" />
+    <wsdl:part name="External_Record_ID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestBasicHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestNeXposeHttpPostIn">
+    <wsdl:part name="Asset_Tag_" type="s:string" />
+    <wsdl:part name="Assigned_To_Group" type="s:string" />
+    <wsdl:part name="Assigned_To_Individual" type="s:string" />
+    <wsdl:part name="Department" type="s:string" />
+    <wsdl:part name="Description" type="s:string" />
+    <wsdl:part name="Priority" type="s:string" />
+    <wsdl:part name="Source" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CreateChangeRequestNeXposeHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="HelpDeskTicketIsOpenHttpPostIn">
+    <wsdl:part name="CaseID" type="s:string" />
+    <wsdl:part name="CallingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HelpDeskTicketIsOpenHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByAssetIDHttpPostIn">
+    <wsdl:part name="AssetID" type="s:string" />
+    <wsdl:part name="callingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByAssetIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfAnyType" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByInstanceIdHttpPostIn">
+    <wsdl:part name="InstanceId" type="s:string" />
+    <wsdl:part name="callingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAMSComputerSystemDataByInstanceIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfAnyType" />
+  </wsdl:message>
+  <wsdl:message name="GetComputerSystemLocationByAssetIDHttpPostIn">
+    <wsdl:part name="AssetID" type="s:string" />
+    <wsdl:part name="callingApplicationFriendlyName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetComputerSystemLocationByAssetIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:portType name="Service1Soap">
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a Help Desk Ticket w/up to 1 attachment. Returns either an HD Case ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateHelpDeskTicketSoapIn" />
+      <wsdl:output message="tns:CreateHelpDeskTicketSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a Help Desk Ticket w/no attachments. Returns either an HD Case ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateHelpDeskTicketBasicSoapIn" />
+      <wsdl:output message="tns:CreateHelpDeskTicketBasicSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a ChangeRequest w/no attachments. Returns either an Change ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateChangeRequestBasicSoapIn" />
+      <wsdl:output message="tns:CreateChangeRequestBasicSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a ChangeRequest for NeXpose w/no attachments. Returns either an Change ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateChangeRequestNeXposeSoapIn" />
+      <wsdl:output message="tns:CreateChangeRequestNeXposeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Checks the status of a Help Desk Ticket. Returns True if open and False if Resolved or Closed.</wsdl:documentation>
+      <wsdl:input message="tns:HelpDeskTicketIsOpenSoapIn" />
+      <wsdl:output message="tns:HelpDeskTicketIsOpenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns and ArrayList of ComputerSystem and Associated user Infomation. As there may be more than one user per asset the length of the ArrayList will vary and A UserCount Attribute is returned. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetAMSComputerSystemDataByAssetIDSoapIn" />
+      <wsdl:output message="tns:GetAMSComputerSystemDataByAssetIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns and ArrayList of ComputerSystem and Associated user Infomation. As there may be more than one user per asset the length of the ArrayList will vary and A UserCount Attribute is returned. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetAMSComputerSystemDataByInstanceIdSoapIn" />
+      <wsdl:output message="tns:GetAMSComputerSystemDataByInstanceIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns an Array of ComputerSystem location Infomation. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetComputerSystemLocationByAssetIDSoapIn" />
+      <wsdl:output message="tns:GetComputerSystemLocationByAssetIDSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="Service1HttpGet">
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a Help Desk Ticket w/up to 1 attachment. Returns either an HD Case ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateHelpDeskTicketHttpGetIn" />
+      <wsdl:output message="tns:CreateHelpDeskTicketHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a Help Desk Ticket w/no attachments. Returns either an HD Case ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateHelpDeskTicketBasicHttpGetIn" />
+      <wsdl:output message="tns:CreateHelpDeskTicketBasicHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a ChangeRequest w/no attachments. Returns either an Change ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateChangeRequestBasicHttpGetIn" />
+      <wsdl:output message="tns:CreateChangeRequestBasicHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a ChangeRequest for NeXpose w/no attachments. Returns either an Change ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateChangeRequestNeXposeHttpGetIn" />
+      <wsdl:output message="tns:CreateChangeRequestNeXposeHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Checks the status of a Help Desk Ticket. Returns True if open and False if Resolved or Closed.</wsdl:documentation>
+      <wsdl:input message="tns:HelpDeskTicketIsOpenHttpGetIn" />
+      <wsdl:output message="tns:HelpDeskTicketIsOpenHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns and ArrayList of ComputerSystem and Associated user Infomation. As there may be more than one user per asset the length of the ArrayList will vary and A UserCount Attribute is returned. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetAMSComputerSystemDataByAssetIDHttpGetIn" />
+      <wsdl:output message="tns:GetAMSComputerSystemDataByAssetIDHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns and ArrayList of ComputerSystem and Associated user Infomation. As there may be more than one user per asset the length of the ArrayList will vary and A UserCount Attribute is returned. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetAMSComputerSystemDataByInstanceIdHttpGetIn" />
+      <wsdl:output message="tns:GetAMSComputerSystemDataByInstanceIdHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns an Array of ComputerSystem location Infomation. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetComputerSystemLocationByAssetIDHttpGetIn" />
+      <wsdl:output message="tns:GetComputerSystemLocationByAssetIDHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="Service1HttpPost">
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a Help Desk Ticket w/up to 1 attachment. Returns either an HD Case ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateHelpDeskTicketHttpPostIn" />
+      <wsdl:output message="tns:CreateHelpDeskTicketHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a Help Desk Ticket w/no attachments. Returns either an HD Case ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateHelpDeskTicketBasicHttpPostIn" />
+      <wsdl:output message="tns:CreateHelpDeskTicketBasicHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a ChangeRequest w/no attachments. Returns either an Change ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateChangeRequestBasicHttpPostIn" />
+      <wsdl:output message="tns:CreateChangeRequestBasicHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create a ChangeRequest for NeXpose w/no attachments. Returns either an Change ID # or an error message. All errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:CreateChangeRequestNeXposeHttpPostIn" />
+      <wsdl:output message="tns:CreateChangeRequestNeXposeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Checks the status of a Help Desk Ticket. Returns True if open and False if Resolved or Closed.</wsdl:documentation>
+      <wsdl:input message="tns:HelpDeskTicketIsOpenHttpPostIn" />
+      <wsdl:output message="tns:HelpDeskTicketIsOpenHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns and ArrayList of ComputerSystem and Associated user Infomation. As there may be more than one user per asset the length of the ArrayList will vary and A UserCount Attribute is returned. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetAMSComputerSystemDataByAssetIDHttpPostIn" />
+      <wsdl:output message="tns:GetAMSComputerSystemDataByAssetIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns and ArrayList of ComputerSystem and Associated user Infomation. As there may be more than one user per asset the length of the ArrayList will vary and A UserCount Attribute is returned. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetAMSComputerSystemDataByInstanceIdHttpPostIn" />
+      <wsdl:output message="tns:GetAMSComputerSystemDataByInstanceIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns an Array of ComputerSystem location Infomation. All Errors begin with 'ERROR:'</wsdl:documentation>
+      <wsdl:input message="tns:GetComputerSystemLocationByAssetIDHttpPostIn" />
+      <wsdl:output message="tns:GetComputerSystemLocationByAssetIDHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Service1Soap" type="tns:Service1Soap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/CreateHelpDeskTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/CreateHelpDeskTicketBasic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/CreateChangeRequestBasic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/CreateChangeRequestNeXpose" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/HelpDeskTicketIsOpen" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/GetAMSComputerSystemDataByAssetID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/GetAMSComputerSystemDataByInstanceId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <soap:operation soapAction="http://remedymsprod.chboston.org/GetComputerSystemLocationByAssetID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Service1Soap12" type="tns:Service1Soap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/CreateHelpDeskTicket" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/CreateHelpDeskTicketBasic" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/CreateChangeRequestBasic" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/CreateChangeRequestNeXpose" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/HelpDeskTicketIsOpen" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/GetAMSComputerSystemDataByAssetID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/GetAMSComputerSystemDataByInstanceId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <soap12:operation soapAction="http://remedymsprod.chboston.org/GetComputerSystemLocationByAssetID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Service1HttpGet" type="tns:Service1HttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <http:operation location="/CreateHelpDeskTicket" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <http:operation location="/CreateHelpDeskTicketBasic" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <http:operation location="/CreateChangeRequestBasic" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <http:operation location="/CreateChangeRequestNeXpose" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <http:operation location="/HelpDeskTicketIsOpen" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <http:operation location="/GetAMSComputerSystemDataByAssetID" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <http:operation location="/GetAMSComputerSystemDataByInstanceId" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <http:operation location="/GetComputerSystemLocationByAssetID" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Service1HttpPost" type="tns:Service1HttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="CreateHelpDeskTicket">
+      <http:operation location="/CreateHelpDeskTicket" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHelpDeskTicketBasic">
+      <http:operation location="/CreateHelpDeskTicketBasic" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestBasic">
+      <http:operation location="/CreateChangeRequestBasic" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateChangeRequestNeXpose">
+      <http:operation location="/CreateChangeRequestNeXpose" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelpDeskTicketIsOpen">
+      <http:operation location="/HelpDeskTicketIsOpen" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByAssetID">
+      <http:operation location="/GetAMSComputerSystemDataByAssetID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAMSComputerSystemDataByInstanceId">
+      <http:operation location="/GetAMSComputerSystemDataByInstanceId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetComputerSystemLocationByAssetID">
+      <http:operation location="/GetComputerSystemLocationByAssetID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service1">
+    <wsdl:port name="Service1Soap" binding="tns:Service1Soap">
+      <soap:address location="http://127.0.0.1:8088/mockService1Soap" />
+    </wsdl:port>
+    <wsdl:port name="Service1Soap12" binding="tns:Service1Soap12">
+      <soap12:address location="http://127.0.0.1:8088/mockService1Soap12" />
+    </wsdl:port>
+    <wsdl:port name="Service1HttpGet" binding="tns:Service1HttpGet">
+      <http:address location="http://127.0.0.1:8088" />
+    </wsdl:port>
+    <wsdl:port name="Service1HttpPost" binding="tns:Service1HttpPost">
+      <http:address location="http://127.0.0.1:8088" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
