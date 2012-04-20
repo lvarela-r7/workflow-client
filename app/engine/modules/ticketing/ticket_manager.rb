@@ -31,9 +31,6 @@ class TicketManager < Poller
   # scan_info - Hash that contains: (:scan_id, :status, :message, :host)
   #---------------------------------------------------------------------------------------------------------------------
   def update(scan_info)
-    p "In the update call..."
-    p scan_info.inspect
-
     status = scan_info[:status].to_s
     if status =~ /finished/i || status =~/stopped/i
       has_ticket = false
@@ -110,14 +107,12 @@ class TicketManager < Poller
   # device_info[:address] is always an ip
   #---------------------------------------------------------------------------------------------------------------------
   def get_device_id(ip, site_device_listing)
-    raise ArgumentError.new('Site device listing was null @ TicketManager#get_device_id') unless site_device_listing
-
-    p "In get_device_id"
-
+    if not site_device_listing
+      raise ArgumentError.new('Site device listing was null @ TicketManager#get_device_id')
+    end
 
     site_device_listing.each do |device_info|
-
-      device_info[:device_id] if  device_info[:address] =~ /#{ip}/
+      device_info[:device_id] if device_info[:address] =~ /#{ip}/
     end
   end
 
@@ -147,11 +142,13 @@ class TicketManager < Poller
         client_connector = ticket_data[:client_connector].to_s
         ticket_client = Object.const_get(client_connector).new(ticket_data)
 
+        #this is hacky --could be a better way, maybe not
         if ticket_client.kind_of? GenericSoapClient
           ticket_mappings = SOAPTicketConfig.find_by_id(ticket_data[:ticket_config].ticket_client_id)
 
           ticket_client.configure ticket_mappings
 
+          #we need to rebuild the ticket data so that the GenericSoapClient has the data it needs
           soap_ticket_data = {}
           soap_ticket_data[:nsc_host] = ticket_data[:nsc_host]
           soap_ticket_data[:proof] = ticket_data[:proof]
@@ -159,19 +156,31 @@ class TicketManager < Poller
           soap_ticket_data[:body] = {}
           soap_ticket_data[:headers] = {}
 
+          #hacky, should be storing these separately
           op = ticket_mappings.mappings[:operation].split '|'
 
+          #this is a SOAP port, not a traditional service port.
           soap_ticket_data[:port] = op[0]
           soap_ticket_data[:operation] = op[1]
-        
+
+          #this builds the body of the SOAP request
           ticket_mappings.mappings[:body].each do |key, value|
             soap_ticket_data[:body][key] = value
           end
 
+          #headers for the SOAP request
           ticket_mappings.mappings[:headers].each do |key, value|
             soap_ticket_data[:headers][key] = value
           end
 
+          begin
+            Tokenizer tokenizer = Tokenizer.new
+            soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
+          rescue Exception => e
+            p e.message
+            p e.backtrace
+          end
+          #the ticket_data structure needs to change for the GenericSoapClient
           ticket_data = soap_ticket_data
         end
 
@@ -193,7 +202,7 @@ class TicketManager < Poller
         end
 
         if !worked
-          raise "Could not create JIRA ticket."
+          raise "Could not create ticket."
         else
           # Add ticket as already created
           TicketsCreated.create(:ticket_id => ticket_id)
@@ -201,9 +210,6 @@ class TicketManager < Poller
         end
 
       rescue Exception => e
-        p e.inspect
-        p e.message
-        p e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message

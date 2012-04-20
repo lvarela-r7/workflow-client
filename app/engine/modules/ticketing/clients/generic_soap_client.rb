@@ -45,13 +45,13 @@ class GenericSoapClient < TicketClient
   def create_ticket ticket_data 
     raise "No ticket body" if not ticket_data[:body]
 
+    p "Creating SOAP ticket"
+
     resp = @client.request :urn, ticket_data[:operation] do
       http.headers["SOAPAction"] = @endpoint
       soap.input = [ "urn:" + ticket_data[:operation], {} ]
       soap.header = ticket_data[:headers] || {}
       soap.body = ticket_data[:body]
-      #soap.element_form_default = :unqualified
-      #soap.namespace = @target_namespace
     end
 
   end

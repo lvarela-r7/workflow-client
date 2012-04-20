@@ -1,3 +1,5 @@
+#This class takes in a ticket and replaces predefined tokens with
+#the actual data that will be posted to the ticketing system
 class Tokenizer
 
   def initialize
@@ -13,7 +15,16 @@ class Tokenizer
       tokenized_ticket[key] = value
 
       @tokens.each do |token_key, token_value|
-        tokenized_ticket[key].gsub!(token_key, ticket_data[token_value]) if value.index(token_key)
+        next if value.kind_of? Symbol
+
+        if key == :body or key == :headers
+          tokenized_ticket[key].each do |k,v|
+            p tokenized_ticket[key][k].inspect if v.index(token_key)
+            tokenized_ticket[key][k].gsub!(token_key, ticket_data[token_value] || '') if v.index(token_key)
+          end
+        else
+          tokenized_ticket[key].gsub!(token_key, ticket_data[token_value] || '') if value.index(token_key)
+        end
       end
     end
 
@@ -24,8 +35,8 @@ class Tokenizer
   def build_default_tokens
     tokens = {}
 
-    tokens["$NODE_ADDRESS$"] = :node_address
-    tokens["$NODE_NAME$"] = :node_name
+    tokens["$NODE_ADDRESS$"] = :ip
+    tokens["$NODE_NAME$"] = :name
     tokens["$VENDOR$"] = :vendor
     tokens["$PRODUCT$"] = :product
     tokens["$FAMILY$"] = :family
