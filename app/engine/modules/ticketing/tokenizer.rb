@@ -19,11 +19,18 @@ class Tokenizer
 
         if key == :body or key == :headers
           tokenized_ticket[key].each do |k,v|
-            p tokenized_ticket[key][k].inspect if v.index(token_key)
-            tokenized_ticket[key][k].gsub!(token_key, ticket_data[token_value] || '') if v.index(token_key)
+
+            if token_value.kind_of? String and token_value.index('|')
+              tmp = token_value.split '|'
+              if v.index(token_key)
+                tokenized_ticket[key][k].gsub!(token_key, ticket_data[tmp[0]][:"#{tmp[1]}"] || '')
+              end
+            else
+              if v.index(token_key)
+                tokenized_ticket[key][k].gsub!(token_key, ticket_data[token_value] || '')
+              end
+            end
           end
-        else
-          tokenized_ticket[key].gsub!(token_key, ticket_data[token_value] || '') if value.index(token_key)
         end
       end
     end
@@ -39,17 +46,17 @@ class Tokenizer
     tokens["$NODE_NAME$"] = :name
     tokens["$VENDOR$"] = :vendor
     tokens["$PRODUCT$"] = :product
-    tokens["$FAMILY$"] = :family
+    tokens["$FAMILY$"] = :fingerprint
     tokens["$VERSION$"] = :version
     tokens["$VULN_STATUS$"] = :vuln_status
     tokens["$VULN_ID$"] = :vuln_id
-    tokens["$VULN_TITLE$"] = :vuln_title
-    tokens["$DESC$"] = :description
+    tokens["$VULN_TITLE$"] = "vuln_data|vuln_title"
+    tokens["$DESC$"] = "vuln_data|description"
     tokens["$PROOF$"] = :proof
     tokens["$SOLUTION$"] = :solution
     tokens["$SCAN_START$"] = :scan_start
     tokens["$SCAN_END$"] = :scan_end
-    tokens["$CVSS_SCORE$"] = :cvss_score
+    tokens["$CVSS_SCORE$"] = :cvss
 
     tokens
   end

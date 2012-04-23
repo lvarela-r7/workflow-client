@@ -138,6 +138,8 @@ class TicketManager < Poller
         ticket_data = ticket_to_be_processed.ticket_data
         ticket_id = ticket_to_be_processed.ticket_id
 
+        p ticket_data.inspect
+
         # Initialize the ticket client
         client_connector = ticket_data[:client_connector].to_s
         ticket_client = Object.const_get(client_connector).new(ticket_data)
