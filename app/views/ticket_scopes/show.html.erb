@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @ticket_scope.name %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @ticket_scope.description %>
+</p>
+
+<%= link_to 'Edit', edit_ticket_scope_path(@ticket_scope) %> |
+<%= link_to 'Back', ticket_scopes_path %>

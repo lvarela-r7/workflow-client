@@ -61,7 +61,7 @@ module TicketConfigsHelper
     value = nil
     if current_operation.eql? operation
       if is_header
-        value = input_map['headers'][key]
+        value = input_map[:headers][key]
       else
         value = input_map[key]
       end

@@ -17,12 +17,12 @@ class SOAPValidator < ActiveModel::Validator
       mappings = soap_record.mappings
 
       # Parse the port type and operation.
-      operation_def = mappings['operation']
+      operation_def = mappings[:operation]
       op_parts = operation_def.split("|")
       port_type = op_parts[0]
       operation = op_parts[1]
 
-      wsdl_file_name = mappings['wsdl_file_name']
+      wsdl_file_name = mappings[:wsdl_file_name]
       cache = Cache.instance
 
       if cache.has_in_cache?(wsdl_file_name)
@@ -54,7 +54,7 @@ class SOAPValidator < ActiveModel::Validator
       # For each mapping item do required validation and
       # type validation.
 
-      mappings.each do |key, value|
+      mappings[:body].each do |key, value|
         # Skip headers
         if 'header'.eql?(key) and value.kind_of?(Hash)
           next
@@ -129,7 +129,10 @@ class SOAPTicketConfig < ActiveRecord::Base
 
     # Parse out the SOAP body content
 		key = "soap_config_#{op_id}"
-    input = ModelHelper.flatten_map(params[key])
+
+    input = {}
+
+    input[:body] = ModelHelper.flatten_map(params[key])
 
 		# Add the operation and the file name
 		input[:wsdl_file_name] = wsdl_file_name

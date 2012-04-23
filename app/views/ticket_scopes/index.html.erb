@@ -1,0 +1,22 @@
+<h1>Listing ticket_scopes</h1>
+
+<table>
+  <tr>
+    <th>Ticket scope</th>
+    <th>Description</th>
+  </tr>
+
+<% @ticket_scopes.each do |ticket_scope| %>
+  <tr>
+    <td><%= ticket_scope.name %></td>
+    <td><%= ticket_scope.description %></td>
+    <td><%= link_to 'Show', ticket_scope %></td>
+    <td><%= link_to 'Edit', edit_ticket_scope_path(ticket_scope) %></td>
+    <td><%= link_to 'Destroy', ticket_scope, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ticket scope', new_ticket_scope_path %>

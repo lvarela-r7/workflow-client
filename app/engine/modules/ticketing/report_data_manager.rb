@@ -49,6 +49,7 @@ class ReportDataManager
     data = adhoc_report_generator.generate
 
     while data.to_s.length < 91
+      select(nil, nil, nil, 5)
       data = adhoc_report_generator.generate
     end
 

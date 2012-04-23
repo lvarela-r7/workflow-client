@@ -14,6 +14,7 @@ IntegerProperty.create(:property_key => 'max_ticketing_attempts', :property_valu
 
 TicketClients.delete_all
 TicketClients.create(:id => 2, :client => 'Jira4x', :client_connector => 'Jira4Client', :formatter => 'JiraFormatter')
+TicketClients.create(:id => 4, :client => 'SOAP supported', :client_connector => 'GenericSoapClient')
 
 ScanHistoryTimeFrame.delete_all
 ScanHistoryTimeFrame.create(:id=> 1, :time_type => 'Day(s)', :multiplicate => 86400)
