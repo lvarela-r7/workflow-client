@@ -121,9 +121,6 @@ class TicketManager < Poller
   # Performs ticket processing.
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
-
-    p "Handling tickets..."
-
     query = 'SELECT id FROM tickets_to_be_processeds'
     ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
 
@@ -137,8 +134,6 @@ class TicketManager < Poller
 
         ticket_data = ticket_to_be_processed.ticket_data
         ticket_id = ticket_to_be_processed.ticket_id
-
-        p ticket_data.inspect
 
         # Initialize the ticket client
         client_connector = ticket_data[:client_connector].to_s
