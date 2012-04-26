@@ -56,7 +56,7 @@ then
 	apt-get install -y git-core
 fi
 
-apt-get install -y postgresql-8.4 postgresql-contrib-8.4
+apt-get install -y postgresql-9.1 postgresql-contrib-9.1
 echo -e "\n\n\n\n\n\n\nPlease enter the new password for the \"postgres\" user."
 echo "\\password" | sudo -u postgres psql
 
