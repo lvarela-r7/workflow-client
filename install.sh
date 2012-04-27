@@ -16,9 +16,9 @@ then
 	source /etc/profile
 	rvm pkg install zlib
 	rvm pkg install openssl
-	apt-get install build-essential
-	apt-get install libxml2
-	apt-get install libssl-dev libxslt-dev libpq-dev
+	apt-get install -y build-essential
+	apt-get install -y libxml2
+	apt-get install -y libssl-dev libxslt-dev libpq-dev
 	rvm install 1.9.3
 	rvm use 1.9.3
 	gem install rails
