@@ -11,8 +11,17 @@ type ruby >> /dev/null
 
 if [ $? -ne 0 ]
 then
-	echo "Please install ruby."
-	exit 255
+	apt-get install curl
+	curl -L get.rvm.io | bash -s stable
+	source /etc/profile
+	rvm pkg install zlib
+	rvm pkg install openssl
+	apt-get install build-essential
+	apt-get install libxml2
+	apt-get install libssl-dev libxslt-dev libpq-dev
+	rvm install 1.9.3
+	rvm use 1.9.3
+	gem install rails
 fi
 
 type gem >> /dev/null
@@ -43,8 +52,7 @@ type git >> /dev/null
 
 if [ $? -ne 0 ]
 then
-	echo "Please install git."
-	exit 255
+	apt-get install git
 fi
 
 apt-get install -y postgresql-9.1 postgresql-contrib-9.1
