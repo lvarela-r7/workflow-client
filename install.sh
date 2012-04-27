@@ -60,6 +60,8 @@ git clone git://github.com/rapid7/workflow-client.git /opt/nexflow || exit 255
 
 cd /opt/nexflow || exit 255
 
+git checkout stable
+
 bundle install || exit 255
 
 #not always needed, but have needed in the past. Can't hurt.
