@@ -52,7 +52,7 @@ type git >> /dev/null
 
 if [ $? -ne 0 ]
 then
-	apt-get install git
+	apt-get -y install git
 fi
 
 apt-get install -y postgresql-9.1 postgresql-contrib-9.1
